@@ -3,26 +3,26 @@ package frc.utils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class StormSubsystem extends SubsystemBase {
-    protected String m_name = "StormSubsystem";
-    protected int iteration_count = 0;
+    protected String _name = "StormSubsystem";
+    protected int _count = 0;
 
     public StormSubsystem() {
-        m_name = getClass().getName();
-        m_name = m_name.substring(m_name.lastIndexOf('.') + 1);
+        _name = getClass().getName();
+        _name = _name.substring(_name.lastIndexOf('.') + 1);
         console("created");
     }
 
     @Override
     public void periodic() {
-        iteration_count++;
+        _count++;
     }
 
     public void console(String message) {
-        System.out.println("Command " + m_name + ": " + message);
+        System.out.println("Subsystem " + _name + ": " + message);
     }
 
     public void console(String message, int iterations) {
-        if (iteration_count % iterations == 0) {
+        if (_count % iterations == 0) {
             console(message);
         }
     }
