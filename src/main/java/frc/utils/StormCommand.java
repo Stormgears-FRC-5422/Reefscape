@@ -3,19 +3,25 @@ package frc.utils;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class StormCommand extends Command {
+    protected String m_name = "StormCommand";
+
     public StormCommand() {
-        super();
+        m_name = getClass().getName();
+        m_name = m_name.substring(m_name.lastIndexOf('.') + 1);
+        console("created");
     }
 
     @Override
     public void initialize() {
-        System.out.println(this.getClass() + " initialized");
+        console("initialized");
     }
-
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println(this.getClass() + " ended");
+        console("ended: interrupted = " + interrupted);
     }
-    
+
+    public void console(String message) {
+        System.out.println("Command " + m_name + ": " + message);
+    }
 }

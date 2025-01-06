@@ -1,20 +1,31 @@
 package frc.robot.joysticks;
 
 public abstract class ReefscapeJoystick {
-    public abstract double getWpiX();
+    public double getWpiX() {
+        return 0;
+    }
 
-    public abstract double getWpiY();
+    public double getWpiY() {
+        return 0;
+    }
 
-    public abstract double getOmegaSpeed();
+    public double getOmegaSpeed() {
+        return 0;
+    }
 
-    public abstract boolean getRobotRelative();
+    public boolean getRobotRelative() {
+        return true;
+    }
 
-    public abstract double getTurbo();
+    public boolean getTurbo() {
+        return false;
+    }
 
-    public abstract boolean zeroGyro();
+    public boolean zeroGyro() {
+        return false;
+    }
 
-
-    public abstract boolean zeroWheels();
-
-
+    public boolean zeroWheels() {
+        return false;
+    }
 }

@@ -8,7 +8,6 @@ import frc.utils.vision.LimelightHelpers;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 
-
 public class RobotState extends SubsystemBase {
     public enum StateAlliance {
         RED, BLUE, MISSING
@@ -33,7 +32,6 @@ public class RobotState extends SubsystemBase {
         m_instance = new RobotState();
         return m_instance;
     }
-
 
     public void setAlliance(StateAlliance alliance) {
         if (m_alliance != alliance) {
@@ -98,19 +96,15 @@ public class RobotState extends SubsystemBase {
         return currentPose;
     }
 
-
     public boolean isVisionPoseValid() {
         return LimelightHelpers.getTV(Constants.Vision.tagLimelight);
     }
-
 
     public Pose2d getVisionPose() {
 //        Optional<LimelightHelpers.LimelightTarget_Fiducial> visionResult = vision.getLatestFiducialsTarget();
 //        return toPose2D(visionResult.map(limelightTarget_fiducial -> limelightTarget_fiducial.botpose_wpiblue).orElse(null));
         return LimelightHelpers.getBotPose2d_wpiBlue(Constants.Vision.tagLimelight);
     }
-
-
 
     private static Pose2d toPose2D(double[] inData) {
         if (inData == null || inData.length < 6) {
@@ -121,5 +115,4 @@ public class RobotState extends SubsystemBase {
         Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
         return new Pose2d(tran2d, r2d);
     }
-
 }
