@@ -7,10 +7,13 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
+import frc.robot.subsystems.CoralIntake;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
@@ -21,6 +24,7 @@ public class RobotContainer {
     // **********
     // Subsystems
     // **********
+    private CoralIntake coralIntake;
     private DrivetrainBase drivetrain;
 
     // **********
@@ -32,6 +36,8 @@ public class RobotContainer {
     // Control
     // **********
     ReefscapeJoystick joystick;
+    CoralIntakeCommand coralIntakeCommand;
+
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         console("constructor started");
@@ -51,11 +57,19 @@ public class RobotContainer {
             drivetrain.setDefaultCommand(driveWithJoystick);
         }
 
+        if (Constants.Toggles.useCoralIntake) {
+            coralIntake = new CoralIntake();
+            coralIntakeCommand = new CoralIntakeCommand(coralIntake);
+        }
+
         configureBindings();
         console("constructor ended");
     }
 
     private void configureBindings() {
+        if (Constants.Toggles.useCoralIntake){
+            new Trigger(()-> joystick.coralIntake()).whileTrue(coralIntakeCommand);
+        }
     }
 
     public Command getAutonomousCommand() {

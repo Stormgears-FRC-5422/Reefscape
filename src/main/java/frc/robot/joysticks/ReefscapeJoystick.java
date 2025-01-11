@@ -28,4 +28,8 @@ public abstract class ReefscapeJoystick {
     public boolean zeroWheels() {
         return false;
     }
+
+    public boolean coralIntake() {
+        return false;
+    }
 }
