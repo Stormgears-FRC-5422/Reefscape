@@ -14,11 +14,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
+import frc.utils.StormSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import static frc.robot.subsystems.drive.DrivetrainFactory.instance;
 
-public abstract class DrivetrainBase extends SubsystemBase {
+public abstract class DrivetrainBase extends StormSubsystem {
 
     public double m_maxVelocityMetersPerSecond = 1;
     public double m_maxAngularVelocityRadiansPerSecond = 1;

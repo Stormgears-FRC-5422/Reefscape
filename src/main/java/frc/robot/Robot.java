@@ -18,7 +18,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
 
-  private final RobotContainer robotContainer;
+  private RobotContainer robotContainer;
 
   public Robot() {
       Logger.recordMetadata("ProjectName", Constants.robotName); // Set a metadata value
@@ -52,7 +52,16 @@ public class Robot extends LoggedRobot {
 
       Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
 
-      robotContainer = new RobotContainer();
+      try {
+          robotContainer = new RobotContainer();
+      } catch (Exception e) {
+          robotContainer = null;
+          console("can't create RobotContainer");
+      }
+  }
+
+  public void console(String message) {
+        System.out.println("Robot : " + message);
   }
 
   @Override
