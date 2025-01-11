@@ -25,7 +25,6 @@ public class RobotState extends SubsystemBase {
     private StatePeriod m_period = StatePeriod.NONE;
     private boolean m_didAuto = false;
     private boolean m_didTeleop = false;
-
     public static RobotState getInstance() {
         if (m_instance != null) return m_instance;
 
@@ -115,4 +114,5 @@ public class RobotState extends SubsystemBase {
         Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
         return new Pose2d(tran2d, r2d);
     }
+
 }

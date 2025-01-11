@@ -14,7 +14,7 @@ public class DiagnosticSwerve extends DrivetrainBase {
 
     public static final double m_maxMotorVoltage = Drive.maxMotorVoltage;
 
-    PowerDistribution powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
+//    PowerDistribution powerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
 
     public DiagnosticSwerve() {
         // These are convenient lies
@@ -66,10 +66,10 @@ public class DiagnosticSwerve extends DrivetrainBase {
             m.set(steerSpeed);
         }
 
-        Logger.recordOutput("Module Number 1 " , powerDistribution.getCurrent(13));
-        Logger.recordOutput("Module Number 2 " , powerDistribution.getCurrent(8));
-        Logger.recordOutput("Module Number 3 " , powerDistribution.getCurrent(1));
-        Logger.recordOutput("Module Number 4 " , powerDistribution.getCurrent(18));
+//        Logger.recordOutput("Module Number 1 " , powerDistribution.getCurrent(13));
+//        Logger.recordOutput("Module Number 2 " , powerDistribution.getCurrent(8));
+//        Logger.recordOutput("Module Number 3 " , powerDistribution.getCurrent(1));
+//        Logger.recordOutput("Module Number 4 " , powerDistribution.getCurrent(18));
 
         for (TalonFX m : m_driveArray) {
             Logger.recordOutput("Position drive module " + m.getDeviceID(), m.getPosition().getValue());

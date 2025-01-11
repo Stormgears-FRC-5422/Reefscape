@@ -56,7 +56,8 @@ public class Robot extends LoggedRobot {
           robotContainer = new RobotContainer();
       } catch (Exception e) {
           robotContainer = null;
-          console("can't create RobotContainer");
+          console("can't create RobotContainer. Eating the following exception:");
+          e.printStackTrace();
       }
   }
 
