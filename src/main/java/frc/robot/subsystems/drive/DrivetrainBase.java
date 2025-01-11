@@ -2,12 +2,15 @@ package frc.robot.subsystems.drive;
 
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,7 +42,7 @@ public abstract class DrivetrainBase extends StormSubsystem {
 
     //    protected final ShuffleboardTab tab;
     //    protected final ShuffleboardTab tab;
-    DrivetrainBase() {
+    public DrivetrainBase() {
         setDriveSpeedScale(Drive.driveSpeedScale);
         tab = ShuffleboardConstants.getInstance().drivetrainTab;
         m_state = RobotState.getInstance();
@@ -47,6 +50,8 @@ public abstract class DrivetrainBase extends StormSubsystem {
         setFieldRelativeOn(false);
 
     }
+
+
 
     protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {
         m_maxVelocityMetersPerSecond = maxVelocityMetersPerSecond;
@@ -127,8 +132,14 @@ public abstract class DrivetrainBase extends StormSubsystem {
     public void declarePoseIsNow(Pose2d pose) {
     }
 
-    public void addVisionMeasurement(Pose2d pose2d) {
+    public void addVisionMeasurement(Pose2d visionRobotPoseMeters,
+                                     double timestampSeconds,
+                                     Matrix<N3, N1> visionMeasurementStdDevs) {
 
+    }
+
+    public Rotation2d getRotation() {
+        return new Rotation2d();
     }
 
     public Command getQuasForwardCommand() {
@@ -164,9 +175,7 @@ public abstract class DrivetrainBase extends StormSubsystem {
 
     }
 
-    public void setVisionPose(Pose2d pose2d) {
 
-    }
 
     public SwerveDriveKinematics getKinematics() {
         return new SwerveDriveKinematics();
