@@ -6,12 +6,17 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+// import frc.utils.motorcontrol.StormSpark;
+
+
 public class CoralIntake extends SubsystemBase {
     /**
      * Creates a new Intake.
      */
     public CoralIntake() {
-        //intakeMotor = new StormSpark(Constants.Intake.intakeID, CANSparkLowLevel.MotorType.kBrushless, StormSpark.MotorKind.k550);
+        // private final StormSpark intakeMotor;
+
+        // intakeMotor = new StormSpark(Constants.Intake.intakeID, CANSparkLowLevel.MotorType.kBrushless, StormSpark.MotorKind.k550);
         //intakeMotor.setInverted(true);
         setCoralIntakeState(CoralIntakeState.OFF);
         //set intake motor
