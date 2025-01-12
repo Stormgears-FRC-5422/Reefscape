@@ -22,6 +22,8 @@ import frc.robot.subsystems.drive.IllegalDriveTypeException;
 import frc.robot.Constants.Toggles;
 import java.util.Optional;
 
+import static java.util.Objects.isNull;
+
 public class RobotContainer {
     // **********
     // Subsystems
@@ -40,7 +42,7 @@ public class RobotContainer {
     // **********
     ReefscapeJoystick joystick;
     CoralIntakeCommand coralIntakeCommand;
-
+    CoralIntakeCommand coralOuttakeCommand;
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         console("constructor started");
@@ -57,12 +59,15 @@ public class RobotContainer {
             console("Making drive joystick!");
             joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick, Constants.ButtonBoard.driveJoystickPort);
             JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
-            drivetrain.setDefaultCommand(driveWithJoystick);
+            if (!isNull(drivetrain)) {
+                drivetrain.setDefaultCommand(driveWithJoystick);
+            }
         }
 
         if (Constants.Toggles.useCoralIntake) {
             coralIntake = new CoralIntake();
-            coralIntakeCommand = new CoralIntakeCommand(coralIntake);
+            coralIntakeCommand = new CoralIntakeCommand(coralIntake, CoralIntake.CoralIntakeState.INTAKE);
+            coralOuttakeCommand = new CoralIntakeCommand(coralIntake, CoralIntake.CoralIntakeState.OUTTAKE);
         }
 
         if (Toggles.useVision){
@@ -74,7 +79,8 @@ public class RobotContainer {
 
     private void configureBindings() {
         if (Constants.Toggles.useCoralIntake){
-            new Trigger(()-> joystick.coralIntake()).whileTrue(coralIntakeCommand);
+            new Trigger(()-> joystick.coralIntake()).onTrue(coralIntakeCommand);
+            new Trigger(()-> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
         }
     }
 

@@ -33,7 +33,6 @@ public abstract class DrivetrainBase extends StormSubsystem {
     public static boolean driveFlip = true;
     public static boolean fieldRelativeOn = true;
 
-
     @AutoLogOutput
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
@@ -45,7 +44,6 @@ public abstract class DrivetrainBase extends StormSubsystem {
         m_state = RobotState.getInstance();
         setDriveFlip(false);
         setFieldRelativeOn(false);
-
     }
 
     protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {

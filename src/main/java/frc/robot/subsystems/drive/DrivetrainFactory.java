@@ -8,6 +8,7 @@ public class DrivetrainFactory {
             System.out.println("Initializing " + driveType);
             switch (driveType.toLowerCase()) {
                 case "diagnosticswerve" -> instance = new DiagnosticSwerve();
+                case "ctrdrive" -> instance = new CTRDrivetrain();
                 default -> throw new IllegalDriveTypeException("Illegal Drive Type: " + driveType);
             }
         }
