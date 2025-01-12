@@ -7,44 +7,45 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CoralIntake extends SubsystemBase {
-  public enum CoralIntakeState {
-    OFF,
-    FORWARD,
-    REVERSE,
-  }
-
-  //private final StormSpark intakeMotor;
-  //private double intakeMotorSpeed;
-
-  /** Creates a new Intake. */
-  public CoralIntake() {
-    //intakeMotor = new StormSpark(Constants.Intake.intakeID, CANSparkLowLevel.MotorType.kBrushless, StormSpark.MotorKind.k550);
-    //intakeMotor.setInverted(true);
-    setCoralIntakeState(CoralIntakeState.OFF);
-    //set intake motor
-  }
-
-  @Override
-  public void periodic() {
-    //intakeMotor.set(intakeMotorSpeed);
-  } //speed
-
-  public void setCoralIntakeState(CoralIntakeState state) {
-    switch (state) {
-      case OFF -> {
-        //setSpeed(0.0);
-      }
-      case FORWARD -> {
-        //setSpeed(Constants.Intake.intakeSpeed);
-      }
-      case REVERSE ->{
-        //setSpeed(-Constants.Intake.intakeSpeed);
-      }
+    /**
+     * Creates a new Intake.
+     */
+    public CoralIntake() {
+        //intakeMotor = new StormSpark(Constants.Intake.intakeID, CANSparkLowLevel.MotorType.kBrushless, StormSpark.MotorKind.k550);
+        //intakeMotor.setInverted(true);
+        setCoralIntakeState(CoralIntakeState.OFF);
+        //set intake motor
     }
-  }
-  //different intake states
 
-  private void setSpeed(double speed) {
-    //intakeMotorSpeed = speed;
-  }
+    //private final StormSpark intakeMotor;
+    //private double intakeMotorSpeed;
+
+    @Override
+    public void periodic() {
+        super.periodic();
+        //intakeMotor.set(intakeMotorSpeed);
+    } //speed
+
+    public void setCoralIntakeState(CoralIntakeState state) {
+        switch (state) {
+            case OFF -> {
+                //setSpeed(0.0);
+            }
+            case FORWARD -> {
+                //setSpeed(Constants.Intake.intakeSpeed);
+            }
+            case REVERSE -> {
+                //setSpeed(-Constants.Intake.intakeSpeed);
+            }
+        }
+    }
+
+    private void setSpeed(double speed) {
+        //intakeMotorSpeed = speed;
+    }
+    //different intake states
+
+    public enum CoralIntakeState {
+        OFF, FORWARD, REVERSE,
+    }
 }
