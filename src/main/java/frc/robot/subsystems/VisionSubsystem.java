@@ -1,28 +1,22 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.apriltag.AprilTagPoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
 import frc.utils.vision.LimelightExtra;
 import frc.utils.vision.LimelightHelpers;
-import edu.wpi.first.math.estimator.PoseEstimator;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
-
-import frc.robot.RobotState;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 
 public class VisionSubsystem extends StormSubsystem {
-    private RobotState robotState;
-    private String limelightId;
+    private final RobotState robotState;
+    private final String limelightId;
     private LimelightHelpers.LimelightResults latestLimelightResults = null;
     private int count;
 
@@ -34,6 +28,17 @@ public class VisionSubsystem extends StormSubsystem {
         count = 0;
     }
 
+    private static Pose2d toPose2D(double[] inData) {
+        if (inData.length < 6) {
+            //System.err.println("Bad LL 2D Pose Data!");
+            return new Pose2d();
+        }
+        Translation2d tran2d = new Translation2d(inData[0], inData[1]);
+        Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
+//        AprilTagPoseEstimator estimator = new AprilTagPoseEstimator();
+        return new Pose2d(tran2d, r2d);
+    }
+
     public LimelightHelpers.LimelightResults getLatestResults() {
         if (latestLimelightResults == null) {
             latestLimelightResults = LimelightHelpers.getLatestResults(limelightId);
@@ -41,7 +46,6 @@ public class VisionSubsystem extends StormSubsystem {
             if (count % 50 == 0) {
                 //    System.out.println("info : " + latestLimelightResults.);
             }
-
         }
         return latestLimelightResults;
     }
@@ -84,8 +88,6 @@ public class VisionSubsystem extends StormSubsystem {
         return Optional.empty();
     }
 
-
-
     public Optional<LimelightHelpers.LimelightTarget_Retro> getLatestRetroTarget() {
         var results = getLatestResults();
         if (results == null) {
@@ -110,20 +112,6 @@ public class VisionSubsystem extends StormSubsystem {
         return Optional.empty();
     }
 
-    private static Pose2d toPose2D(double[] inData) {
-        if (inData.length < 6) {
-            //System.err.println("Bad LL 2D Pose Data!");
-            return new Pose2d();
-        }
-        Translation2d tran2d = new Translation2d(inData[0], inData[1]);
-        Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
-//        AprilTagPoseEstimator estimator = new AprilTagPoseEstimator();
-        return new Pose2d(tran2d, r2d);
-    }
-
-
-
-
     @Override
     public void periodic() {
         super.periodic();
@@ -145,5 +133,4 @@ public class VisionSubsystem extends StormSubsystem {
     public boolean getValid() {
         return LimelightExtra.hasValidTarget(limelightId);
     }
-
 }

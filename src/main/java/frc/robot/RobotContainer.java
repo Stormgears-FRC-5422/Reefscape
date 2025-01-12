@@ -14,10 +14,12 @@ import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
 import frc.robot.subsystems.CoralIntake;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
 
+import frc.robot.Constants.Toggles;
 import java.util.Optional;
 
 public class RobotContainer {
@@ -26,6 +28,7 @@ public class RobotContainer {
     // **********
     private CoralIntake coralIntake;
     private DrivetrainBase drivetrain;
+    private VisionSubsystem visionSubsystem;
 
     // **********
     // Fields
@@ -37,7 +40,6 @@ public class RobotContainer {
     // **********
     ReefscapeJoystick joystick;
     CoralIntakeCommand coralIntakeCommand;
-
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         console("constructor started");
@@ -60,6 +62,10 @@ public class RobotContainer {
         if (Constants.Toggles.useCoralIntake) {
             coralIntake = new CoralIntake();
             coralIntakeCommand = new CoralIntakeCommand(coralIntake);
+        }
+
+        if (Toggles.useVision){
+            visionSubsystem = new VisionSubsystem("limelight");
         }
 
         configureBindings();
@@ -90,5 +96,4 @@ public class RobotContainer {
     public void console(String message) {
         System.out.println("RobotContainer : " + message);
     }
-
 }
