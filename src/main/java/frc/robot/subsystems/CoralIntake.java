@@ -16,10 +16,7 @@ import frc.robot.Constants.SparkConstants;
 public class CoralIntake extends SubsystemBase {
     //different intake states
     public enum CoralIntakeState {
-        OFF("OFF"), INTAKE("INTAKE"), OUTTAKE("OUTTAKE");
-        private final String displayName;
-        CoralIntakeState(String displayName) {this.displayName = displayName;}
-        public String toString() {return displayName;}
+        OFF, INTAKE, OUTTAKE;
     }
 
     private final SparkMax intakeLeader;

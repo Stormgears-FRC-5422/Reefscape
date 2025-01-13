@@ -53,6 +53,16 @@ public class RobotContainer {
             drivetrain = DrivetrainFactory.getInstance(Constants.Drive.driveType);
         }
 
+        if (Constants.Toggles.useCoralIntake) {
+            coralIntake = new CoralIntake();
+            coralIntakeCommand = new CoralIntakeCommand(coralIntake, true);
+            coralOuttakeCommand = new CoralIntakeCommand(coralIntake, false);
+        }
+
+        if (Toggles.useVision){
+            visionSubsystem = new VisionSubsystem("limelight");
+        }
+
         // Note that this might pass a NULL drive if that is disabled. The JoyStick drive
         // will still work in this case, just not move the robot.
         if (Constants.Toggles.useController) {
@@ -64,15 +74,6 @@ public class RobotContainer {
             }
         }
 
-        if (Constants.Toggles.useCoralIntake) {
-            coralIntake = new CoralIntake();
-            coralIntakeCommand = new CoralIntakeCommand(coralIntake, CoralIntake.CoralIntakeState.INTAKE);
-            coralOuttakeCommand = new CoralIntakeCommand(coralIntake, CoralIntake.CoralIntakeState.OUTTAKE);
-        }
-
-        if (Toggles.useVision){
-            visionSubsystem = new VisionSubsystem("limelight");
-        }
         configureBindings();
         console("constructor ended");
     }
@@ -102,5 +103,4 @@ public class RobotContainer {
     public void console(String message) {
         System.out.println("RobotContainer : " + message);
     }
-
 }

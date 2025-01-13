@@ -4,22 +4,22 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.CoralIntake;
-import frc.utils.StormCommand;
-
 import frc.robot.Constants.Intake;
+import frc.robot.subsystems.CoralIntake;
+import frc.robot.subsystems.CoralIntake.CoralIntakeState;
+import frc.utils.StormCommand;
 
 public class CoralIntakeCommand extends StormCommand {
     /**
      * Creates a new Intake.
      */
     private final CoralIntake coralIntake;
-    private CoralIntake.CoralIntakeState direction;
+    private final CoralIntake.CoralIntakeState direction;
     private int counter;
 
-    public CoralIntakeCommand(CoralIntake coralIntake, CoralIntake.CoralIntakeState direction) {
+    public CoralIntakeCommand(CoralIntake coralIntake, boolean intake) {
         this.coralIntake = coralIntake;
-        this.direction = direction;
+        this.direction = intake ? CoralIntakeState.INTAKE : CoralIntakeState.OUTTAKE;
         addRequirements(coralIntake);
     }
 
@@ -27,10 +27,10 @@ public class CoralIntakeCommand extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
-        console("direction = " + direction);
+        console("direction = " + (direction == CoralIntakeState.INTAKE ? "Intake" : "Outtake"));
 
-        coralIntake.setCoralIntakeState(direction);
         counter = 0;
+        coralIntake.setCoralIntakeState(direction);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
