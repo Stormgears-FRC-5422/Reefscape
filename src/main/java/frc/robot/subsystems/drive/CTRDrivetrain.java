@@ -1,0 +1,100 @@
+package frc.robot.subsystems.drive;
+
+import com.ctre.phoenix6.swerve.SwerveModule;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
+import frc.robot.RobotState;
+import frc.robot.subsystems.drive.ctrGenerated.CTRDriveCommand;
+import frc.robot.subsystems.drive.ctrGenerated.CTRDriveTunerConstants;
+import org.littletonrobotics.junction.AutoLogOutput;
+
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
+public class CTRDrivetrain extends DrivetrainBase {
+    public final CTRDriveCommand drivetrain;
+    private final SwerveRequest.FieldCentric driveFieldCentric;
+    private final SwerveRequest.RobotCentric driveRobotCentric;
+
+    RobotState robotState;
+    SwerveDrivePoseEstimator swerveDrivePoseEstimator;
+    DoubleArraySubscriber poseSub;
+    int count = 0;
+
+    public CTRDrivetrain() {
+        double MaxSpeed = CTRDriveTunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12VoltsMps desired top speed
+        double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
+
+        drivetrain = CTRDriveTunerConstants.createDrivetrain();
+
+        driveFieldCentric = new SwerveRequest.FieldCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+
+        driveRobotCentric = new SwerveRequest.RobotCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+
+        setMaxVelocities(MaxSpeed, MaxAngularRate);
+
+        // This class will flip for alliance as necessary, rather than relying on base class
+        setDriveFlip(true);
+        // This class will handle field-relative converstions,  rather than relying on base class
+        setFieldRelativeOn(false);
+
+//        if (Utils.isSimulation()) {
+//            drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
+//        }
+//        drivetrain.registerTelemetry(logger::telemeterize);
+    }
+
+    @Override
+    public void resetOrientation() {
+        // Note that this behavior defaults to blue if alliance is missing.
+        Rotation2d newRotation = m_state.isAllianceRed() ? new Rotation2d(-1, 0) : new Rotation2d(1, 0);
+        console("Reset orientation at degrees: " + newRotation.getDegrees());
+        drivetrain.getPigeon2().setYaw(newRotation.getDegrees());
+    }
+
+    public void declarePoseIsNow(Pose2d newPose) {
+        // These *MUST* be done in this order or odometry will be wrong.
+        drivetrain.getPigeon2().setYaw(newPose.getRotation().getDegrees());
+        resetPose(newPose);
+        m_state.setPose(newPose);
+    }
+
+    public void resetPose(Pose2d pose) {
+//        drivetrain.getPoseEstimator().resetPosition(drivetrain.getPigeon2().getRotation2d(), drivetrain.getModulePositions(), pose);
+    }
+
+    @AutoLogOutput
+    public Pose2d getPose() {
+        return new Pose2d();
+//        return new Pose2d(poseSub.get()[0], poseSub.get()[1], new Rotation2d(Math.toRadians(poseSub.get()[2])));
+    }
+
+    @Override
+    public void drive(ChassisSpeeds speeds, boolean fieldRelative, double speedScale) {
+        super.drive(speeds, fieldRelative, speedScale);
+        console("Drive/DesiredSpeeds" + speeds,100);
+    }
+
+    @Override
+    public void periodic() {
+        super.periodic();
+        drivetrain.periodic();
+
+        if (m_state.getPeriod() == RobotState.StatePeriod.AUTONOMOUS) {
+            console("in CTRDrive chassisSpeeds: " + m_chassisSpeeds, 100);
+        }
+
+        if (m_fieldRelative) {
+            drivetrain.setControl(driveFieldCentric.withVelocityX(m_chassisSpeeds.vxMetersPerSecond).withVelocityY(m_chassisSpeeds.vyMetersPerSecond).withRotationalRate(m_chassisSpeeds.omegaRadiansPerSecond));
+        } else {
+            drivetrain.setControl(driveRobotCentric.withVelocityX(m_chassisSpeeds.vxMetersPerSecond).withVelocityY(m_chassisSpeeds.vyMetersPerSecond).withRotationalRate(m_chassisSpeeds.omegaRadiansPerSecond));
+        }
+    }
+}

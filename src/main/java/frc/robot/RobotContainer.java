@@ -22,6 +22,8 @@ import frc.robot.subsystems.drive.IllegalDriveTypeException;
 import frc.robot.Constants.Toggles;
 import java.util.Optional;
 
+import static java.util.Objects.isNull;
+
 public class RobotContainer {
     // **********
     // Subsystems
@@ -40,7 +42,7 @@ public class RobotContainer {
     // **********
     ReefscapeJoystick joystick;
     CoralIntakeCommand coralIntakeCommand;
-
+    CoralIntakeCommand coralOuttakeCommand;
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         console("constructor started");
@@ -51,30 +53,35 @@ public class RobotContainer {
             drivetrain = DrivetrainFactory.getInstance(Constants.Drive.driveType);
         }
 
+        if (Constants.Toggles.useCoralIntake) {
+            coralIntake = new CoralIntake();
+            coralIntakeCommand = new CoralIntakeCommand(coralIntake, true);
+            coralOuttakeCommand = new CoralIntakeCommand(coralIntake, false);
+        }
+
+        if (Toggles.useVision){
+            visionSubsystem = new VisionSubsystem("limelight");
+        }
+
         // Note that this might pass a NULL drive if that is disabled. The JoyStick drive
         // will still work in this case, just not move the robot.
         if (Constants.Toggles.useController) {
             console("Making drive joystick!");
             joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick, Constants.ButtonBoard.driveJoystickPort);
             JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
-            drivetrain.setDefaultCommand(driveWithJoystick);
+            if (!isNull(drivetrain)) {
+                drivetrain.setDefaultCommand(driveWithJoystick);
+            }
         }
 
-        if (Constants.Toggles.useCoralIntake) {
-            coralIntake = new CoralIntake();
-            coralIntakeCommand = new CoralIntakeCommand(coralIntake);
-        }
-
-        if (Toggles.useVision){
-            visionSubsystem = new VisionSubsystem("limelight");
-        }
         configureBindings();
         console("constructor ended");
     }
 
     private void configureBindings() {
         if (Constants.Toggles.useCoralIntake){
-            new Trigger(()-> joystick.coralIntake()).whileTrue(coralIntakeCommand);
+            new Trigger(()-> joystick.coralIntake()).onTrue(coralIntakeCommand);
+            new Trigger(()-> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
         }
     }
 
@@ -96,5 +103,4 @@ public class RobotContainer {
     public void console(String message) {
         System.out.println("RobotContainer : " + message);
     }
-
 }

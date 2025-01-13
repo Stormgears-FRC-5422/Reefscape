@@ -21,7 +21,7 @@ public class DiagnosticSwerve extends DrivetrainBase {
         double maxVelocityMetersPerSecond = m_maxMotorVoltage;
         double maxAngularVelocityRadiansPerSecond = m_maxMotorVoltage;
 
-        super.setMaxVelocities(maxVelocityMetersPerSecond * 0.2, maxAngularVelocityRadiansPerSecond * 0.2);
+        setMaxVelocities(maxVelocityMetersPerSecond * 0.2, maxAngularVelocityRadiansPerSecond * 0.2);
 
         m_frontLeftDrive = new TalonFX(Drive.frontLeftDriveID);
         m_frontLeftSteer = new TalonFX(Drive.frontLeftSteerID);
