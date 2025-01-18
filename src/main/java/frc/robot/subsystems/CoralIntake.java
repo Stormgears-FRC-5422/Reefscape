@@ -13,9 +13,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Intake;
 import frc.robot.Constants.SparkConstants;
 
-// import frc.utils.motorcontrol.StormSpark;
-
-
 public class CoralIntake extends SubsystemBase {
     //different intake states
     public enum CoralIntakeState {
@@ -23,28 +20,24 @@ public class CoralIntake extends SubsystemBase {
     }
 
     private final SparkMax intakeLeader;
-    private final SparkMaxConfig intakeLeaderConfig;
     private final SparkMax intakeFollower;
-    private final SparkMaxConfig intakeFollowerConfig;
     private double intakeMotorSpeed;
-    /**
-     * Creates a new Intake.
-     */
+
     public CoralIntake() {
         intakeLeader = new SparkMax(Intake.leaderID, SparkLowLevel.MotorType.kBrushless);
         intakeFollower = new SparkMax(Intake.followerID, SparkLowLevel.MotorType.kBrushless);
 
         SparkMaxConfig globalConfig = new SparkMaxConfig();
-        intakeLeaderConfig = new SparkMaxConfig();
-        intakeFollowerConfig = new SparkMaxConfig();
+        SparkMaxConfig intakeLeaderConfig = new SparkMaxConfig();
+        SparkMaxConfig intakeFollowerConfig = new SparkMaxConfig();
 
         globalConfig.smartCurrentLimit(SparkConstants.Neo550CurrentLimit).idleMode(IdleMode.kBrake);
 
-        // Apply the global config and invert since it is on the opposite side
+        // Apply the global config and invert (maybe) according to the config setting
         intakeLeaderConfig.apply(globalConfig).inverted(Intake.invertLeader);
 
-        // Apply the global config and set the leader SPARK for follower mode
-        // The "true" here means invert wer the leader
+        // Apply the global config and set to follow the leader
+        // The "true" here means invert wrt the leader
         intakeFollowerConfig.apply(globalConfig).follow(intakeLeader, true);
 
         intakeLeader.configure(intakeLeaderConfig,
