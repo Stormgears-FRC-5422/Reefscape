@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 
+import frc.robot.subsystems.drive.CTRgen.CTRdrive;
+
 public class DrivetrainFactory {
     protected static DrivetrainBase instance;
 
@@ -8,6 +10,7 @@ public class DrivetrainFactory {
             System.out.println("Initializing " + driveType);
             switch (driveType.toLowerCase()) {
                 case "diagnosticswerve" -> instance = new DiagnosticSwerve();
+                case "ctrdrive" -> instance = new CTRdrive();
                 default -> throw new IllegalDriveTypeException("Illegal Drive Type: " + driveType);
             }
         }

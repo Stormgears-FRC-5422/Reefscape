@@ -93,16 +93,16 @@ public class JoyStickDrive extends StormCommand {
         double x = txSupplier.getAsDouble();
         double y = tySupplier.getAsDouble();
         double omega = omegaSupplier.getAsDouble();
-
-        if (Constants.ButtonBoard.squarePath) {
-            x = xScaleLimiter.calculate(x*Math.abs(x));
-            y = yScaleLimiter.calculate(y*Math.abs(y));
-            omega = omegaScaleLimiter.calculate(omega*Math.abs(omega));
-        } else {
-            x = xScaleLimiter.calculate(x);
-            y = yScaleLimiter.calculate(y);
-            omega = omegaScaleLimiter.calculate(omega);
-        }
+//
+//        if (Constants.ButtonBoard.squarePath) {
+//            x = xScaleLimiter.calculate(x*Math.abs(x));
+//            y = yScaleLimiter.calculate(y*Math.abs(y));
+//            omega = omegaScaleLimiter.calculate(omega*Math.abs(omega));
+//        } else {
+//            x = xScaleLimiter.calculate(x);
+//            y = yScaleLimiter.calculate(y);
+//            omega = omegaScaleLimiter.calculate(omega);
+//        }
 
         // When on the red alliance, we want to have "forward" mean "move in the -X direction" and so on.
         // But only for field relative driving. Robot relative driving is always the same
