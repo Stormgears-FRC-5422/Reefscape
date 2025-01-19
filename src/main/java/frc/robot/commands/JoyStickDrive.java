@@ -13,6 +13,7 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import frc.utils.StormCommand;
+import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.subsystems.drive.DrivetrainBase.driveFlip;
 import static java.util.Objects.isNull;
@@ -91,7 +92,9 @@ public class JoyStickDrive extends StormCommand {
 
         boolean fieldRelative = !robotRelativeSupplier.getAsBoolean();
         double x = txSupplier.getAsDouble();
+        Logger.recordOutput("x", x);
         double y = tySupplier.getAsDouble();
+        Logger.recordOutput("y", y);
         double omega = omegaSupplier.getAsDouble();
 //
 //        if (Constants.ButtonBoard.squarePath) {

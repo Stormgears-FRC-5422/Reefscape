@@ -31,6 +31,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.LinearVelocityUnit;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -57,8 +59,9 @@ public class CTRdrive extends DrivetrainBase {
             Math.max(
                 Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
                 Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-
-
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.
+        in(LinearVelocityUnit.combine(Meters, Seconds));
+    private double MaxAngularRate = 1.5 * Math.PI;
     static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -89,6 +92,8 @@ public class CTRdrive extends DrivetrainBase {
             2, TunerConstants.BackLeft);
         modules[3] = new Module(new ModuleIOTalonFX(TunerConstants.BackRight),
             3, TunerConstants.BackRight);
+
+        setMaxVelocities(MaxSpeed, MaxAngularRate);
 
         // Usage reporting for swerve template
         HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -253,7 +258,7 @@ public class CTRdrive extends DrivetrainBase {
         return states;
     }
 
-    
+
 
     /**
      * Returns the module positions (turn angles and drive positions) for all of the modules.

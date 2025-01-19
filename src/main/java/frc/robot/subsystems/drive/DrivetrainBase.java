@@ -20,6 +20,7 @@ import frc.robot.ShuffleboardConstants;
 import frc.robot.subsystems.drive.CTRgen.generated.TunerConstants;
 import frc.utils.StormSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.subsystems.drive.DrivetrainFactory.instance;
 
@@ -197,7 +198,7 @@ public abstract class DrivetrainBase extends StormSubsystem {
     public double[] getWheelRadiusCharacterizationPositions() {
         double[] values = new double[0];
         return values;
-        
+
     }
         public static final double DRIVE_BASE_RADIUS =
         Math.max(

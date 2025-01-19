@@ -43,11 +43,19 @@ public class Robot extends LoggedRobot {
           Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
           Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
           //new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
-      } else {
-          setUseTiming(false); // Run as fast as possible
-          String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-          Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-          Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+      } else if (Constants.Toggles.useAdvantageKit) {
+          if (Constants.Akit.doReplay) {
+              // Replaying a log, set up replay source
+              setUseTiming(false); // Run as fast as possible
+              String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+              Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+              Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+          } else {
+              // Running a physics simulator, log to NT
+              Logger.addDataReceiver(new NT4Publisher());
+          }
+      } else { // basic simulation
+          ;
       }
 
       Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
@@ -119,4 +127,20 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testExit() {}
+
+    /**
+     * This function is called once when the robot is first started up.
+     */
+    @Override
+    public void simulationInit() {
+        System.out.println("SimulationInit");
+        robotContainer.updateAlliance();
+    }
+
+    /**
+     * This function is called periodically whilst in simulation.
+     */
+    @Override
+    public void simulationPeriodic() {
+    }
 }
