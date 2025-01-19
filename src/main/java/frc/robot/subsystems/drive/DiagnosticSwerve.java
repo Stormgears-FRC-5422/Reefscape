@@ -23,15 +23,17 @@ public class DiagnosticSwerve extends DrivetrainBase {
 
         setMaxVelocities(maxVelocityMetersPerSecond * 0.2, maxAngularVelocityRadiansPerSecond * 0.2);
 
-        m_frontLeftDrive = new TalonFX(Drive.frontLeftDriveID);
-        m_frontLeftSteer = new TalonFX(Drive.frontLeftSteerID);
-        m_frontRightDrive = new TalonFX(Drive.frontRightDriveID);
-        m_frontRightSteer = new TalonFX(Drive.frontRightSteerID);
+        String CANBus = Drive.driveCAN;
 
-        m_backLeftDrive = new TalonFX(Drive.backLeftDriveID);
-        m_backLeftSteer = new TalonFX(Drive.backLeftSteerID);
-        m_backRightDrive = new TalonFX(Drive.backRightDriveID);
-        m_backRightSteer = new TalonFX(Drive.backRightSteerID);
+        m_frontLeftDrive = new TalonFX(Drive.frontLeftDriveID, CANBus);
+        m_frontLeftSteer = new TalonFX(Drive.frontLeftSteerID, CANBus);
+        m_frontRightDrive = new TalonFX(Drive.frontRightDriveID, CANBus);
+        m_frontRightSteer = new TalonFX(Drive.frontRightSteerID, CANBus);
+
+        m_backLeftDrive = new TalonFX(Drive.backLeftDriveID, CANBus);
+        m_backLeftSteer = new TalonFX(Drive.backLeftSteerID, CANBus);
+        m_backRightDrive = new TalonFX(Drive.backRightDriveID, CANBus);
+        m_backRightSteer = new TalonFX(Drive.backRightSteerID, CANBus);
 
         m_driveArray = new TalonFX[]{m_frontLeftDrive, m_frontRightDrive,
             m_backLeftDrive, m_backRightDrive};
