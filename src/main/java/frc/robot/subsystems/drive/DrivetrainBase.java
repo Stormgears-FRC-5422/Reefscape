@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
+import frc.robot.subsystems.drive.CTRgen.generated.TunerConstants;
 import frc.utils.StormSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -193,6 +194,18 @@ public abstract class DrivetrainBase extends StormSubsystem {
     protected void setFieldRelativeOn(boolean flip) {
         fieldRelativeOn = flip;
     }
-
+    public double[] getWheelRadiusCharacterizationPositions() {
+        double[] values = new double[0];
+        return values;
+        
+    }
+        public static final double DRIVE_BASE_RADIUS =
+        Math.max(
+            Math.max(
+                Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
+                Math.hypot(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
+            Math.max(
+                Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
+                Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 }
 

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CoralIntakeCommand;
+import frc.robot.commands.DriveCommands;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
@@ -18,7 +19,7 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
-
+import frc.robot.subsystems.drive.CTRgen.CTRdrive;
 import frc.robot.Constants.Toggles;
 import java.util.Optional;
 
@@ -75,6 +76,9 @@ public class RobotContainer {
     private void configureBindings() {
         if (Constants.Toggles.useCoralIntake){
             new Trigger(()-> joystick.coralIntake()).whileTrue(coralIntakeCommand);
+        }
+        if (Constants.Toggles.useDrive){
+            new Trigger(() -> joystick.getRobotRelative()).whileTrue(DriveCommands.wheelRadiusCharacterization(drivetrain));
         }
     }
 
