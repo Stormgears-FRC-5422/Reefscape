@@ -13,16 +13,12 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
 import frc.robot.subsystems.drive.CTRgen.generated.TunerConstants;
 import frc.utils.StormSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
-import static frc.robot.subsystems.drive.DrivetrainFactory.instance;
 
 public abstract class DrivetrainBase extends StormSubsystem {
 
