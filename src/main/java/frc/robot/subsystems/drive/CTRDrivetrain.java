@@ -8,14 +8,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import frc.robot.RobotState;
-import frc.robot.subsystems.drive.ctrGenerated.CTRDriveCommand;
-import frc.robot.subsystems.drive.ctrGenerated.CTRDriveTunerConstants;
+import frc.robot.subsystems.drive.ctrGenerated.CTRDriveInternal;
+import frc.robot.subsystems.drive.ctrGenerated.CTRTunerConstants;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 public class CTRDrivetrain extends DrivetrainBase {
-    public final CTRDriveCommand drivetrain;
+    public final CTRDriveInternal drivetrain;
     private final SwerveRequest.FieldCentric driveFieldCentric;
     private final SwerveRequest.RobotCentric driveRobotCentric;
 
@@ -24,11 +24,11 @@ public class CTRDrivetrain extends DrivetrainBase {
     DoubleArraySubscriber poseSub;
     int count = 0;
 
-    public CTRDrivetrain() {
-        double MaxSpeed = CTRDriveTunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12VoltsMps desired top speed
+    public CTRDrivetrain(CTRTunerConstants tunerConstants) {
+        double MaxSpeed = tunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12VoltsMps desired top speed
         double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
-        drivetrain = CTRDriveTunerConstants.createDrivetrain();
+        drivetrain = tunerConstants.createDrivetrain();
 
         driveFieldCentric = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband

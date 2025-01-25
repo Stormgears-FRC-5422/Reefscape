@@ -50,7 +50,7 @@ public class RobotContainer {
 
         if (Constants.Toggles.useDrive) {
             console("Create drive type " + Constants.Drive.driveType);
-            drivetrain = DrivetrainFactory.getInstance(Constants.Drive.driveType);
+            drivetrain = DrivetrainFactory.getInstance(Constants.Drive.driveType, Constants.Drive.driveSubtype);
         }
 
         if (Constants.Toggles.useCoralIntake) {
