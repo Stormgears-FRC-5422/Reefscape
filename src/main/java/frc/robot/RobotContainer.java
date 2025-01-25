@@ -14,6 +14,7 @@ import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
 import frc.robot.subsystems.CoralIntake;
+import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
@@ -31,7 +32,7 @@ public class RobotContainer {
     private CoralIntake coralIntake;
     private DrivetrainBase drivetrain;
     private VisionSubsystem visionSubsystem;
-
+    private Lights lights;
     // **********
     // Fields
     // **********
@@ -57,6 +58,10 @@ public class RobotContainer {
             coralIntake = new CoralIntake();
             coralIntakeCommand = new CoralIntakeCommand(coralIntake, true);
             coralOuttakeCommand = new CoralIntakeCommand(coralIntake, false);
+        }
+
+        if (Constants.Toggles.useLights) {
+            lights = new Lights();
         }
 
         if (Toggles.useVision){
