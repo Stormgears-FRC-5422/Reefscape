@@ -1,8 +1,6 @@
 package frc.robot.subsystems.drive;
 
-import frc.robot.subsystems.drive.ctrGenerated.CTRTunerConstants;
-import frc.robot.subsystems.drive.ctrGenerated.CrescendoTunerConstants;
-import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
+import frc.robot.subsystems.drive.ctrGenerated.*;
 
 public class DrivetrainFactory {
     protected static DrivetrainBase instance;
@@ -12,7 +10,7 @@ public class DrivetrainFactory {
             System.out.println("Initializing " + driveType);
             switch (driveType.toLowerCase()) {
                 case "diagnosticswerve" -> instance = new DiagnosticSwerve();
-                case "ctrdrive" -> instance = new CTRDrivetrain(getTunerConstants(driveSubtype));
+                case "ctrdrive" -> instance = new CTRDrivetrain<>(getTunerConstants(driveSubtype));
                 default -> throw new IllegalDriveTypeException("Illegal Drive Type: " + driveType);
             }
         }
@@ -21,14 +19,14 @@ public class DrivetrainFactory {
 
     // Right now there is only one subtype. This could be more complicated if that changes.
     // We could just make a different get function for a different subtype
-    private static CTRTunerConstants getTunerConstants(String subtype) throws IllegalDriveTypeException {
+    private static Class<?> getTunerConstants(String subtype) throws IllegalDriveTypeException {
         System.out.println("Collected constants for " + subtype + " subtype");
-        CTRTunerConstants tunerConstants;
-        switch (subtype.toLowerCase()) {
-            case "ctrCrescendo" ->  tunerConstants = new CrescendoTunerConstants();
-            case "ctrReefscape" -> tunerConstants = new ReefscapeTunerConstants();
+        return switch (subtype.toLowerCase()) {
+            case "ctrcrescendo" -> CrescendoTunerConstants.class;
+            case "ctrreefscape" -> ReefscapeTunerConstants.class;
+            case "ctrnovak" -> NovakTunerConstants.class;
             default -> throw new IllegalDriveTypeException("Illegal Drive subtype: " + subtype);
-        }
-        return tunerConstants;
+        };
     }
+
 }

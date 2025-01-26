@@ -5,16 +5,21 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.ctrGenerated.CTRDriveInternal;
-import frc.robot.subsystems.drive.ctrGenerated.CTRTunerConstants;
+import frc.robot.subsystems.drive.ctrGenerated.Telemetry;
 import org.littletonrobotics.junction.AutoLogOutput;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
-public class CTRDrivetrain extends DrivetrainBase {
+public class CTRDrivetrain <T> extends DrivetrainBase {
     public final CTRDriveInternal drivetrain;
     private final SwerveRequest.FieldCentric driveFieldCentric;
     private final SwerveRequest.RobotCentric driveRobotCentric;
@@ -23,12 +28,16 @@ public class CTRDrivetrain extends DrivetrainBase {
     SwerveDrivePoseEstimator swerveDrivePoseEstimator;
     DoubleArraySubscriber poseSub;
     int count = 0;
+    Telemetry logger;
 
-    public CTRDrivetrain(CTRTunerConstants tunerConstants) {
-        double MaxSpeed = tunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12VoltsMps desired top speed
+    public CTRDrivetrain(T tunerConstants) {
+        super();
+
         double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
+        double MaxSpeed = getMaxSpeed(tunerConstants);
+        drivetrain = getInternalDriveTrain(tunerConstants);
 
-        drivetrain = tunerConstants.createDrivetrain();
+        logger = new Telemetry(MaxSpeed);
 
         driveFieldCentric = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
@@ -48,8 +57,33 @@ public class CTRDrivetrain extends DrivetrainBase {
 //        if (Utils.isSimulation()) {
 //            drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
 //        }
-//        drivetrain.registerTelemetry(logger::telemeterize);
+        drivetrain.resetPose(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
+        drivetrain.registerTelemetry(logger::telemeterize);
     }
+
+// Reflection functions
+    double getMaxSpeed(T tunerConstants) {
+        double maxSpeed = 0;
+        try {
+            Field field = ((Class<?>) tunerConstants).getField("kSpeedAt12Volts");
+            Object kSpeedAt12Volts = field.get(null); // Static field, so null for instance
+            return ((LinearVelocity) kSpeedAt12Volts).in(MetersPerSecond);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to access kSpeedAt12Volts: " + e.getMessage(), e);
+        }
+    }
+
+    CTRDriveInternal getInternalDriveTrain(T tunerConstants) {
+        try {
+            // tunerConstants is a Class<?> reference
+            Method method = ((Class<?>) tunerConstants).getMethod("createDrivetrain");
+            return (CTRDriveInternal) method.invoke(null); // Static method, so null for instance
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create drivetrain: " + e.getMessage(), e);
+        }
+    }
+
+// end of reflection functions
 
     @Override
     public void resetOrientation() {
