@@ -21,7 +21,8 @@ import static java.util.Objects.isNull;
 public class JoyStickDrive extends StormCommand {
     private final DrivetrainBase drivetrain;
     private final BooleanSupplier robotRelativeSupplier;
-    private final BooleanSupplier turboSupplier;
+//    private final BooleanSupplier turboSupplier;
+    private final DoubleSupplier turboSupplier;
     private final DoubleSupplier txSupplier;
     private final DoubleSupplier tySupplier;
     private final DoubleSupplier omegaSupplier;
@@ -84,10 +85,10 @@ public class JoyStickDrive extends StormCommand {
 
     @Override
     public void execute() {
-        if (turboSupplier.getAsBoolean()) {
+        if (turboSupplier.getAsDouble() <= 0.2) {
             drivetrain.setDriveSpeedScale(Drive.precisionSpeedScale);
         } else {
-            drivetrain.setDriveSpeedScale(Drive.driveSpeedScale);
+            drivetrain.setDriveSpeedScale(turboSupplier.getAsDouble());
         }
 
         boolean fieldRelative = !robotRelativeSupplier.getAsBoolean();

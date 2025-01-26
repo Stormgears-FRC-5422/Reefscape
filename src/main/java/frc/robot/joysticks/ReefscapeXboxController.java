@@ -30,8 +30,9 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
     }
 
     @Override
-    public boolean getTurbo() {
-        return XboxController.getRightTrigger() > 0.2;
+    public double getTurbo() {
+        return XboxController.getRightTrigger();
+
     }
 
     @Override
