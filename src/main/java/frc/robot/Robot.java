@@ -14,13 +14,17 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import frc.robot.Constants.Toggles;
-import frc.robot.Constants.Akit;
+import frc.robot.RobotState.*;
 
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
+    private RobotState state;
+    private int iteration = 0;
 
     public Robot() {
+        // Most people want to call getInstance(). This is only created once, here.
+        state = RobotState.createInstance();
         Logger.recordMetadata("ProjectName", Constants.robotName); // Set a metadata value
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -28,28 +32,35 @@ public class Robot extends LoggedRobot {
         Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
         Logger.recordMetadata("GitDirty", switch (BuildConstants.DIRTY) {
             case 0 -> "All changes committed";
-            case 1 -> "Uncomitted changes";
+            case 1 -> "Uncommitted changes";
             default -> "Unknown";
         });
 
-        if (isReal()) {
-            // TOOD - figure out what happens if there is no USB drive plugged in?
-            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-            //new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
-        } else if (Toggles.useAdvantageKit) {
-            if (Akit.doReplay) {
+        switch (state.getSimMode()) {
+            case REAL:
+                console("This is a REAL robot");
+                // TOOD - figure out what happens if there is no USB drive plugged in?
+                // I think /home/lvuser/logs?
+                Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+                Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+                //new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+                break;
+            case AKIT_REPLAY:
+                console("This is an ADVANTAGE KIT REPLAY robot");
                 // Replaying a log, set up replay source
                 setUseTiming(false); // Run as fast as possible
                 String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
                 Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
                 Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-            } else {
+                break;
+            case AKIT_SIM:
+                console("This is an ADVANTAGE KIT SIMULATION robot");
                 // Running a physics simulator, log to NT
                 Logger.addDataReceiver(new NT4Publisher());
-            }
-        } else { // basic simulation
-            ;
+                break;
+            case SIMULATION:
+                console("This is a SIMULATION robot");
+                break;
         }
 
         if (Toggles.useAdvantageKit) {
@@ -66,12 +77,9 @@ public class Robot extends LoggedRobot {
         }
     }
 
-    public void console(String message) {
-        System.out.println("Robot : " + message);
-    }
-
     @Override
     public void robotPeriodic() {
+        iteration++;
         Threads.setCurrentThreadPriority(true, 99);
         CommandScheduler.getInstance().run();
         Threads.setCurrentThreadPriority(false, 10);
@@ -79,19 +87,36 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledInit() {
+        console("DisabledInit");
+        state.setPeriod(StatePeriod.DISABLED);
+		if (robotContainer != null) {
+		    robotContainer.updateAlliance();
+		}
     }
 
     @Override
     public void disabledPeriodic() {
+        if (iteration % 50 == 0) {
+		    if (robotContainer != null) {
+                robotContainer.updateAlliance();
+			}
+        }
     }
 
     @Override
     public void disabledExit() {
+        console("DisabledExit");
     }
 
     @Override
     public void autonomousInit() {
-        autonomousCommand = robotContainer.getAutonomousCommand();
+        console("AutoInit");
+        state.setPeriod(StatePeriod.AUTONOMOUS);
+        if (robotContainer != null) {
+            robotContainer.updateAlliance();
+            autonomousCommand = robotContainer.getAutonomousCommand();
+
+        }
 
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
@@ -104,10 +129,12 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousExit() {
+		console("AutoExit");
     }
 
     @Override
     public void teleopInit() {
+        console("TeleopInit");
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
@@ -119,11 +146,17 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopExit() {
+        console("TeleopExit");
     }
 
     @Override
     public void testInit() {
+        console("TestInit");
         CommandScheduler.getInstance().cancelAll();
+        if (robotContainer != null) {
+            robotContainer.updateAlliance();
+        }
+        state.setPeriod(StatePeriod.TEST);
     }
 
     @Override
@@ -132,5 +165,27 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void testExit() {
+        console("TestExit");
+    }
+    @Override
+    public void simulationInit() {
+        console("SimulationInit");
+        if (robotContainer != null) {
+            robotContainer.updateAlliance();
+        }
+    }
+
+    @Override
+    public void simulationPeriodic() {
+    }
+
+    public void console(String message) {
+        System.out.println("Robot : " + message);
+    }
+
+    public void console(String message, int iterations) {
+        if (iteration % iterations == 0) {
+            console(message);
+        }
     }
 }

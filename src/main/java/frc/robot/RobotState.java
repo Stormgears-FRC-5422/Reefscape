@@ -3,8 +3,14 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.utils.vision.LimelightHelpers;
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 
@@ -17,19 +23,50 @@ public class RobotState extends SubsystemBase {
         NONE, DISABLED, AUTONOMOUS, TELEOP, TEST
     }
 
+    public enum StateSimMode {
+        REAL, SIMULATION, AKIT_REPLAY, AKIT_SIM;
+    }
+
     private static RobotState m_instance;
-    private StateAlliance m_alliance = StateAlliance.MISSING;
+    // TODO - this should be set via updateAlliance()
+//    private StateAlliance m_alliance = StateAlliance.MISSING;
+    private StateAlliance m_alliance = StateAlliance.BLUE;
     private Pose2d currentPose = new Pose2d();
     //private Pose2d visionPose = new Pose2d();
 
     private StatePeriod m_period = StatePeriod.NONE;
+    private final StateSimMode m_simMode;
     private boolean m_didAuto = false;
     private boolean m_didTeleop = false;
-    public static RobotState getInstance() {
+
+    // Call createInstance from robotInit()
+    public static RobotState createInstance() {
         if (m_instance != null) return m_instance;
 
         m_instance = new RobotState();
         return m_instance;
+    }
+
+    public static RobotState getInstance() {
+        return m_instance;
+    }
+
+    private RobotState() {
+        if (RobotBase.isReal()) {
+            m_simMode = StateSimMode.REAL;
+        } else if (Constants.Toggles.useAdvantageKit) {
+            if (Constants.Akit.doReplay) {
+                m_simMode = StateSimMode.AKIT_REPLAY;
+            } else {
+                m_simMode = StateSimMode.AKIT_SIM;
+            }
+        } else { // basic simulation
+            m_simMode = StateSimMode.SIMULATION;            ;
+        }
+    }
+
+    public StateSimMode getSimMode() {
+        return m_simMode;
     }
 
     public void setAlliance(StateAlliance alliance) {

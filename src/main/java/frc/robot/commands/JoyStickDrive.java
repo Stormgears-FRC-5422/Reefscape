@@ -61,14 +61,14 @@ public class JoyStickDrive extends StormCommand {
     public void initialize() {
         super.initialize();
 
-        if (m_state.isAllianceMissing()) {
+        if (!m_state.isAllianceMissing()) {
+            m_flipJoystick = m_state.isAllianceRed() && ButtonBoard.flipJoystickForRed;
+            console("Joystick is " + (m_flipJoystick ? "" : "NOT ") + "flipped for alliance");
+            m_finish = false;
+        } else {
             console("Alliance is not set. Exiting command");
             m_finish = true;
         }
-
-        m_flipJoystick = ButtonBoard.flipJoystickForRed && m_state.isAllianceRed();
-        console("Joystick is " + (m_flipJoystick ? "" : "NOT ") + "flipped for alliance");
-        m_finish = false;
     }
 
     @Override
@@ -83,6 +83,8 @@ public class JoyStickDrive extends StormCommand {
 
     @Override
     public void execute() {
+        super.execute();
+
         if (turboSupplier.getAsBoolean()) {
             drivetrain.setDriveSpeedScale(Drive.precisionSpeedScale);
         } else {
@@ -113,6 +115,7 @@ public class JoyStickDrive extends StormCommand {
             speeds = new ChassisSpeeds(x, y, omega);
         }
 
+        console("joystick speeds: " + speeds, 25);
         drivetrain.percentOutputDrive(speeds, fieldRelative);
     }
 }

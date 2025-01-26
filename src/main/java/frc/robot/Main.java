@@ -5,11 +5,29 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
-
+import frc.robot.Constants.Toggles;
 public final class Main {
-  private Main() {}
+    private Main() {}
 
-  public static void main(String... args) {
-    RobotBase.startRobot(Robot::new);
-  }
+    public static void main(String... args) {
+
+        try {
+            RobotBase.startRobot(Robot::new);
+        } catch (Exception e) {
+            System.out.println("Unhandled exception in robot code!!");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+
+        // We only get here if we caught in un
+        if (Toggles.holdCrash) {
+            try {
+                while (true) {
+                    Thread.sleep(1000);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

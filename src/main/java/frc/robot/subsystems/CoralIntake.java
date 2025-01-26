@@ -20,16 +20,16 @@ public class CoralIntake extends SubsystemBase {
     }
 
     private final SparkMax intakeLeader;
-    private final SparkMax intakeFollower;
+//    private final SparkMax intakeFollower;
     private double intakeMotorSpeed;
 
     public CoralIntake() {
         intakeLeader = new SparkMax(Intake.leaderID, SparkLowLevel.MotorType.kBrushless);
-        intakeFollower = new SparkMax(Intake.followerID, SparkLowLevel.MotorType.kBrushless);
+//        intakeFollower = new SparkMax(Intake.followerID, SparkLowLevel.MotorType.kBrushless);
 
         SparkMaxConfig globalConfig = new SparkMaxConfig();
         SparkMaxConfig intakeLeaderConfig = new SparkMaxConfig();
-        SparkMaxConfig intakeFollowerConfig = new SparkMaxConfig();
+//        SparkMaxConfig intakeFollowerConfig = new SparkMaxConfig();
 
         globalConfig.smartCurrentLimit(SparkConstants.Neo550CurrentLimit).idleMode(IdleMode.kBrake);
 
@@ -38,12 +38,12 @@ public class CoralIntake extends SubsystemBase {
 
         // Apply the global config and set to follow the leader
         // The "true" here means invert wrt the leader
-        intakeFollowerConfig.apply(globalConfig).follow(intakeLeader, true);
+//        intakeFollowerConfig.apply(globalConfig).follow(intakeLeader, true);
 
         intakeLeader.configure(intakeLeaderConfig,
             SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-        intakeFollower.configure(intakeFollowerConfig,
-            SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+//        intakeFollower.configure(intakeFollowerConfig,
+//            SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
         setCoralIntakeState(CoralIntakeState.OFF);
     }
