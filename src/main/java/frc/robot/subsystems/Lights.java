@@ -46,6 +46,7 @@ public class Lights extends StormSubsystem {
         if (alliance != m_alliance){
             m_alliance = alliance;
             setAlliancecolor();
+            defaultPattern.applyTo(m_ledBuffer);
         }
         //TODO: pass correct default color (red alliance or blue alliance)
 
