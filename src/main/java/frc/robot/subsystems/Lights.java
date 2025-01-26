@@ -9,6 +9,7 @@ import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
 import edu.wpi.first.units.measure.Distance;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 
 public class Lights extends StormSubsystem {
     private AddressableLED m_led;
@@ -21,6 +22,11 @@ public class Lights extends StormSubsystem {
     private static final int LED_LENGTH = 24; //Total LEDs
     private static final int VIEW_LENGTH = 12; //One Strip
     private static final int LED_PORT = 0;
+
+    private Distance kLedSpacing;
+    private LEDPattern m_rainbow;
+    private LEDPattern m_scrollingRainbow;
+
     private final RobotState m_robotState;
     private RobotState.StateAlliance m_alliance;
 
@@ -42,10 +48,13 @@ public class Lights extends StormSubsystem {
             setAlliancecolor();
         }
         //TODO: pass correct default color (red alliance or blue alliance)
+        /*
         LEDPattern pattern1 = LEDPattern.solid(Color.kRed);
         LEDPattern pattern2 = LEDPattern.solid(Color.kBlue);
         pattern1.applyTo(m_left);
         pattern2.applyTo(m_right);
+
+         */
 
 
     }
@@ -61,7 +70,9 @@ public class Lights extends StormSubsystem {
         //  pattern.applyTo(m_ledBuffer);
 
         // Write the data to the LED strip
+        m_scrollingRainbow.applyTo(m_ledBuffer);
         m_led.setData(m_ledBuffer);
+
     }
 
     public void setManually() {
@@ -80,6 +91,9 @@ public class Lights extends StormSubsystem {
         //final Distance kLedSpacing = Meters.of(1 / 120.0);
         //console("Rainbow LED");
         //TODO: rainbow code
+        m_rainbow = LEDPattern.rainbow(255, 128);
+        kLedSpacing = Meters.of(1 / 120.0);
+        m_scrollingRainbow = m_rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), kLedSpacing);
     }
 
     public void setAlliancecolor(){
@@ -87,7 +101,13 @@ public class Lights extends StormSubsystem {
             case RED -> {
                 defaultPattern = LEDPattern.solid(Color.kRed);
             }
+            case BLUE -> {
+                defaultPattern = LEDPattern.solid(Color.kBlue);
+            }
 
+            default -> {
+                defaultPattern = LEDPattern.solid(Color.kWhite);
+            }
         }
     }
 
