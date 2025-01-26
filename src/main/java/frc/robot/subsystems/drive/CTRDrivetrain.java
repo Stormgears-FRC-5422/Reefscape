@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
-public class CTRDrivetrain <T> extends DrivetrainBase {
+public class CTRDrivetrain extends DrivetrainBase {
     public final CTRDriveInternal drivetrain;
     private final SwerveRequest.FieldCentric driveFieldCentric;
     private final SwerveRequest.RobotCentric driveRobotCentric;
@@ -30,12 +30,12 @@ public class CTRDrivetrain <T> extends DrivetrainBase {
     int count = 0;
     Telemetry logger;
 
-    public CTRDrivetrain(T tunerConstants) {
+    public CTRDrivetrain(Class<?> tunerConstantsClass) {
         super();
 
         double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
-        double MaxSpeed = getMaxSpeed(tunerConstants);
-        drivetrain = getInternalDriveTrain(tunerConstants);
+        double MaxSpeed = getMaxSpeed(tunerConstantsClass);
+        drivetrain = getInternalDriveTrain(tunerConstantsClass);
 
         logger = new Telemetry(MaxSpeed);
 
@@ -62,10 +62,10 @@ public class CTRDrivetrain <T> extends DrivetrainBase {
     }
 
 // Reflection functions
-    double getMaxSpeed(T tunerConstants) {
+    double getMaxSpeed(Class<?> tunerConstantsClass) {
         double maxSpeed = 0;
         try {
-            Field field = ((Class<?>) tunerConstants).getField("kSpeedAt12Volts");
+            Field field = tunerConstantsClass.getField("kSpeedAt12Volts");
             Object kSpeedAt12Volts = field.get(null); // Static field, so null for instance
             return ((LinearVelocity) kSpeedAt12Volts).in(MetersPerSecond);
         } catch (Exception e) {
@@ -73,10 +73,9 @@ public class CTRDrivetrain <T> extends DrivetrainBase {
         }
     }
 
-    CTRDriveInternal getInternalDriveTrain(T tunerConstants) {
+    CTRDriveInternal getInternalDriveTrain(Class<?> tunerConstantsClass) {
         try {
-            // tunerConstants is a Class<?> reference
-            Method method = ((Class<?>) tunerConstants).getMethod("createDrivetrain");
+            Method method = tunerConstantsClass.getMethod("createDrivetrain");
             return (CTRDriveInternal) method.invoke(null); // Static method, so null for instance
         } catch (Exception e) {
             throw new RuntimeException("Failed to create drivetrain: " + e.getMessage(), e);
