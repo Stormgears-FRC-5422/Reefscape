@@ -46,16 +46,17 @@ public class Lights extends StormSubsystem {
         if (alliance != m_alliance){
             m_alliance = alliance;
             setAlliancecolor();
+            defaultPattern.applyTo(m_ledBuffer);
         }
         //TODO: pass correct default color (red alliance or blue alliance)
-        /*
+
+       /*
         LEDPattern pattern1 = LEDPattern.solid(Color.kRed);
         LEDPattern pattern2 = LEDPattern.solid(Color.kBlue);
         pattern1.applyTo(m_left);
         pattern2.applyTo(m_right);
 
-         */
-
+*/
 
     }
 
@@ -70,7 +71,7 @@ public class Lights extends StormSubsystem {
         //  pattern.applyTo(m_ledBuffer);
 
         // Write the data to the LED strip
-        m_scrollingRainbow.applyTo(m_ledBuffer);
+        setRainbow();
         m_led.setData(m_ledBuffer);
 
     }
@@ -87,13 +88,10 @@ public class Lights extends StormSubsystem {
     }
 
     public void setRainbow() {
-        // Our LED strip has a density of 120 LEDs per meter
-        //final Distance kLedSpacing = Meters.of(1 / 120.0);
-        //console("Rainbow LED");
-        //TODO: rainbow code
         m_rainbow = LEDPattern.rainbow(255, 128);
         kLedSpacing = Meters.of(1 / 120.0);
-        m_scrollingRainbow = m_rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), kLedSpacing);
+        m_scrollingRainbow = m_rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(0.45), kLedSpacing);
+        m_scrollingRainbow.applyTo(m_ledBuffer);
     }
 
     public void setAlliancecolor(){
