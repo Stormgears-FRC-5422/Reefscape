@@ -7,140 +7,130 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import frc.robot.Constants.Toggles;
+import frc.robot.Constants.Akit;
 
 public class Robot extends LoggedRobot {
-  private Command autonomousCommand;
+    private Command autonomousCommand;
+    private RobotContainer robotContainer;
 
-  private RobotContainer robotContainer;
+    public Robot() {
+        Logger.recordMetadata("ProjectName", Constants.robotName); // Set a metadata value
+        Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+        Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+        Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+        Logger.recordMetadata("GitDirty", switch (BuildConstants.DIRTY) {
+            case 0 -> "All changes committed";
+            case 1 -> "Uncomitted changes";
+            default -> "Unknown";
+        });
 
-  public Robot() {
-      Logger.recordMetadata("ProjectName", Constants.robotName); // Set a metadata value
-      Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-      Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-      Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-      Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-      switch (BuildConstants.DIRTY) {
-          case 0:
-              Logger.recordMetadata("GitDirty", "All changes committed");
-              break;
-          case 1:
-              Logger.recordMetadata("GitDirty", "Uncomitted changes");
-              break;
-          default:
-              Logger.recordMetadata("GitDirty", "Unknown");
-              break;
-      }
+        if (isReal()) {
+            // TOOD - figure out what happens if there is no USB drive plugged in?
+            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+            //new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+        } else if (Toggles.useAdvantageKit) {
+            if (Akit.doReplay) {
+                // Replaying a log, set up replay source
+                setUseTiming(false); // Run as fast as possible
+                String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+                Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+            } else {
+                // Running a physics simulator, log to NT
+                Logger.addDataReceiver(new NT4Publisher());
+            }
+        } else { // basic simulation
+            ;
+        }
 
-      if (isReal()) {
-          // TOOD - figure out what happens if there is no USB drive plugged in?
-          Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-          Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-          //new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
-      } else if (Constants.Toggles.useAdvantageKit) {
-          if (Constants.Akit.doReplay) {
-              // Replaying a log, set up replay source
-              setUseTiming(false); // Run as fast as possible
-              String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-              Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-              Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-          } else {
-              // Running a physics simulator, log to NT
-              Logger.addDataReceiver(new NT4Publisher());
-          }
-      } else { // basic simulation
-          ;
-      }
+        if (Toggles.useAdvantageKit) {
+            Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+        }
 
-      Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+        try {
+            robotContainer = new RobotContainer();
+        } catch (Exception e) {
+            robotContainer = null;
+            console("can't create RobotContainer. Eating the following exception:");
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
+    }
 
-      try {
-          robotContainer = new RobotContainer();
-      } catch (Exception e) {
-          robotContainer = null;
-          console("can't create RobotContainer. Eating the following exception:");
-          e.printStackTrace();
-      }
-  }
-
-  public void console(String message) {
+    public void console(String message) {
         System.out.println("Robot : " + message);
-  }
-
-  @Override
-  public void robotPeriodic() {
-    Threads.setCurrentThreadPriority(true, 99);
-    CommandScheduler.getInstance().run();
-    Threads.setCurrentThreadPriority(false, 10);
-  }
-
-  @Override
-  public void disabledInit() {}
-
-  @Override
-  public void disabledPeriodic() {}
-
-  @Override
-  public void disabledExit() {}
-
-  @Override
-  public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
-
-    if (autonomousCommand != null) {
-      autonomousCommand.schedule();
     }
-  }
 
-  @Override
-  public void autonomousPeriodic() {}
-
-  @Override
-  public void autonomousExit() {}
-
-  @Override
-  public void teleopInit() {
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
-    }
-  }
-
-  @Override
-  public void teleopPeriodic() {}
-
-  @Override
-  public void teleopExit() {}
-
-  @Override
-  public void testInit() {
-    CommandScheduler.getInstance().cancelAll();
-  }
-
-  @Override
-  public void testPeriodic() {}
-
-  @Override
-  public void testExit() {}
-
-    /**
-     * This function is called once when the robot is first started up.
-     */
     @Override
-    public void simulationInit() {
-        System.out.println("SimulationInit");
-        robotContainer.updateAlliance();
+    public void robotPeriodic() {
+        Threads.setCurrentThreadPriority(true, 99);
+        CommandScheduler.getInstance().run();
+        Threads.setCurrentThreadPriority(false, 10);
     }
 
-    /**
-     * This function is called periodically whilst in simulation.
-     */
     @Override
-    public void simulationPeriodic() {
+    public void disabledInit() {
+    }
+
+    @Override
+    public void disabledPeriodic() {
+    }
+
+    @Override
+    public void disabledExit() {
+    }
+
+    @Override
+    public void autonomousInit() {
+        autonomousCommand = robotContainer.getAutonomousCommand();
+
+        if (autonomousCommand != null) {
+            autonomousCommand.schedule();
+        }
+    }
+
+    @Override
+    public void autonomousPeriodic() {
+    }
+
+    @Override
+    public void autonomousExit() {
+    }
+
+    @Override
+    public void teleopInit() {
+        if (autonomousCommand != null) {
+            autonomousCommand.cancel();
+        }
+    }
+
+    @Override
+    public void teleopPeriodic() {
+    }
+
+    @Override
+    public void teleopExit() {
+    }
+
+    @Override
+    public void testInit() {
+        CommandScheduler.getInstance().cancelAll();
+    }
+
+    @Override
+    public void testPeriodic() {
+    }
+
+    @Override
+    public void testExit() {
     }
 }

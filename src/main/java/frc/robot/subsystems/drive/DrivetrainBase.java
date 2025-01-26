@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
-import frc.robot.subsystems.drive.CTRgen.generated.TunerConstants;
+import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
 import frc.utils.StormSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -34,7 +34,6 @@ public abstract class DrivetrainBase extends StormSubsystem {
     public static boolean driveFlip = true;
     public static boolean fieldRelativeOn = true;
 
-
     @AutoLogOutput
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
@@ -46,7 +45,6 @@ public abstract class DrivetrainBase extends StormSubsystem {
         m_state = RobotState.getInstance();
         setDriveFlip(false);
         setFieldRelativeOn(false);
-
     }
 
 
@@ -199,10 +197,10 @@ public abstract class DrivetrainBase extends StormSubsystem {
         public static final double DRIVE_BASE_RADIUS =
         Math.max(
             Math.max(
-                Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
-                Math.hypot(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
+                Math.hypot(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
+                Math.hypot(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY)),
             Math.max(
-                Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-                Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
+                Math.hypot(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
+                Math.hypot(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)));
 }
 

@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.drive.CTRgen;
+package frc.robot.subsystems.drive.AKdrive;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -41,24 +41,24 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import frc.robot.subsystems.drive.CTRgen.generated.TunerConstants;
 import frc.robot.subsystems.drive.DrivetrainBase;
+import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class CTRdrive extends DrivetrainBase {
-    // TunerConstants doesn't include these constants, so they are declared locally
+public class AKdrive extends DrivetrainBase {
+    // ReefscapeTunerConstants doesn't include these constants, so they are declared locally
     static final double ODOMETRY_FREQUENCY =
-        new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
+        new CANBus(ReefscapeTunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
     public static final double DRIVE_BASE_RADIUS =
         Math.max(
             Math.max(
-                Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
-                Math.hypot(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
+                Math.hypot(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
+                Math.hypot(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY)),
             Math.max(
-                Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-                Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.
+                Math.hypot(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
+                Math.hypot(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)));
+    private double MaxSpeed = ReefscapeTunerConstants.kSpeedAt12Volts.
         in(LinearVelocityUnit.combine(Meters, Seconds));
     private double MaxAngularRate = 1.5 * Math.PI;
     static final Lock odometryLock = new ReentrantLock();
@@ -81,16 +81,16 @@ public class CTRdrive extends DrivetrainBase {
     private SwerveDrivePoseEstimator poseEstimator =
         new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-    public CTRdrive() {
+    public AKdrive() {
         this.gyroIO = new GyroIOPigeon2();
-        modules[0] = new Module(new ModuleIOTalonFX(TunerConstants.FrontLeft),
-            0, TunerConstants.FrontLeft);
-        modules[1] = new Module(new ModuleIOTalonFX(TunerConstants.FrontRight),
-            1, TunerConstants.FrontRight);
-        modules[2] = new Module(new ModuleIOTalonFX(TunerConstants.BackLeft),
-            2, TunerConstants.BackLeft);
-        modules[3] = new Module(new ModuleIOTalonFX(TunerConstants.BackRight),
-            3, TunerConstants.BackRight);
+        modules[0] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.FrontLeft),
+            0, ReefscapeTunerConstants.FrontLeft);
+        modules[1] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.FrontRight),
+            1, ReefscapeTunerConstants.FrontRight);
+        modules[2] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.BackLeft),
+            2, ReefscapeTunerConstants.BackLeft);
+        modules[3] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.BackRight),
+            3, ReefscapeTunerConstants.BackRight);
 
         setMaxVelocities(MaxSpeed, MaxAngularRate);
 
@@ -184,7 +184,7 @@ public class CTRdrive extends DrivetrainBase {
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, ReefscapeTunerConstants.kSpeedAt12Volts);
 
         // Log unoptimized setpoints and setpoint speeds
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -343,7 +343,7 @@ public class CTRdrive extends DrivetrainBase {
      * Returns the maximum linear speed in meters per sec.
      */
     public double getMaxLinearSpeedMetersPerSec() {
-        return TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+        return ReefscapeTunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     }
 
     /**
@@ -358,10 +358,10 @@ public class CTRdrive extends DrivetrainBase {
      */
     public static Translation2d[] getModuleTranslations() {
         return new Translation2d[]{
-            new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
-            new Translation2d(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
-            new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-            new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
+            new Translation2d(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
+            new Translation2d(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY),
+            new Translation2d(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
+            new Translation2d(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)
         };
     }
 }

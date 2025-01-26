@@ -4,48 +4,71 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.Intake;
+import frc.robot.Constants.SparkConstants;
 
 public class CoralIntake extends SubsystemBase {
-    /**
-     * Creates a new Intake.
-     */
-    public CoralIntake() {
-        //intakeMotor = new StormSpark(Constants.Intake.intakeID, CANSparkLowLevel.MotorType.kBrushless, StormSpark.MotorKind.k550);
-        //intakeMotor.setInverted(true);
-        setCoralIntakeState(CoralIntakeState.OFF);
-        //set intake motor
+    //different intake states
+    public enum CoralIntakeState {
+        OFF, INTAKE, OUTTAKE;
     }
 
-    //private final StormSpark intakeMotor;
-    //private double intakeMotorSpeed;
+    private final SparkMax intakeLeader;
+    private final SparkMax intakeFollower;
+    private double intakeMotorSpeed;
+
+    public CoralIntake() {
+        intakeLeader = new SparkMax(Intake.leaderID, SparkLowLevel.MotorType.kBrushless);
+        intakeFollower = new SparkMax(Intake.followerID, SparkLowLevel.MotorType.kBrushless);
+
+        SparkMaxConfig globalConfig = new SparkMaxConfig();
+        SparkMaxConfig intakeLeaderConfig = new SparkMaxConfig();
+        SparkMaxConfig intakeFollowerConfig = new SparkMaxConfig();
+
+        globalConfig.smartCurrentLimit(SparkConstants.Neo550CurrentLimit).idleMode(IdleMode.kBrake);
+
+        // Apply the global config and invert (maybe) according to the config setting
+        intakeLeaderConfig.apply(globalConfig).inverted(Intake.invertLeader);
+
+        // Apply the global config and set to follow the leader
+        // The "true" here means invert wrt the leader
+        intakeFollowerConfig.apply(globalConfig).follow(intakeLeader, true);
+
+        intakeLeader.configure(intakeLeaderConfig,
+            SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        intakeFollower.configure(intakeFollowerConfig,
+            SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+
+        setCoralIntakeState(CoralIntakeState.OFF);
+    }
 
     @Override
     public void periodic() {
         super.periodic();
-        //intakeMotor.set(intakeMotorSpeed);
-    } //speed
+        intakeLeader.set(intakeMotorSpeed);
+    }
 
     public void setCoralIntakeState(CoralIntakeState state) {
         switch (state) {
             case OFF -> {
-                //setSpeed(0.0);
+                setSpeed(0.0);
             }
-            case FORWARD -> {
-                //setSpeed(Constants.Intake.intakeSpeed);
+            case INTAKE -> {
+                setSpeed(Intake.speed);
             }
-            case REVERSE -> {
-                //setSpeed(-Constants.Intake.intakeSpeed);
+            case OUTTAKE -> {
+                setSpeed(-Intake.speed);
             }
         }
     }
 
     private void setSpeed(double speed) {
-        //intakeMotorSpeed = speed;
-    }
-    //different intake states
-
-    public enum CoralIntakeState {
-        OFF, FORWARD, REVERSE,
+        intakeMotorSpeed = speed;
     }
 }
