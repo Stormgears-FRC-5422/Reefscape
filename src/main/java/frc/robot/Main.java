@@ -5,7 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.Constants.Toggles;
+import frc.robot.Constants.Debug;
+
 public final class Main {
     private Main() {}
 
@@ -20,7 +21,7 @@ public final class Main {
         }
 
         // We only get here if we caught in un
-        if (Toggles.holdCrash) {
+        if (Debug.debug && Debug.holdCrash) {
             try {
                 while (true) {
                     Thread.sleep(1000);

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -21,11 +23,17 @@ import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
 
 import frc.robot.Constants.Toggles;
+import frc.robot.Constants.Debug;
 import java.util.Optional;
 
 import static java.util.Objects.isNull;
 
 public class RobotContainer {
+    // **********
+    // Fields
+    // **********
+    final RobotState robotState;
+
     // **********
     // Subsystems
     // **********
@@ -33,13 +41,9 @@ public class RobotContainer {
     private DrivetrainBase drivetrain;
     private VisionSubsystem visionSubsystem;
     private Lights lights;
-    // **********
-    // Fields
-    // **********
-    final RobotState robotState;
 
     // **********
-    // Control
+    // Commands and Control
     // **********
     ReefscapeJoystick joystick;
     CoralIntakeCommand coralIntakeCommand;
@@ -95,14 +99,37 @@ public class RobotContainer {
     }
 
     public void updateAlliance() {
-        DriverStation.refreshData();
-        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+        RobotState.StateAlliance a = RobotState.StateAlliance.MISSING;
+        String defaultAlliance = Debug.defaultAlliance.toLowerCase();
 
-        if (alliance.isPresent()) {
-            robotState.setAlliance(alliance.get() == DriverStation.Alliance.Blue ? RobotState.StateAlliance.BLUE : RobotState.StateAlliance.RED);
+        if ( ! Debug.debug || defaultAlliance.equals("auto") ) {
+            DriverStation.refreshData();
+            Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+
+            if (alliance.isPresent()) {
+                a = alliance.get() == DriverStation.Alliance.Blue ? RobotState.StateAlliance.BLUE : RobotState.StateAlliance.RED;
+            }
         } else {
-            robotState.setAlliance(RobotState.StateAlliance.MISSING);
+            a = defaultAlliance.equals("blue") ? RobotState.StateAlliance.BLUE : RobotState.StateAlliance.RED;
         }
+
+        robotState.setAlliance(a);
+    }
+
+    public void resetInitialPose() {
+        Pose2d initialPose;
+
+        if (Debug.debug && !robotState.isAllianceMissing()) {
+            initialPose = new Pose2d(Debug.initPoseX, Debug.initPoseY,
+                Rotation2d.fromDegrees(Debug.initPoseDegrees));
+            initialPose = ReefscapeField.remapPose(initialPose, robotState.getAlliance());
+        } else {
+            // We need to be somewhere. AutoChooser should set the pose itself.
+            // This reset only really matter for non-match situations.
+            initialPose = new Pose2d();
+        }
+
+        drivetrain.declarePoseIsNow(initialPose);
     }
 
     public void console(String message) {

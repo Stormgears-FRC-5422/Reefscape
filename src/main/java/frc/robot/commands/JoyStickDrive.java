@@ -109,13 +109,18 @@ public class JoyStickDrive extends StormCommand {
         // When on the red alliance, we want to have "forward" mean "move in the -X direction" and so on.
         // But only for field relative driving. Robot relative driving is always the same
         ChassisSpeeds speeds;
-        if (m_flipJoystick && fieldRelative && driveFlip) {
+        if (m_flipJoystick && fieldRelative && !driveFlip) {
             speeds = new ChassisSpeeds(-x, -y, -omega);
         } else {
             speeds = new ChassisSpeeds(x, y, omega);
         }
 
-        console("joystick speeds: " + speeds, 25);
+        if (speeds.vxMetersPerSecond != 0 && speeds.vyMetersPerSecond != 0 && speeds.omegaRadiansPerSecond != 0) {
+            console("joystick speeds: " + speeds, 25);
+        } else {
+            console("joystick speeds: " + speeds, 500);
+        }
+
         drivetrain.percentOutputDrive(speeds, fieldRelative);
     }
 }

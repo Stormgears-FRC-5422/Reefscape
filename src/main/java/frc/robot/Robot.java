@@ -69,6 +69,9 @@ public class Robot extends LoggedRobot {
 
         try {
             robotContainer = new RobotContainer();
+            // We might not have enough information for this here, but it will reset in teleop init if necessary
+            robotContainer.updateAlliance();
+            robotContainer.resetInitialPose();
         } catch (Exception e) {
             robotContainer = null;
             console("can't create RobotContainer. Eating the following exception:");
@@ -96,7 +99,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-        if (iteration % 50 == 0) {
+        if (iteration % 25 == 0) {
 		    if (robotContainer != null) {
                 robotContainer.updateAlliance();
 			}
@@ -138,6 +141,27 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
+
+        robotContainer.updateAlliance();
+        state.setPeriod(StatePeriod.TELEOP);
+
+        // If we did auto, leave the robot where it is.
+        // If we are just disabling / enabling teleop without auto then we are practicing and
+        // we (usually) want to reset.
+        if (!state.getDidAuto()) {
+            console("Resetting initial pose in teleopInit");
+            robotContainer.resetInitialPose();
+        } else {
+            console("NOT Resetting initial pose in teleopInit because we did autonomous already");
+        }
+
+//        if (Constants.Toggles.useClimber && Constants.Climber.autoHome) {
+//            m_robotContainer.autoHome();
+//        }
+//
+        System.out.println("tele Init Pos X: " + RobotState.getInstance().getPose().getX());
+        System.out.println("tele Init Pos Y: " + RobotState.getInstance().getPose().getY());
+        System.out.println("tele Init Pos rot: " + RobotState.getInstance().getPose().getRotation().getDegrees());
     }
 
     @Override
