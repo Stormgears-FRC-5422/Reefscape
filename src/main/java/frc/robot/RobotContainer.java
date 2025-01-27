@@ -8,9 +8,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.JoyStickDrive;
+import frc.robot.commands.vision.CameraPose;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
+import frc.robot.subsystems.NavX;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
@@ -22,6 +25,13 @@ public class RobotContainer {
     // Subsystems
     // **********
     private DrivetrainBase drivetrain;
+    private VisionSubsystem visionSubsystem;
+    private NavX navX;
+
+    // **********
+    // Subsystems
+    // **********
+    private CameraPose cameraPose;
 
     // **********
     // Fields
@@ -42,6 +52,12 @@ public class RobotContainer {
             drivetrain = DrivetrainFactory.getInstance(Constants.Drive.driveType);
         }
 
+        if (Constants.Toggles.useVision) {
+            visionSubsystem = new VisionSubsystem(Constants.Vision.limelightID);
+            cameraPose = new CameraPose(visionSubsystem);
+            visionSubsystem.setDefaultCommand(cameraPose);
+        }
+
         // Note that this might pass a NULL drive if that is disabled. The JoyStick drive
         // will still work in this case, just not move the robot.
         if (Constants.Toggles.useController) {
@@ -50,12 +66,16 @@ public class RobotContainer {
             JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
             drivetrain.setDefaultCommand(driveWithJoystick);
         }
+        if (Constants.Toggles.useNavX) {
+            navX = new NavX();
+        }
 
         configureBindings();
         console("constructor ended");
     }
 
     private void configureBindings() {
+
     }
 
     public Command getAutonomousCommand() {

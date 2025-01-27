@@ -128,10 +128,13 @@ public class VisionSubsystem extends StormSubsystem {
     public void periodic() {
         super.periodic();
         latestLimelightResults = null;
-        console("botPose in target space" + Arrays.toString(LimelightHelpers.getBotPose_TargetSpace(limelightId)), 50);
+        console("botPose in target space" + Arrays.toString(LimelightHelpers.getBotPose_TargetSpace(limelightId)));
 //        RobotState.getInstance().setVisionPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"),
 //            LimelightHelpers.getTV("limelight"));
 
+    }
+    public double[] getCameraPose_TargetSpace(){
+        return LimelightHelpers.getCameraPose_TargetSpace(limelightId);
     }
 
     public double getTX() {
