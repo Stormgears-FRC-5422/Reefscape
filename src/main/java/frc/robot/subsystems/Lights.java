@@ -35,6 +35,8 @@ public class Lights extends StormSubsystem {
     public Lights() {
         m_led = new AddressableLED(LED_PORT);
         m_ledBuffer = new AddressableLEDBuffer(LED_LENGTH);
+
+        // TODO - make lots of these constants!
         m_left = m_ledBuffer.createView(0, 11);
         m_right = m_ledBuffer.createView(12, 23);
         m_led.setLength(m_ledBuffer.getLength());
