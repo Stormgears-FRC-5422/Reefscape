@@ -7,23 +7,32 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.vision.CameraPose;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
+import frc.robot.subsystems.CoralIntake;
+import frc.robot.subsystems.Lights;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.NavX;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
 
+import frc.robot.Constants.Toggles;
 import java.util.Optional;
+
+import static java.util.Objects.isNull;
 
 public class RobotContainer {
     // **********
     // Subsystems
     // **********
+    private CoralIntake coralIntake;
     private DrivetrainBase drivetrain;
     private VisionSubsystem visionSubsystem;
     private NavX navX;
@@ -33,6 +42,7 @@ public class RobotContainer {
     // **********
     private CameraPose cameraPose;
 
+    private Lights lights;
     // **********
     // Fields
     // **********
@@ -42,6 +52,8 @@ public class RobotContainer {
     // Control
     // **********
     ReefscapeJoystick joystick;
+    CoralIntakeCommand coralIntakeCommand;
+    CoralIntakeCommand coralOuttakeCommand;
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         console("constructor started");
@@ -49,7 +61,21 @@ public class RobotContainer {
 
         if (Constants.Toggles.useDrive) {
             console("Create drive type " + Constants.Drive.driveType);
-            drivetrain = DrivetrainFactory.getInstance(Constants.Drive.driveType);
+            drivetrain = DrivetrainFactory.getInstance(Constants.Drive.driveType, Constants.Drive.driveSubtype);
+        }
+
+        if (Constants.Toggles.useCoralIntake) {
+            coralIntake = new CoralIntake();
+            coralIntakeCommand = new CoralIntakeCommand(coralIntake, true);
+            coralOuttakeCommand = new CoralIntakeCommand(coralIntake, false);
+        }
+
+        if (Constants.Toggles.useLights) {
+            lights = new Lights();
+        }
+
+        if (Toggles.useVision){
+            visionSubsystem = new VisionSubsystem("limelight");
         }
 
         if (Constants.Toggles.useVision) {
@@ -64,7 +90,9 @@ public class RobotContainer {
             console("Making drive joystick!");
             joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick, Constants.ButtonBoard.driveJoystickPort);
             JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
-            drivetrain.setDefaultCommand(driveWithJoystick);
+            if (!isNull(drivetrain)) {
+                drivetrain.setDefaultCommand(driveWithJoystick);
+            }
         }
         if (Constants.Toggles.useNavX) {
             navX = new NavX();
@@ -75,7 +103,10 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-
+        if (Constants.Toggles.useCoralIntake){
+            new Trigger(()-> joystick.coralIntake()).onTrue(coralIntakeCommand);
+            new Trigger(()-> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
+        }
     }
 
     public Command getAutonomousCommand() {
@@ -96,5 +127,4 @@ public class RobotContainer {
     public void console(String message) {
         System.out.println("RobotContainer : " + message);
     }
-
 }

@@ -2,22 +2,23 @@ package frc.robot.subsystems.drive;
 
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
+import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
 import frc.utils.StormSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
-
-import static frc.robot.subsystems.drive.DrivetrainFactory.instance;
 
 public abstract class DrivetrainBase extends StormSubsystem {
 
@@ -33,20 +34,20 @@ public abstract class DrivetrainBase extends StormSubsystem {
     public static boolean driveFlip = true;
     public static boolean fieldRelativeOn = true;
 
-
     @AutoLogOutput
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
     //    protected final ShuffleboardTab tab;
     //    protected final ShuffleboardTab tab;
-    DrivetrainBase() {
+    public DrivetrainBase() {
         setDriveSpeedScale(Drive.driveSpeedScale);
         tab = ShuffleboardConstants.getInstance().drivetrainTab;
         m_state = RobotState.getInstance();
         setDriveFlip(false);
         setFieldRelativeOn(false);
-
     }
+
+
 
     protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {
         m_maxVelocityMetersPerSecond = maxVelocityMetersPerSecond;
@@ -127,8 +128,14 @@ public abstract class DrivetrainBase extends StormSubsystem {
     public void declarePoseIsNow(Pose2d pose) {
     }
 
-    public void addVisionMeasurement(Pose2d pose2d) {
+    public void addVisionMeasurement(Pose2d visionRobotPoseMeters,
+                                     double timestampSeconds,
+                                     Matrix<N3, N1> visionMeasurementStdDevs) {
 
+    }
+
+    public Rotation2d getRotation() {
+        return new Rotation2d();
     }
 
     public Command getQuasForwardCommand() {
@@ -164,9 +171,7 @@ public abstract class DrivetrainBase extends StormSubsystem {
 
     }
 
-    public void setVisionPose(Pose2d pose2d) {
 
-    }
 
     public SwerveDriveKinematics getKinematics() {
         return new SwerveDriveKinematics();
@@ -184,6 +189,18 @@ public abstract class DrivetrainBase extends StormSubsystem {
     protected void setFieldRelativeOn(boolean flip) {
         fieldRelativeOn = flip;
     }
+    public double[] getWheelRadiusCharacterizationPositions() {
+        double[] values = new double[0];
+        return values;
 
+    }
+        public static final double DRIVE_BASE_RADIUS =
+        Math.max(
+            Math.max(
+                Math.hypot(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
+                Math.hypot(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY)),
+            Math.max(
+                Math.hypot(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
+                Math.hypot(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)));
 }
 

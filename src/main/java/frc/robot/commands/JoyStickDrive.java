@@ -13,6 +13,7 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import frc.utils.StormCommand;
+import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.subsystems.drive.DrivetrainBase.driveFlip;
 import static java.util.Objects.isNull;
@@ -20,7 +21,8 @@ import static java.util.Objects.isNull;
 public class JoyStickDrive extends StormCommand {
     private final DrivetrainBase drivetrain;
     private final BooleanSupplier robotRelativeSupplier;
-    private final BooleanSupplier turboSupplier;
+//    private final BooleanSupplier turboSupplier;
+    private final DoubleSupplier turboSupplier;
     private final DoubleSupplier txSupplier;
     private final DoubleSupplier tySupplier;
     private final DoubleSupplier omegaSupplier;
@@ -83,26 +85,28 @@ public class JoyStickDrive extends StormCommand {
 
     @Override
     public void execute() {
-        if (turboSupplier.getAsBoolean()) {
+        if (turboSupplier.getAsDouble() <= 0.2) {
             drivetrain.setDriveSpeedScale(Drive.precisionSpeedScale);
         } else {
-            drivetrain.setDriveSpeedScale(Drive.driveSpeedScale);
+            drivetrain.setDriveSpeedScale(turboSupplier.getAsDouble());
         }
 
         boolean fieldRelative = !robotRelativeSupplier.getAsBoolean();
         double x = txSupplier.getAsDouble();
+        Logger.recordOutput("x", x);
         double y = tySupplier.getAsDouble();
+        Logger.recordOutput("y", y);
         double omega = omegaSupplier.getAsDouble();
-
-        if (Constants.ButtonBoard.squarePath) {
-            x = xScaleLimiter.calculate(x*Math.abs(x));
-            y = yScaleLimiter.calculate(y*Math.abs(y));
-            omega = omegaScaleLimiter.calculate(omega*Math.abs(omega));
-        } else {
-            x = xScaleLimiter.calculate(x);
-            y = yScaleLimiter.calculate(y);
-            omega = omegaScaleLimiter.calculate(omega);
-        }
+//
+//        if (Constants.ButtonBoard.squarePath) {
+//            x = xScaleLimiter.calculate(x*Math.abs(x));
+//            y = yScaleLimiter.calculate(y*Math.abs(y));
+//            omega = omegaScaleLimiter.calculate(omega*Math.abs(omega));
+//        } else {
+//            x = xScaleLimiter.calculate(x);
+//            y = yScaleLimiter.calculate(y);
+//            omega = omegaScaleLimiter.calculate(omega);
+//        }
 
         // When on the red alliance, we want to have "forward" mean "move in the -X direction" and so on.
         // But only for field relative driving. Robot relative driving is always the same
