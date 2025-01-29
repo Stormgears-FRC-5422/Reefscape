@@ -36,4 +36,10 @@ public abstract class ReefscapeJoystick {
     public boolean coralOuttake() {
         return false;
     }
+    public boolean elevatorLevel1() {
+        return false;
+    }
+    public boolean store() {
+        return false;
+    }
 }

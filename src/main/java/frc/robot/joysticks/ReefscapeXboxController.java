@@ -48,4 +48,12 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
     public boolean coralOuttake(){
         return XboxController.getBButtonIsHeld();
     }
+    @Override
+    public boolean store(){
+        return XboxController.getAButtonIsHeld();
+    }
+    @Override
+    public boolean elevatorLevel1(){
+        return XboxController.getYButtonIsHeld();
+    }
 }
