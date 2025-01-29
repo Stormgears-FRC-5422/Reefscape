@@ -1,15 +1,15 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Elevator.ElevatorLevels;
+import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.utils.StormCommand;
 
 public class MoveToLevels extends StormCommand {
 
     private final Elevator elevatorSubsystem;
-    private final ElevatorLevels targetLevel;
+    private final ElevatorLevel targetLevel;
 
-    public MoveToLevels(Elevator elevatorSubsystem, ElevatorLevels targetLevel) {
+    public MoveToLevels(Elevator elevatorSubsystem, ElevatorLevel targetLevel) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.targetLevel = targetLevel;
         
@@ -19,7 +19,7 @@ public class MoveToLevels extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
-        elevatorSubsystem.setElevatorLevel(targetLevel);
+        elevatorSubsystem.setTargetLevel(targetLevel);
     }
 
     @Override
@@ -33,6 +33,6 @@ public class MoveToLevels extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return elevatorSubsystem.getElevatorLevel() == targetLevel;
+        return elevatorSubsystem.getTargetLevel() == targetLevel;
     }
 }

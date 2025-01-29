@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CoralIntakeCommand;
+import frc.robot.commands.ElevatorDiagnostic;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.MoveToLevels;
 import frc.robot.joysticks.IllegalJoystickTypeException;
@@ -18,7 +19,7 @@ import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
 import frc.robot.subsystems.CoralIntake;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Elevator.ElevatorLevels;
+import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
@@ -103,8 +104,8 @@ public class RobotContainer {
             new Trigger(()-> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
         }
         if (Constants.Toggles.useElevator) {
-            new Trigger(() -> joystick.elevatorLevel1()).onTrue(new MoveToLevels(elevator, ElevatorLevels.LEVEL1));
-            new Trigger(() -> joystick.store()).onTrue(new MoveToLevels(elevator, ElevatorLevels.STORE));
+            new Trigger(() -> joystick.elevatorLevel1()).whileTrue(new ElevatorDiagnostic(elevator, true));
+            new Trigger(() -> joystick.store()).whileTrue(new ElevatorDiagnostic(elevator, false));
         }
     }
     

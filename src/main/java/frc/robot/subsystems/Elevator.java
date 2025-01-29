@@ -1,23 +1,54 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
+import frc.robot.Constants;
 import frc.robot.Constants.SparkConstants;
 import frc.utils.StormSubsystem;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
+
+
 
 public class Elevator extends StormSubsystem {
 
-    public enum ElevatorLevels {
-        LEVEL1,
-        LEVEL2,
-        LEVEL3,
-        LEVEL4,
-        STORE
+    public enum ElevatorLevel {
+        UNKNOWN(Double.NaN),
+        FLOOR(Double.NEGATIVE_INFINITY),
+        BOTTOM(0),
+        STORE(Double.NaN),
+        LEVEL1(Double.NaN),
+        LEVEL2(Double.NaN),
+        LEVEL3(Double.NaN),
+        LEVEL4(Double.NaN),
+        TOP(20),
+        CEILING(Double.POSITIVE_INFINITY);
+
+        private double position;
+
+        ElevatorLevel(double position) {
+            this.position = position;
+        }
+
+        public double getValue() {
+            return position;
+        }
     }
+
+    private double elevatorSpeed;
+
+    private RelativeEncoder m_followerEncoder;
+    private RelativeEncoder m_leaderEncoder;
+
+    private SparkLimitSwitch topLimitSwitch;
+    private SparkLimitSwitch bottomLimitSwitch;
+    
 
     private final SparkMax elevatorLeader;
     private final SparkMax elevatorFollower;
@@ -27,11 +58,17 @@ public class Elevator extends StormSubsystem {
     private final DigitalInput proximitySensorLevel4;
     private final DigitalInput proximitySensorStore;
 
-    private ElevatorLevels elevatorLevel;
+    private ElevatorLevel targetLevel;
 
     public Elevator() {
         elevatorLeader = new SparkMax(14, SparkLowLevel.MotorType.kBrushless);
         elevatorFollower = new SparkMax(15, SparkLowLevel.MotorType.kBrushless);
+
+        m_leaderEncoder = elevatorLeader.getEncoder();
+        m_followerEncoder = elevatorFollower.getEncoder();
+
+        topLimitSwitch = elevatorLeader.getForwardLimitSwitch();
+        bottomLimitSwitch = elevatorLeader.getReverseLimitSwitch();
 
         proximitySensorLevel1 = new DigitalInput(1);
         proximitySensorLevel2 = new DigitalInput(2);
@@ -42,6 +79,23 @@ public class Elevator extends StormSubsystem {
         SparkMaxConfig globalConfig = new SparkMaxConfig();
         globalConfig.smartCurrentLimit(SparkConstants.CurrentLimit);
         globalConfig.idleMode(IdleMode.kBrake);
+        if (Constants.Elevator.brakeMode) {
+            globalConfig.idleMode(IdleMode.kBrake);
+        } else {
+            globalConfig.idleMode(IdleMode.kCoast);
+        }
+        
+        globalConfig.limitSwitch
+        .forwardLimitSwitchType(Type.kNormallyOpen)
+        .forwardLimitSwitchEnabled(true)
+        .reverseLimitSwitchType(Type.kNormallyOpen)
+        .reverseLimitSwitchEnabled(true);
+
+        globalConfig.softLimit
+        .forwardSoftLimit(ElevatorLevel.TOP.getValue()) 
+        .forwardSoftLimitEnabled(true)
+        .reverseSoftLimit(ElevatorLevel.BOTTOM.getValue()) 
+        .reverseSoftLimitEnabled(true);
 
         SparkMaxConfig elevatorLeaderConfig = new SparkMaxConfig();
         SparkMaxConfig elevatorFollowerConfig = new SparkMaxConfig();
@@ -52,78 +106,117 @@ public class Elevator extends StormSubsystem {
         elevatorLeader.configure(elevatorLeaderConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
         elevatorFollower.configure(elevatorFollowerConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-        elevatorLevel = ElevatorLevels.STORE;
+        targetLevel = ElevatorLevel.UNKNOWN;
+
+        
     }
 
     @Override
     public void periodic() {
-        switch (elevatorLevel) {
-            case LEVEL1:
-                if (!proximitySensorLevel1.get()) {
-                    moveElevatorUp();
-                } else {
-                    stopElevator();
-                }
-                break;
+        super.periodic();
 
-            case LEVEL2:
-                if (!proximitySensorLevel2.get()) {
-                    moveElevatorUp();
-                } else {
-                    stopElevator();
-                }
-                break;
-
-            case LEVEL3:
-                if (!proximitySensorLevel3.get()) {
-                    moveElevatorUp();
-                } else {
-                    stopElevator();
-                }
-                break;
-
-            case LEVEL4:
-                if (!proximitySensorLevel4.get()) {
-                    moveElevatorUp();
-                } else {
-                    stopElevator();
-                }
-                break;
-
-            case STORE:
-                if (!proximitySensorStore.get()) {
-                    moveElevatorDown();
-                } else {
-                    stopElevator();
-                }
-                break;
-
-            default:
+        double currentPosition = m_leaderEncoder.getPosition();
+        
+        console("position is " + currentPosition, 50);
+        if (elevatorSpeed != 0) {
+            if (currentPosition < targetLevel.getValue()) {
+                moveElevatorUp();
+            } else if (currentPosition > targetLevel.getValue()) {
+                moveElevatorDown();
+            } else {
                 stopElevator();
-                break;
+            }
+        } else {
+            stopElevator();
         }
-    }
 
-    public void setElevatorLevel(ElevatorLevels state) {
-        if (elevatorLevel != ElevatorLevels.STORE) {
-            return; //because this code will currently only go up searching for the sensors, it can't go from L2 to L1 so this makes it so it can only go to store if it's on a level
+        if (topLimitSwitch.isPressed()) {
+            stopElevator();
         }
-        this.elevatorLevel = state;
+        
+        if (bottomLimitSwitch.isPressed()) {
+            stopElevator();
+        }
+
+
+        //get position
+
+        //if position < target then
+        // move up
+        // else move down
+
+        //ifelse position == target
+        //stop
+        
+        // switch (targetLevel) {
+        //     case LEVEL1:
+        //         if (!proximitySensorLevel1.get()) {
+        //             moveElevatorUp();
+        //         } else {
+        //             stopElevator();
+        //         }
+        //         break;
+
+        //     case LEVEL2:
+        //         if (!proximitySensorLevel2.get()) {
+        //             moveElevatorUp();
+        //         } else {
+        //             stopElevator();
+        //         }
+        //         break;
+
+        //     case LEVEL3:
+        //         if (!proximitySensorLevel3.get()) {
+        //             moveElevatorUp();
+        //         } else {
+        //             stopElevator();
+        //         }
+        //         break;
+
+        //     case LEVEL4:
+        //         if (!proximitySensorLevel4.get()) {
+        //             moveElevatorUp();
+        //         } else {
+        //             stopElevator();
+        //         }
+        //         break;
+
+        //     case STORE:
+        //         if (!proximitySensorStore.get()) {
+        //             moveElevatorDown();
+        //         } else {
+        //             stopElevator();
+        //         }
+        //         break;
+
+        //     default:
+        //         stopElevator();
+        //         break;
+        //}
     }
 
-    public ElevatorLevels getElevatorLevel() {
-        return elevatorLevel;
+    public void setTargetLevel(ElevatorLevel targetLevel) {
+        this.targetLevel = targetLevel;
     }
 
-    public void moveElevatorUp() {
-        elevatorLeader.set(0.5);
+    public void setSpeed(double speed) {
+        this.elevatorSpeed = Math.abs(speed);
     }
 
-    public void moveElevatorDown() {
-        elevatorLeader.set(-0.5);
+    public ElevatorLevel getTargetLevel() {
+        return targetLevel;
+    }
+
+    private void moveElevatorUp() {
+        elevatorLeader.set(elevatorSpeed);
+    }
+
+    private void moveElevatorDown() {
+        elevatorLeader.set(-elevatorSpeed);
     }
 
     public void stopElevator() {
+        setSpeed(0);
         elevatorLeader.set(0);
     }
 }
