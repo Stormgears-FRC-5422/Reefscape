@@ -120,7 +120,16 @@ public abstract class DrivetrainBase extends StormSubsystem {
         return new Pose2d();
     }
 
+    public void runCharacterization(double output){
 
+    }
+
+    /**
+     * Returns the average velocity of the modules in rotations/sec (Phoenix native units).
+     */
+    public double getFFCharacterizationVelocity() {
+      return 0.0;
+    }
 
 
         // Teach the drive that the current orientation is facing the opposite end of the field

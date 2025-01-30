@@ -211,6 +211,19 @@ public class AKdrive extends DrivetrainBase {
     }
 
 
+    public void runTurnCharacterization(double output) {
+        for (int i = 0; i < 4; i++) {
+            modules[i].runTurnCharacterization(output);
+        }
+    }
+
+    public void runAngleMotionCharacterization(double output) {
+        for (int i = 0; i < 4; i++) {
+            modules[i].runAngularMotionCharacterization(output);
+        }
+    }
+
+
     /**
      * Stops the drive.
      */
