@@ -11,24 +11,6 @@ public final class Main {
     private Main() {}
 
     public static void main(String... args) {
-
-        try {
-            RobotBase.startRobot(Robot::new);
-        } catch (Exception e) {
-            System.out.println("Unhandled exception in robot code!!");
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-
-        // We only get here if we caught in un
-        if (Debug.debug && Debug.holdCrash) {
-            try {
-                while (true) {
-                    Thread.sleep(1000);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        RobotBase.startRobot(Robot::new);
     }
 }

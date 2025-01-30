@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.ElevatorDiagnostic;
@@ -92,23 +93,34 @@ public class RobotContainer {
 
         if (Toggles.useElevator) {
             elevator = new Elevator();
-
         }
-        configureBindings();
+
+        if (Toggles.useController) {
+            configureBindings();
+        }
+
         console("constructor ended");
     }
 
     private void configureBindings() {
-        if (Constants.Toggles.useCoralIntake){
+        console("configure button bindings");
+
+        if (Toggles.useDrive) {
+            new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
+        }
+
+        if (Toggles.useCoralIntake){
             new Trigger(()-> joystick.coralIntake()).onTrue(coralIntakeCommand);
             new Trigger(()-> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
         }
-        if (Constants.Toggles.useElevator) {
+
+        if (Toggles.useElevator) {
             new Trigger(() -> joystick.elevatorLevel1()).whileTrue(new ElevatorDiagnostic(elevator, true));
             new Trigger(() -> joystick.store()).whileTrue(new ElevatorDiagnostic(elevator, false));
         }
+
     }
-    
+
 
     public Command getAutonomousCommand() {
         return Commands.print("No autonomous command configured");

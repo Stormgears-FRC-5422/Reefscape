@@ -81,6 +81,39 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
+    public void startCompetition(){
+        boolean hold = false;
+        Exception tmpException = null;
+
+        try {
+            super.startCompetition();
+        } catch (Exception e) {
+            if (Constants.Debug.debug && Constants.Debug.holdCrash) {
+                tmpException = e;
+                hold = true;
+            } else {
+                throw e; // Normal behavior to crash and restart program
+            }
+        }
+
+        if (hold) {
+            console("Holding console after crash due to unhandled exception");
+            console("You will need to RESTART ROBOT CODE, REDEPLOY, or REBOOT ROBORIO to proceed");
+            console("Message: " + tmpException.getMessage());
+            console("Stack trace:");
+            tmpException.printStackTrace();
+            try {
+                while (true) {
+                    Thread.sleep(1000);
+                }
+            } catch (Exception x) {
+                x.printStackTrace();
+            }
+        }
+    }
+
+
+    @Override
     public void robotPeriodic() {
         iteration++;
         Threads.setCurrentThreadPriority(true, 99);
@@ -128,6 +161,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousPeriodic() {
+        throw new RuntimeException("This is a test exception. Delete me");
     }
 
     @Override
