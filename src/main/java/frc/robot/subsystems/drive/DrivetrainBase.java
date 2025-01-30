@@ -120,7 +120,10 @@ public abstract class DrivetrainBase extends StormSubsystem {
         return new Pose2d();
     }
 
-    // Teach the drive that the current orientation is facing the opposite end of the field
+
+
+
+        // Teach the drive that the current orientation is facing the opposite end of the field
     // this function is ideally alliance aware, and manages the pose and gyro as needed
     public void resetOrientation() {
     }

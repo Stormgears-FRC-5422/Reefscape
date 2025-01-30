@@ -116,6 +116,8 @@ public class AKdrive extends DrivetrainBase {
     @Override
     public void periodic() {
 
+
+
         runVelocity(m_chassisSpeeds);
 
         odometryLock.lock(); // Prevents odometry updates while reading data
@@ -207,6 +209,7 @@ public class AKdrive extends DrivetrainBase {
             modules[i].runCharacterization(output);
         }
     }
+
 
     /**
      * Stops the drive.
@@ -300,6 +303,8 @@ public class AKdrive extends DrivetrainBase {
         }
         return output;
     }
+
+
 
     /**
      * Returns the current odometry pose.
