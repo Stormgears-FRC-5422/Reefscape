@@ -5,14 +5,14 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.LimitSwitchConfig.Type;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.Constants;
 import frc.robot.Constants.SparkConstants;
 import frc.utils.StormSubsystem;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 
 
 
@@ -40,6 +40,18 @@ public class Elevator extends StormSubsystem {
             return position;
         }
     }
+    public enum ElevatorState {
+        UNKNOWN,
+        FLOOR,
+        BOTTOM,
+        STORE,
+        LEVEL1,
+        LEVEL2,
+        LEVEL3,
+        LEVEL4,
+        TOP,
+        CEILING;
+    }
 
     private double elevatorSpeed;
 
@@ -59,6 +71,7 @@ public class Elevator extends StormSubsystem {
     private final DigitalInput proximitySensorStore;
 
     private ElevatorLevel targetLevel;
+    private ElevatorState currentState;
 
     public Elevator() {
         elevatorLeader = new SparkMax(14, SparkLowLevel.MotorType.kBrushless);
@@ -107,7 +120,8 @@ public class Elevator extends StormSubsystem {
         elevatorFollower.configure(elevatorFollowerConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
         targetLevel = ElevatorLevel.UNKNOWN;
-
+        currentState = ElevatorState.UNKNOWN;
+        
         
     }
 
@@ -139,60 +153,36 @@ public class Elevator extends StormSubsystem {
         }
 
 
-        //get position
+        // get position
 
-        //if position < target then
+        // if position < target then
         // move up
         // else move down
 
-        //ifelse position == target
-        //stop
+        // ifelse position == target
+        // stop
         
-        // switch (targetLevel) {
-        //     case LEVEL1:
-        //         if (!proximitySensorLevel1.get()) {
-        //             moveElevatorUp();
-        //         } else {
-        //             stopElevator();
-        //         }
-        //         break;
+        switch (targetLevel) {
+            case UNKNOWN:
 
-        //     case LEVEL2:
-        //         if (!proximitySensorLevel2.get()) {
-        //             moveElevatorUp();
-        //         } else {
-        //             stopElevator();
-        //         }
-        //         break;
+            case FLOOR:
 
-        //     case LEVEL3:
-        //         if (!proximitySensorLevel3.get()) {
-        //             moveElevatorUp();
-        //         } else {
-        //             stopElevator();
-        //         }
-        //         break;
+            case BOTTOM:
 
-        //     case LEVEL4:
-        //         if (!proximitySensorLevel4.get()) {
-        //             moveElevatorUp();
-        //         } else {
-        //             stopElevator();
-        //         }
-        //         break;
+            case STORE:
 
-        //     case STORE:
-        //         if (!proximitySensorStore.get()) {
-        //             moveElevatorDown();
-        //         } else {
-        //             stopElevator();
-        //         }
-        //         break;
+            case LEVEL1:
+               
+            case LEVEL2:
+                
+            case LEVEL3:
+               
+            case LEVEL4:
 
-        //     default:
-        //         stopElevator();
-        //         break;
-        //}
+            case TOP:
+
+            case CEILING:
+        }
     }
 
     public void setTargetLevel(ElevatorLevel targetLevel) {
