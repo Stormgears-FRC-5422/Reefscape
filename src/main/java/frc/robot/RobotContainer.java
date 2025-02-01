@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.vision.CameraPose;
@@ -108,6 +109,11 @@ public class RobotContainer {
         if (Constants.Toggles.useCoralIntake){
             new Trigger(()-> joystick.coralIntake()).onTrue(coralIntakeCommand);
             new Trigger(()-> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
+        } if (Toggles.useDrive){
+            new Trigger(()-> joystick.coralIntake()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward)); //X
+            new Trigger(()-> joystick.coralOuttake()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));//B
+            new Trigger(()-> joystick.zeroGyro()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward)); //rb
+            new Trigger(()-> joystick.zeroWheels()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)); //A
         }
     }
 

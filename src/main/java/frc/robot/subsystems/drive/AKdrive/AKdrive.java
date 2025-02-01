@@ -102,6 +102,16 @@ public class AKdrive extends DrivetrainBase {
 
 
         // Configure SysId
+//        sysId =
+//            new SysIdRoutine(
+//                new SysIdRoutine.Config(
+//                    null,
+//                    null,
+//                    null,
+//                    (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
+//                new SysIdRoutine.Mechanism(
+//                    (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+        // Configure SysId
         sysId =
             new SysIdRoutine(
                 new SysIdRoutine.Config(
@@ -110,7 +120,7 @@ public class AKdrive extends DrivetrainBase {
                     null,
                     (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
-                    (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+                    (voltage) -> runTurnCharacterization(voltage.in(Volts)), null, this));
     }
 
     @Override
@@ -245,11 +255,27 @@ public class AKdrive extends DrivetrainBase {
         stop();
     }
 
+//    /**
+//     * Returns a command to run a quasistatic test in the specified direction.
+//     */
+//    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+//        return run(() -> runCharacterization(0.0))
+//            .withTimeout(1.0)
+//            .andThen(sysId.quasistatic(direction));
+//    }
+//
+//    /**
+//     * Returns a command to run a dynamic test in the specified direction.
+//     */
+//    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+//        return run(() -> runCharacterization(0.0)).withTimeout(1.0).andThen(sysId.dynamic(direction));
+//    }
+
     /**
      * Returns a command to run a quasistatic test in the specified direction.
      */
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return run(() -> runCharacterization(0.0))
+        return run(() -> runTurnCharacterization(0.0))
             .withTimeout(1.0)
             .andThen(sysId.quasistatic(direction));
     }
@@ -258,7 +284,7 @@ public class AKdrive extends DrivetrainBase {
      * Returns a command to run a dynamic test in the specified direction.
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return run(() -> runCharacterization(0.0)).withTimeout(1.0).andThen(sysId.dynamic(direction));
+        return run(() -> runTurnCharacterization(0.0)).withTimeout(1.0).andThen(sysId.dynamic(direction));
     }
 
     /**
