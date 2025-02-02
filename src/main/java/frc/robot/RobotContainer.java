@@ -18,11 +18,8 @@ import frc.robot.commands.MoveToLevels;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
-import frc.robot.subsystems.CoralIntake;
-import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.*;
 import frc.robot.subsystems.Elevator.ElevatorLevel;
-import frc.robot.subsystems.Lights;
-import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
@@ -49,6 +46,7 @@ public class RobotContainer {
     private VisionSubsystem visionSubsystem;
     private Lights lights;
     private Elevator elevator;
+    private ColorSensor colorSensor;
 
     // **********
     // Commands and Control
@@ -74,6 +72,10 @@ public class RobotContainer {
 
         if (Constants.Toggles.useLights) {
             lights = new Lights();
+        }
+
+        if (Constants.Toggles.useColorSensor) {
+            colorSensor = new ColorSensor();
         }
 
         if (Toggles.useVision){
