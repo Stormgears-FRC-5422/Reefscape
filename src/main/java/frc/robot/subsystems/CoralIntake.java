@@ -9,9 +9,11 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Intake;
 import frc.robot.Constants.SparkConstants;
+import frc.robot.RobotState;
 
 public class CoralIntake extends SubsystemBase {
     //different intake states
@@ -20,16 +22,16 @@ public class CoralIntake extends SubsystemBase {
     }
 
     private final SparkMax intakeLeader;
-//    private final SparkMax intakeFollower;
     private double intakeMotorSpeed;
+    private final DigitalInput proximitySensorIntake;
+    private final RobotState m_robotState;
 
     public CoralIntake() {
         intakeLeader = new SparkMax(Intake.leaderID, SparkLowLevel.MotorType.kBrushless);
-//        intakeFollower = new SparkMax(Intake.followerID, SparkLowLevel.MotorType.kBrushless);
+        proximitySensorIntake = new DigitalInput(0);
 
         SparkMaxConfig globalConfig = new SparkMaxConfig();
         SparkMaxConfig intakeLeaderConfig = new SparkMaxConfig();
-//        SparkMaxConfig intakeFollowerConfig = new SparkMaxConfig();
 
         globalConfig.smartCurrentLimit(SparkConstants.Neo550CurrentLimit).idleMode(IdleMode.kBrake);
 
@@ -38,20 +40,19 @@ public class CoralIntake extends SubsystemBase {
 
         // Apply the global config and set to follow the leader
         // The "true" here means invert wrt the leader
-//        intakeFollowerConfig.apply(globalConfig).follow(intakeLeader, true);
 
         intakeLeader.configure(intakeLeaderConfig,
             SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-//        intakeFollower.configure(intakeFollowerConfig,
-//            SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
         setCoralIntakeState(CoralIntakeState.OFF);
+        m_robotState = RobotState.getInstance();
     }
 
     @Override
     public void periodic() {
         super.periodic();
         intakeLeader.set(intakeMotorSpeed);
+        m_robotState.setCoralSensorTriggered(isSensorTriggered());
     }
 
     public void setCoralIntakeState(CoralIntakeState state) {
@@ -71,4 +72,10 @@ public class CoralIntake extends SubsystemBase {
     private void setSpeed(double speed) {
         intakeMotorSpeed = speed;
     }
+
+    public boolean isSensorTriggered(){
+        return !proximitySensorIntake.get();
+    }
+
 }
+
