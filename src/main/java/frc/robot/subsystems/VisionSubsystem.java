@@ -143,11 +143,11 @@ public class VisionSubsystem extends StormSubsystem {
     public void periodic() {
         super.periodic();
         latestLimelightResults = null;
-        Pose2d botPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId).pose;
-        if (botPose != null) {
-            Transform2d difference = poseTag.minus(botPose);
-            console(difference.toString());
-        }
+        //Pose2d botPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId).pose;
+        //if (botPose != null) {
+       //     Transform2d difference = poseTag.minus(botPose);
+         //   console(difference.toString());
+        //}
 
 //        Transform2d sigma = new Transform2d(poseTag, LimelightHelpers.getBotPose2d_wpiBlue(limelightId));
         //console("botPose in target space" + Arrays.toString(LimelightHelpers.getBotPose_TargetSpace(limelightId)));
