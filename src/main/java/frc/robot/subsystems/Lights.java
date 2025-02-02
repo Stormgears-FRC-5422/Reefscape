@@ -51,14 +51,16 @@ public class Lights extends StormSubsystem {
         super.periodic();
 
         // Reset alliance color
-        if (m_robotState.getAlliance() != m_alliance){
-            m_alliance = m_robotState.getAlliance();
+
+        if (m_robotState.isCoralSensorTriggered()){
+            setRainbow();
+        }
+        else{
+            if (m_robotState.getAlliance() != m_alliance){
+                m_alliance = m_robotState.getAlliance();
+            }
             setAllianceColor();
         }
-
-        //TODO: update color if intake sensor triggered
-        // if (sensor triggered)
-        setRainbow();
 
         // Write the data to the LED strip
         m_led.setData(m_ledBuffer);

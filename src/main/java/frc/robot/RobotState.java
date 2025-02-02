@@ -38,6 +38,7 @@ public class RobotState extends SubsystemBase {
     private final StateSimMode m_simMode;
     private boolean m_didAuto = false;
     private boolean m_didTeleop = false;
+    boolean m_isCoralSensorTriggered = false;
 
     // Call createInstance from robotInit()
     public static RobotState createInstance() {
@@ -150,6 +151,14 @@ public class RobotState extends SubsystemBase {
         Translation2d tran2d = new Translation2d(inData[0], inData[1]);
         Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
         return new Pose2d(tran2d, r2d);
+    }
+
+    public void setCoralSensorTriggered(boolean triggered){
+        m_isCoralSensorTriggered = triggered;
+    }
+
+    public boolean isCoralSensorTriggered(){
+        return m_isCoralSensorTriggered;
     }
 
 }
