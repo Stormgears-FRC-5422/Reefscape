@@ -74,14 +74,10 @@ public class RobotContainer {
             lights = new Lights();
         }
 
-        if (Toggles.useVision){
-            visionSubsystem = new VisionSubsystem("limelight");
-        }
-
         if (Constants.Toggles.useVision) {
             visionSubsystem = new VisionSubsystem(Constants.Vision.limelightID);
-            cameraPose = new CameraPose(visionSubsystem);
-            visionSubsystem.setDefaultCommand(cameraPose);
+            //cameraPose = new CameraPose(visionSubsystem);
+            //visionSubsystem.setDefaultCommand(cameraPose);
         }
 
         // Note that this might pass a NULL drive if that is disabled. The JoyStick drive

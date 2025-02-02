@@ -6,9 +6,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.studica.frc.AHRS;
 import frc.robot.Constants;
 import frc.robot.RobotState;
+import frc.utils.StormSubsystem;
 import frc.utils.vision.LimelightHelpers;
 
-public class NavX extends SubsystemBase {
+public class NavX extends StormSubsystem {
     private final AHRS navx;
     public Rotation2d getAbsoluteRotation;
     public NavX() {
@@ -25,6 +26,7 @@ public class NavX extends SubsystemBase {
     }
     @Override
     public void periodic() {
-        LimelightHelpers.SetRobotOrientation("", getYaw(), 0.0, 0.0, 0.0, 0.0, 0.0);
+        //console(Double.toString(getYaw()));
+        LimelightHelpers.SetRobotOrientation("", -getYaw()-60, 0.0, 0.0, 0.0, 0.0, 0.0);
     }
 }
