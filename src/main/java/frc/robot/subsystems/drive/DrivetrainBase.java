@@ -13,6 +13,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
@@ -120,7 +121,19 @@ public abstract class DrivetrainBase extends StormSubsystem {
         return new Pose2d();
     }
 
-    // Teach the drive that the current orientation is facing the opposite end of the field
+    public void runCharacterization(double output){
+
+    }
+
+    /**
+     * Returns the average velocity of the modules in rotations/sec (Phoenix native units).
+     */
+    public double getFFCharacterizationVelocity() {
+      return 0.0;
+    }
+
+
+        // Teach the drive that the current orientation is facing the opposite end of the field
     // this function is ideally alliance aware, and manages the pose and gyro as needed
     public void resetOrientation() {
     }
@@ -138,49 +151,21 @@ public abstract class DrivetrainBase extends StormSubsystem {
         return new Rotation2d();
     }
 
-    public Command getQuasForwardCommand() {
-        return new Command() {
-        };
+
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+       return new Command() {
+       };
     }
 
-    public Command getQuasBackwardCommand() {
-        return new Command() {
-        };
-    }
-
-    public Command getDynamicForwardCommand() {
-        return new Command() {
-        };
-    }
-
-    public Command getDynamicBackwardCommand() {
-        return new Command() {
-        };
-    }
-
-    public void zeroWheels() {
-
-    }
-
-    public void setHeadingCorrectionTrue() {
-    }
-
-    public Command getSysIdCommand() {
+    /**
+     * Returns a command to run a dynamic test in the specified direction.
+     */
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return new Command() {
         };
 
     }
 
-
-
-    public SwerveDriveKinematics getKinematics() {
-        return new SwerveDriveKinematics();
-    }
-
-
-    public void setSwerveModulesStates(SwerveModuleState[] swerveModulesStates) {
-
-    }
 
     protected void setDriveFlip(boolean flip) {
         driveFlip = flip;
