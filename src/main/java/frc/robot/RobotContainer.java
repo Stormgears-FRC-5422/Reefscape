@@ -158,8 +158,8 @@ public class RobotContainer {
             // This reset only really matter for non-match situations.
             initialPose = new Pose2d();
         }
-
-        drivetrain.declarePoseIsNow(initialPose);
+        if (Toggles.useDrive)
+            drivetrain.declarePoseIsNow(initialPose);
     }
 
     public void console(String message) {

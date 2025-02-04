@@ -16,6 +16,7 @@ public class CoralIntakeCommand extends StormCommand {
     private final CoralIntake coralIntake;
     private final CoralIntake.CoralIntakeState direction;
     private int counter;
+    private int finished_counter;
 
     public CoralIntakeCommand(CoralIntake coralIntake, boolean intake) {
         this.coralIntake = coralIntake;
@@ -30,6 +31,7 @@ public class CoralIntakeCommand extends StormCommand {
         console("direction = " + (direction == CoralIntakeState.INTAKE ? "Intake" : "Outtake"));
 
         counter = 0;
+        finished_counter = 0;
         coralIntake.setCoralIntakeState(direction);
     }
 
@@ -48,6 +50,9 @@ public class CoralIntakeCommand extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return counter >= Intake.intakeIterationCount;
+        if(coralIntake.isSensorTriggered()) {
+            finished_counter++;
+        }
+        return (counter >= Intake.intakeIterationCount || finished_counter == 5);
     }
 }

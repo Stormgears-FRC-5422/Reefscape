@@ -53,7 +53,7 @@ public class Lights extends StormSubsystem {
         // Reset alliance color
 
         if (m_robotState.isCoralSensorTriggered()){
-            setRainbow();
+            setSolid(Color.kDarkGreen);
         }
         else{
             if (m_robotState.getAlliance() != m_alliance){
@@ -106,6 +106,7 @@ public class Lights extends StormSubsystem {
     public void setSolid(Color color) {
         // Create an LED pattern that sets the entire strip to one color
         LEDPattern pattern = LEDPattern.solid(color);
+        pattern.applyTo(m_ledBuffer);
     }
 
     public void setManually() {
