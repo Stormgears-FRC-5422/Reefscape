@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
 import frc.utils.vision.LimelightExtra;
@@ -136,6 +137,65 @@ public class VisionSubsystem extends StormSubsystem {
             return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId));
         }
         return Optional.empty();
+    }
+    public double getDistance(int id) {
+        Pose2d tagPose;
+        switch (id) {
+            case 1:
+                tagPose = new Pose2d(Constants.Vision.tag1X, Constants.Vision.tag1Y, new Rotation2d(Constants.Vision.tag1Rotation));
+                break;
+            case 2:
+                tagPose = new Pose2d(Constants.Vision.tag2X, Constants.Vision.tag2Y, new Rotation2d(Constants.Vision.tag2Rotation));
+                break;
+            case 3:
+                tagPose = new Pose2d(Constants.Vision.tag3X, Constants.Vision.tag3Y, new Rotation2d(Constants.Vision.tag3Rotation));
+                break;
+            case 4:
+                tagPose = new Pose2d(Constants.Vision.tag4X, Constants.Vision.tag4Y, new Rotation2d(Constants.Vision.tag4Rotation));
+                break;
+            case 5:
+                tagPose = new Pose2d(Constants.Vision.tag5X, Constants.Vision.tag5Y, new Rotation2d(Constants.Vision.tag5Rotation));
+                break;
+            case 6:
+                tagPose = new Pose2d(Constants.Vision.tag6X, Constants.Vision.tag6Y, new Rotation2d(Constants.Vision.tag6Rotation));
+                break;
+            case 7:
+                tagPose = new Pose2d(Constants.Vision.tag7X, Constants.Vision.tag7Y, new Rotation2d(Constants.Vision.tag7Rotation));
+                break;
+            case 8:
+                tagPose = new Pose2d(Constants.Vision.tag8X, Constants.Vision.tag8Y, new Rotation2d(Constants.Vision.tag8Rotation));
+                break;
+            case 9:
+                tagPose = new Pose2d(Constants.Vision.tag9X, Constants.Vision.tag9Y, new Rotation2d(Constants.Vision.tag9Rotation));
+                break;
+            case 18:
+                tagPose = new Pose2d(Constants.Vision.tag18X, Constants.Vision.tag18Y, new Rotation2d(Constants.Vision.tag18Rotation));
+                break;
+            case 19:
+                tagPose = new Pose2d(Constants.Vision.tag19X, Constants.Vision.tag19Y, new Rotation2d(Constants.Vision.tag19Rotation));
+                break;
+            case 20:
+                tagPose = new Pose2d(Constants.Vision.tag20X, Constants.Vision.tag20Y, new Rotation2d(Constants.Vision.tag20Rotation));
+                break;
+            case 21:
+                tagPose = new Pose2d(Constants.Vision.tag21X, Constants.Vision.tag21Y, new Rotation2d(Constants.Vision.tag21Rotation));
+                break;
+            case 22:
+                tagPose = new Pose2d(Constants.Vision.tag22X, Constants.Vision.tag22Y, new Rotation2d(Constants.Vision.tag22Rotation));
+                break;
+            default:
+                return 0; // Invalid ID
+        }
+        Pose2d robotPose = robotState.getPose();
+        return robotPose.minus(tagPose).getTranslation().getNorm();
+    }
+    public double getAvgDist() {
+        double[] a = LimelightExtra.getTagIDs(limelightId);
+        double[] distances = new double[a.length];
+        for (double i : a) {
+            distances[(int) i] = getDistance((int) i);
+        }
+        return Arrays.stream(distances).sum() / distances.length;
     }
 
 
