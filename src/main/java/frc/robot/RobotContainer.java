@@ -138,13 +138,15 @@ public class RobotContainer {
             new Trigger(()-> buttonBoard.coralIntake()).onTrue(coralIntakeCommand);
             new Trigger(()-> buttonBoard.coralOuttake()).onTrue(coralOuttakeCommand);
         }
-
+        // TODO: Fix elevator code below to trigger the correct level. We don't have a button on board for store()?
         if (Toggles.useElevator) {
             new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(new ElevatorDiagnostic(elevator, true));
             new Trigger(() -> buttonBoard.elevatorLevel2()).whileTrue(new ElevatorDiagnostic(elevator, true));
             new Trigger(() -> buttonBoard.elevatorLevel3()).whileTrue(new ElevatorDiagnostic(elevator, true));
             new Trigger(() -> buttonBoard.elevatorLevel4()).whileTrue(new ElevatorDiagnostic(elevator, true));
         }
+
+        // TODO: Add the remaining button board triggers
     }
 
 
