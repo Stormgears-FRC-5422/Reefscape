@@ -18,6 +18,7 @@ import frc.robot.commands.MoveToLevels;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
+import frc.robot.joysticks.ReefscapeButtonBoard;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.robot.subsystems.drive.DrivetrainBase;
@@ -52,6 +53,7 @@ public class RobotContainer {
     // Commands and Control
     // **********
     ReefscapeJoystick joystick;
+    ReefscapeJoystick buttonBoard;
     CoralIntakeCommand coralIntakeCommand;
     CoralIntakeCommand coralOuttakeCommand;
 
@@ -101,6 +103,12 @@ public class RobotContainer {
             configureBindings();
         }
 
+        if (Toggles.useButtonBoard) {
+            console("Making button board!");
+            buttonBoard = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.buttonBoard, Constants.ButtonBoard.buttonBoardPort1);
+            configureButtonBoardBindings();
+        }
+
         console("constructor ended");
     }
 
@@ -121,6 +129,22 @@ public class RobotContainer {
             new Trigger(() -> joystick.store()).whileTrue(new ElevatorDiagnostic(elevator, false));
         }
 
+    }
+
+    private void configureButtonBoardBindings() {
+        console("configure button board bindings");
+
+        if (Toggles.useCoralIntake){
+            new Trigger(()-> buttonBoard.coralIntake()).onTrue(coralIntakeCommand);
+            new Trigger(()-> buttonBoard.coralOuttake()).onTrue(coralOuttakeCommand);
+        }
+
+        if (Toggles.useElevator) {
+            new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(new ElevatorDiagnostic(elevator, true));
+            new Trigger(() -> buttonBoard.elevatorLevel2()).whileTrue(new ElevatorDiagnostic(elevator, true));
+            new Trigger(() -> buttonBoard.elevatorLevel3()).whileTrue(new ElevatorDiagnostic(elevator, true));
+            new Trigger(() -> buttonBoard.elevatorLevel4()).whileTrue(new ElevatorDiagnostic(elevator, true));
+        }
     }
 
 

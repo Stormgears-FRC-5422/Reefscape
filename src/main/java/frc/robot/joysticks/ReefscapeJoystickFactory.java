@@ -7,6 +7,7 @@ public class ReefscapeJoystickFactory {
         System.out.println("Initializing " + joystickType + " as Joystick");
         switch (joystickType.toLowerCase()) {
             case "xboxcontroller" -> instance = new ReefscapeXboxController(port);
+            case "buttonboard" -> instance = new ReefscapeButtonBoard(port);
             case "dummy" -> instance = new ReefscapeDummyController();
             default -> throw new IllegalJoystickTypeException("Illegal Joystick Type: " + joystickType + " ---!");
         }
