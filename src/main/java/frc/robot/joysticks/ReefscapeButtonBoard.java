@@ -25,22 +25,22 @@ public class ReefscapeButtonBoard extends ReefscapeJoystick{
         return m_joystickBoard1.getRawButton(1);
     }
 
-    public boolean elevatorLevel1(){
+    public boolean elevatorLevel4(){
         System.out.println("joystick1, button 2");
         return m_joystickBoard1.getRawButton(2);
     }
 
-    public boolean elevatorLevel2(){
+    public boolean elevatorLevel3(){
         System.out.println("joystick1, button 3");
         return m_joystickBoard1.getRawButton(3);
     }
 
-    public boolean elevatorLevel3(){
+    public boolean elevatorLevel2(){
         System.out.println("joystick1, button 4");
         return m_joystickBoard1.getRawButton(4);
     }
 
-    public boolean elevatorLevel4(){
+    public boolean elevatorLevel1(){
         System.out.println("joystick1, button 5");
         return m_joystickBoard1.getRawButton(5);
     }
