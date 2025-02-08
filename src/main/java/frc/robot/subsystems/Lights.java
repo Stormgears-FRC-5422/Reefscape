@@ -10,6 +10,8 @@ import frc.utils.StormSubsystem;
 import edu.wpi.first.units.measure.Distance;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static java.awt.Color.WHITE;
+import static java.awt.Color.YELLOW;
 
 public class Lights extends StormSubsystem {
     private AddressableLED m_led;
@@ -121,11 +123,29 @@ public class Lights extends StormSubsystem {
     public void elevatorLights(){
         m_one = m_ledBuffer.createView(LED_LENGTH-1, LED_LENGTH-1);
         //if (robotState.isElevatorHomed)
-        LEDPattern pattern4 = LEDPattern.solid(Color.kLightGreen);
-        pattern4.applyTo(m_one);
+        LEDPattern pattern = LEDPattern.solid(Color.kLightGreen);
+        pattern.applyTo(m_one);
 
         //else
-        LEDPattern pattern5 = LEDPattern.solid(Color.kRed);
-        pattern5.applyTo(m_one);
+        LEDPattern pattern1 = LEDPattern.solid(Color.kRed);
+        pattern1.applyTo(m_one);
+    }
+
+    public void alignmentLights(){
+        /*
+        switch(m_robotState){
+            case sees april tag -> {
+                defaultPattern = LEDPattern.solid(Color.kLightYellow);
+            }
+            case doesn't see april tag -> {
+                defaultPattern = LEDPattern.solid(Color.kWhite);
+            }
+            default -> {
+                defaultPattern = LEDPattern.solid(Color.kMediumPurple);
+            }
+        }
+        defaultPattern.applyTo(m_ledBuffer);
+
+         */
     }
 }
