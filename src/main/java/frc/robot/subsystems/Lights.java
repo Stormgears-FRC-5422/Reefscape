@@ -17,6 +17,7 @@ public class Lights extends StormSubsystem {
     private AddressableLEDBufferView m_left;
     private AddressableLEDBufferView m_middle;
     private AddressableLEDBufferView m_right;
+    private AddressableLEDBufferView m_one;
     private LEDPattern defaultPattern;
 
     // Rainbow variables
@@ -30,7 +31,7 @@ public class Lights extends StormSubsystem {
 
     // Constants
     // Total LEDs 24(Left strip) + 18(Middle strip) + 24(Right strip)
-    private static final int LED_LENGTH = 66;
+    private static final int LED_LENGTH = 18;
     private static final int LED_PORT = 0;
 
     public Lights() {
@@ -61,7 +62,7 @@ public class Lights extends StormSubsystem {
             }
             setAllianceColor();
         }
-
+        setViews();
         // Write the data to the LED strip
         m_led.setData(m_ledBuffer);
     }
@@ -69,9 +70,10 @@ public class Lights extends StormSubsystem {
     public void setViews() {
         // TODO - make lots of these constants!
         //apply different patterns to each strip
-        m_left = m_ledBuffer.createView(0, 23);
-        m_middle = m_ledBuffer.createView(24, 41);
-        m_right = m_ledBuffer.createView(42, 65);
+        m_left = m_ledBuffer.createView(0, 10);
+        //m_middle = m_ledBuffer.createView(24, 41);
+        m_right = m_ledBuffer.createView(11, 16);
+        m_one = m_ledBuffer.createView(17, 17);
 
         LEDPattern pattern1 = LEDPattern.solid(Color.kAqua);
         LEDPattern pattern2 = LEDPattern.solid(Color.kDeepPink);
@@ -79,6 +81,8 @@ public class Lights extends StormSubsystem {
         pattern1.applyTo(m_left);
         pattern2.applyTo(m_middle);
         pattern3.applyTo(m_right);
+
+
     }
 
     public void setRainbow() {
@@ -112,5 +116,16 @@ public class Lights extends StormSubsystem {
     public void setManually() {
         //Set a color for each LED manually
         m_ledBuffer.setRGB(0, 100,100,100);
+    }
+
+    public void elevatorLights(){
+        m_one = m_ledBuffer.createView(LED_LENGTH-1, LED_LENGTH-1);
+        //if (robotState.isElevatorHomed)
+        LEDPattern pattern4 = LEDPattern.solid(Color.kLightGreen);
+        pattern4.applyTo(m_one);
+
+        //else
+        LEDPattern pattern5 = LEDPattern.solid(Color.kRed);
+        pattern5.applyTo(m_one);
     }
 }
