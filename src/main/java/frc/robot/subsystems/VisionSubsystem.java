@@ -190,6 +190,8 @@ public class VisionSubsystem extends StormSubsystem {
                 return new Pose2d(Constants.Vision.tag21X, Constants.Vision.tag21Y, new Rotation2d(Constants.Vision.tag21Rotation));
             case 22:
                 return new Pose2d(Constants.Vision.tag22X, Constants.Vision.tag22Y, new Rotation2d(Constants.Vision.tag22Rotation));
+            default:
+                return null;
         }
     }
 
