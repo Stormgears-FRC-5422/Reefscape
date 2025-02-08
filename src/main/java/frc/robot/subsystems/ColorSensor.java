@@ -14,14 +14,12 @@ import frc.utils.StormSubsystem;
 public class ColorSensor extends StormSubsystem {
     private final ColorSensorV3 colorSensor;
     private final ColorMatch colorMatch;
-    private final I2C.Port i2cPort;
 
     private final Color kBlueTarget = new Color(0.143, 0.427, 0.429);
     private final Color kRedTarget = new Color(0.561, 0.232, 0.114);
 
     public ColorSensor() {
-        i2cPort = I2C.Port.kOnboard;
-        colorSensor = new ColorSensorV3(i2cPort);
+        colorSensor = new ColorSensorV3(I2C.Port.kMXP);
         colorMatch = new ColorMatch();
 
         colorMatch.addColorMatch(kBlueTarget);
@@ -36,6 +34,8 @@ public class ColorSensor extends StormSubsystem {
         String colorString;
         ColorMatchResult match = colorMatch.matchClosestColor(detectedColor);
 
+        int proximity = colorSensor.getProximity();
+
         if (match.color == kBlueTarget) {
             colorString = "Blue";
         } else if (match.color == kRedTarget) {
@@ -44,15 +44,23 @@ public class ColorSensor extends StormSubsystem {
             colorString = "Blank";
         }
 
-        int proximity = colorSensor.getProximity();
+        // TODO find actual values that limit wrong color detection
+
+//        if (match.color == kBlueTarget && proximity > 250 && match.confidence > 0.8 && detectedColor.blue > 0.3) {
+//            colorString = "Blue";
+//        } else if (match.color == kRedTarget && proximity > 250 && match.confidence > 0.8 && detectedColor.red > 0.3) {
+//            colorString = "Red";
+//        } else {
+//            colorString = "Blank";
+//        }
 
         // TODO use smart dashboard
 
-        console("Red: " + detectedColor.red, 25);
-        console("Green: " + detectedColor.green, 25);
-        console("Blue: " + detectedColor.blue, 25);
-        console("Color: " + colorString, 25);
-        console("Confidence: " + match.confidence, 25);
-        console("Proximity: " + proximity, 25);
+        console("Red: " + detectedColor.red);
+        console("Green: " + detectedColor.green);
+        console("Blue: " + detectedColor.blue);
+        console("Color: " + colorString);
+        console("Confidence: " + match.confidence);
+        console("Proximity: " + proximity);
     }
 }
