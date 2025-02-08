@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -22,6 +23,12 @@ public class VisionSubsystem extends StormSubsystem {
     private LimelightHelpers.LimelightResults latestLimelightResults = null;
     private int count;
     private Pose2d poseTag;
+    private final double linearStdDevMegatag2Factor = 0.5;
+    private final double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY;
+    // Standard deviation baselines, for 1 meter distance and 1 tag
+    // (Adjusted automatically based on distance and # of tags)
+    public static double linearStdDevBaseline = 0.02; // Meters
+    public static double angularStdDevBaseline = 0.06; // Radians
 
     public VisionSubsystem(String limelightId) {
         this.limelightId = limelightId;
@@ -29,7 +36,7 @@ public class VisionSubsystem extends StormSubsystem {
         LimelightHelpers.setLEDMode_ForceBlink("");
         robotState = RobotState.getInstance();
         count = 0;
-        poseTag = new Pose2d(12.64,4.75, new Rotation2d(120));
+        poseTag = new Pose2d(12.64, 4.75, new Rotation2d(120));
     }
 
     private static Pose2d toPose2D(double[] inData) {
@@ -115,6 +122,7 @@ public class VisionSubsystem extends StormSubsystem {
         }
         return Optional.empty();
     }
+
     public Optional<LimelightHelpers.LimelightTarget_Fiducial[]> getLatestFiducialsTargets() {
         var results = getLatestResults();
         if (results == null) {
@@ -127,7 +135,7 @@ public class VisionSubsystem extends StormSubsystem {
         return Optional.empty();
     }
 
-    public Optional<LimelightHelpers.PoseEstimate> getwpiBlue(){
+    public Optional<LimelightHelpers.PoseEstimate> getwpiBlue() {
         var results = getLatestResults();
         if (results == null) {
             return Optional.empty();
@@ -138,11 +146,13 @@ public class VisionSubsystem extends StormSubsystem {
         }
         return Optional.empty();
     }
+
     public double getDistance(int id) {
         Pose2d tagPose = getPoseTag(id);
         Pose2d robotPose = robotState.getPose();
         return robotPose.minus(tagPose).getTranslation().getNorm();
     }
+
     public double getAvgDist() {
         double[] a = LimelightExtra.getTagIDs(limelightId);
         double[] distances = new double[a.length];
@@ -151,15 +161,17 @@ public class VisionSubsystem extends StormSubsystem {
         }
         return Arrays.stream(distances).sum() / distances.length;
     }
-    public Pose2d getTargetPose(String side, int id){
-        if (side == "left"){
+
+    public Pose2d getTargetPose(String side, int id) {
+        if (side == "left") {
             return getPoseTag(id).transformBy(new Transform2d(new Translation2d(-6.5, 0), new Rotation2d(0)));
-        } else if (side == "right"){
+        } else if (side == "right") {
             return getPoseTag(id).transformBy(new Transform2d(new Translation2d(6.5, 0), new Rotation2d(0)));
         } else {
             return null;
         }
     }
+
     public Pose2d getPoseTag(int id) {
         switch (id) {
             case 1:
@@ -202,8 +214,8 @@ public class VisionSubsystem extends StormSubsystem {
         latestLimelightResults = null;
         //Pose2d botPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId).pose;
         //if (botPose != null) {
-       //     Transform2d difference = poseTag.minus(botPose);
-         //   console(difference.toString());
+        //     Transform2d difference = poseTag.minus(botPose);
+        //   console(difference.toString());
         //}
 
 //        Transform2d sigma = new Transform2d(poseTag, LimelightHelpers.getBotPose2d_wpiBlue(limelightId));
@@ -211,8 +223,41 @@ public class VisionSubsystem extends StormSubsystem {
 //        RobotState.getInstance().setVisionPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"),
 //            LimelightHelpers.getTV("limelight"));
 
+        boolean rejectPose = false;
+        if (getwpiBlue().isPresent()) {
+            rejectPose =
+                getLatestFiducialsTarget().isEmpty()
+
+                    || getwpiBlue().get().pose.getX() < 0.0
+                    || getwpiBlue().get().pose.getY() < 0.0;
+        }
+        if (!rejectPose) {
+            double stdDevFactor = 0.0;
+
+            // uncertainty grows quadratically as robot is farther away
+            // more tags seen uncertainty is less
+            Optional<LimelightHelpers.LimelightTarget_Fiducial[]> fiducialTargetsOpt = getLatestFiducialsTargets();
+            if (fiducialTargetsOpt.isPresent()) {
+                stdDevFactor = Math.pow(getAvgDist(), 2.0) /
+                    fiducialTargetsOpt.get().length;
+            }
+//        linearStdDevBaseline and angularStdDevBaseline:
+//        base value for uncertainty then multiplied by factor above.
+            double linearStdDev = linearStdDevBaseline * stdDevFactor;
+            double angularStdDev = angularStdDevBaseline * stdDevFactor;
+
+//        reduce uncertainty by half bc MegaTag2 is more stable
+            linearStdDev *= linearStdDevMegatag2Factor;
+//        MegaTag2 does not give rotation data (comes from gyro)
+            angularStdDev *= angularStdDevMegatag2Factor;
+
+            robotState.addVisionMeasurments(getwpiBlue().get().pose,
+                getwpiBlue().get().timestampSeconds,
+                VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+        }
     }
-    public double[] getCameraPose_TargetSpace(){
+
+    public double[] getCameraPose_TargetSpace() {
         return LimelightHelpers.getCameraPose_TargetSpace(limelightId);
     }
 

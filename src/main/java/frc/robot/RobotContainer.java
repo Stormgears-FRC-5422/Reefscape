@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.CoralIntakeCommand;
+import frc.robot.commands.DriveCommands;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.vision.CameraPose;
 import frc.robot.joysticks.IllegalJoystickTypeException;
@@ -27,6 +28,7 @@ import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
 
 import frc.robot.Constants.Toggles;
+
 import java.util.Optional;
 
 import static java.util.Objects.isNull;
@@ -39,12 +41,7 @@ public class RobotContainer {
     private DrivetrainBase drivetrain;
     private VisionSubsystem visionSubsystem;
     private NavX navX;
-
-    // **********
-    // Subsystems
-    // **********
     private CameraPose cameraPose;
-
     private Lights lights;
     // **********
     // Fields
@@ -52,7 +49,7 @@ public class RobotContainer {
     final RobotState robotState;
 
     // **********
-    // Control
+    // Commands
     // **********
     ReefscapeJoystick joystick;
     CoralIntakeCommand coralIntakeCommand;
@@ -102,14 +99,12 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        if (Constants.Toggles.useCoralIntake){
-            new Trigger(()-> joystick.coralIntake()).onTrue(coralIntakeCommand);
-            new Trigger(()-> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
-        } if (Toggles.useDrive){
-            new Trigger(()-> joystick.coralIntake()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward)); //X
-            new Trigger(()-> joystick.coralOuttake()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));//B
-            new Trigger(()-> joystick.zeroGyro()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward)); //rb
-            new Trigger(()-> joystick.zeroWheels()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)); //A
+        if (Constants.Toggles.useCoralIntake) {
+//            new Trigger(() -> joystick.coralIntake()).onTrue(coralIntakeCommand);
+            new Trigger(() -> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
+        }
+        if (Toggles.useDrive) {
+            new Trigger(() -> joystick.coralIntake()).onTrue(DriveCommands.feedforwardCharacterization(drivetrain)); //X
         }
     }
 

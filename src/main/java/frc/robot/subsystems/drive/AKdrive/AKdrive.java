@@ -41,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -126,8 +127,6 @@ public class AKdrive extends DrivetrainBase {
     @Override
     public void periodic() {
 
-
-
         runVelocity(m_chassisSpeeds);
 
         odometryLock.lock(); // Prevents odometry updates while reading data
@@ -182,7 +181,11 @@ public class AKdrive extends DrivetrainBase {
             // Apply update
             poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
         }
-
+        if (m_state.getVisionMeasurments() != null) {
+            addVisionMeasurement(m_state.getVisionMeasurments().visionRobotPoseMeters()
+                , m_state.getVisionMeasurments().timestampSeconds(),
+                m_state.getVisionMeasurments().visionMeasurementStdDevs());
+        }
         // Update gyro alert
         gyroDisconnectedAlert.set(!gyroInputs.connected && CTRConstants.currentMode != CTRConstants.Mode.SIM);
     }
@@ -300,7 +303,6 @@ public class AKdrive extends DrivetrainBase {
     }
 
 
-
     /**
      * Returns the module positions (turn angles and drive positions) for all of the modules.
      */
@@ -344,7 +346,6 @@ public class AKdrive extends DrivetrainBase {
     }
 
 
-
     /**
      * Returns the current odometry pose.
      */
@@ -369,7 +370,6 @@ public class AKdrive extends DrivetrainBase {
     public void declarePoseIsNow(Pose2d pose) {
         poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
     }
-
 
 
     /**

@@ -1,8 +1,11 @@
 package frc.robot;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.utils.vision.LimelightHelpers;
 
@@ -20,11 +23,12 @@ public class RobotState extends SubsystemBase {
     private static RobotState m_instance;
     private StateAlliance m_alliance = StateAlliance.MISSING;
     private Pose2d currentPose = new Pose2d();
-    //private Pose2d visionPose = new Pose2d();
+    private VisionMeasurement visionMeasurement = null;
 
     private StatePeriod m_period = StatePeriod.NONE;
     private boolean m_didAuto = false;
     private boolean m_didTeleop = false;
+
     public static RobotState getInstance() {
         if (m_instance != null) return m_instance;
 
@@ -105,6 +109,18 @@ public class RobotState extends SubsystemBase {
         return LimelightHelpers.getBotPose2d_wpiBlue(Constants.Vision.limelightID);
     }
 
+    public void addVisionMeasurments(Pose2d visionRobotPoseMeters,
+                                     double timestampSeconds,
+                                     Matrix<N3, N1> visionMeasurementStdDevs) {
+        visionMeasurement = new VisionMeasurement(visionRobotPoseMeters,
+            timestampSeconds, visionMeasurementStdDevs);
+
+    }
+
+    public VisionMeasurement getVisionMeasurments() {
+        return  visionMeasurement;
+    }
+
     private static Pose2d toPose2D(double[] inData) {
         if (inData == null || inData.length < 6) {
             //System.err.println("Bad LL 2D Pose Data!");
@@ -115,4 +131,12 @@ public class RobotState extends SubsystemBase {
         return new Pose2d(tran2d, r2d);
     }
 
+
+    public record VisionMeasurement(Pose2d visionRobotPoseMeters,
+                                    double timestampSeconds,
+                                    Matrix<N3, N1> visionMeasurementStdDevs) {
+    }
 }
+
+
+
