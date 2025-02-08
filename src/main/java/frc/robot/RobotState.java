@@ -136,6 +136,9 @@ public class RobotState extends SubsystemBase {
                                     double timestampSeconds,
                                     Matrix<N3, N1> visionMeasurementStdDevs) {
     }
+    public boolean isTagDetected() {
+        return LimelightHelpers.getTV(Constants.Vision.limelightID);
+    }
 }
 
 
