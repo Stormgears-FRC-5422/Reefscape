@@ -186,6 +186,9 @@ public class AKdrive extends DrivetrainBase {
                 , m_state.getVisionMeasurments().timestampSeconds(),
                 m_state.getVisionMeasurments().visionMeasurementStdDevs());
         }
+
+        m_state.setPose(getPose());
+
         // Update gyro alert
         gyroDisconnectedAlert.set(!gyroInputs.connected && CTRConstants.currentMode != CTRConstants.Mode.SIM);
     }
