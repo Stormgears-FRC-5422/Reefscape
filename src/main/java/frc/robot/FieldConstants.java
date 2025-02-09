@@ -9,6 +9,10 @@ public class FieldConstants {
     public enum Side {
         LEFT, RIGHT
     }
+
+    /**
+     * Method should NOT be used directly in commands
+     */
     public static Pose2d getPoseTag(int id) {
         return switch (id) {
             case 1 ->

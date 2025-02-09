@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.JoyStickDrive;
+import frc.robot.commands.autos.AutoReef;
 import frc.robot.commands.vision.CameraPose;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
@@ -103,8 +104,11 @@ public class RobotContainer {
 //            new Trigger(() -> joystick.coralIntake()).onTrue(coralIntakeCommand);
             new Trigger(() -> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
         }
-        if (Toggles.useDrive) {
-            new Trigger(() -> joystick.coralIntake()).onTrue(DriveCommands.feedforwardCharacterization(drivetrain)); //X
+        if (Toggles.useDrive && Toggles.useVision) {
+//            temporarily left side
+            new Trigger(() -> joystick.autoReef())
+                .onTrue(new AutoReef(drivetrain,visionSubsystem,
+                    joystick, FieldConstants.Side.LEFT)); //B
         }
     }
 
