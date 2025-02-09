@@ -11,11 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.CoralIntakeCommand;
-import frc.robot.commands.ElevatorDiagnostic;
-import frc.robot.commands.HomeElevator;
-import frc.robot.commands.JoyStickDrive;
-import frc.robot.commands.MoveToLevels;
+import frc.robot.commands.*;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
@@ -43,6 +39,7 @@ public class RobotContainer {
     // Subsystems
     // **********
     private CoralIntake coralIntake;
+    private AlgaeIntake algaeIntake;
     private DrivetrainBase drivetrain;
     private VisionSubsystem visionSubsystem;
     private Lights lights;
@@ -56,6 +53,8 @@ public class RobotContainer {
     ReefscapeJoystick buttonBoard;
     CoralIntakeCommand coralIntakeCommand;
     CoralIntakeCommand coralOuttakeCommand;
+    AlgaeIntakeCommand algaeIntakeCommand;
+    AlgaeIntakeCommand algaeOuttakeCommand;
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         console("constructor started");
@@ -70,6 +69,12 @@ public class RobotContainer {
             coralIntake = new CoralIntake();
             coralIntakeCommand = new CoralIntakeCommand(coralIntake, true);
             coralOuttakeCommand = new CoralIntakeCommand(coralIntake, false);
+        }
+
+        if (Constants.Toggles.useAlgaeIntake) {
+            algaeIntake = new AlgaeIntake();
+            algaeIntakeCommand = new AlgaeIntakeCommand(algaeIntake, true);
+            algaeOuttakeCommand = new AlgaeIntakeCommand(algaeIntake, false);
         }
 
         if (Constants.Toggles.useLights) {
@@ -125,14 +130,22 @@ public class RobotContainer {
             new Trigger(()-> joystick.coralIntake())
             .and(() -> (robotState.climberHasBeenHomed()))
             .onTrue(coralIntakeCommand);
-            
+
             new Trigger(()-> joystick.coralOuttake())
             .and(() -> (robotState.climberHasBeenHomed()))
             .onTrue(coralOuttakeCommand);
 
         }
+        /*
+        if (Toggles.useAlgaeIntake){
+            new Trigger(()-> joystick.algaeIntake())
+                .onTrue(algaeIntakeCommand);
 
-        if (Toggles.useElevator) {
+            new Trigger(()-> joystick.algaeOuttake())
+                .onTrue(algaeOuttakeCommand);
+        }
+         */
+       if (Toggles.useElevator) {
             new Trigger(() -> joystick.homeElevator())
             .whileTrue(new HomeElevator(elevator));
             new Trigger(() -> joystick.store())
@@ -152,6 +165,12 @@ public class RobotContainer {
             new Trigger(()-> buttonBoard.coralIntake()).onTrue(coralIntakeCommand);
             new Trigger(()-> buttonBoard.coralOuttake()).onTrue(coralOuttakeCommand);
         }
+
+        if (Toggles.useAlgaeIntake) {
+            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
+            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
+        }
+
         // TODO: Fix elevator code below to trigger the correct level. We don't have a button on board for store()?
         if (Toggles.useElevator) {
             new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(new ElevatorDiagnostic(elevator, true));
@@ -161,6 +180,23 @@ public class RobotContainer {
         }
 
         // TODO: Add the remaining button board triggers
+        /*
+        if (Toggles.useAuto) {
+            //new Trigger(() -> buttonBoard.autoStation()).onTrue(autoStationCommand);
+        }
+
+        if (Toggles.useAutoReef) {
+            // new Trigger(() -> buttonBoard.autoReef()).onTrue(autoReefCommand);
+        }
+
+        if (Toggles.useAutoProcessor) {
+            // new Trigger(() -> buttonBoard.autoProcessor()).onTrue(autoProcessorCommand);
+        }
+
+        if (Toggles.useAutoAlgaeReef) {
+            // new Trigger(() -> buttonBoard.autoAlgaeReef()).onTrue(autoAlgaeReef);
+        }
+        */
     }
 
 

@@ -1,6 +1,7 @@
 package frc.robot.joysticks;
 
 import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.Constants;
 
 public class ReefscapeButtonBoard extends ReefscapeJoystick{
 
@@ -8,12 +9,12 @@ public class ReefscapeButtonBoard extends ReefscapeJoystick{
     Joystick m_joystickBoard2;
 
     public ReefscapeButtonBoard(int port){
-        m_joystickBoard1 = new Joystick(port);
-        m_joystickBoard2 = new Joystick (port+1);
+        m_joystickBoard1 = new Joystick(Constants.ButtonBoard.buttonBoardPort1);
+        m_joystickBoard2 = new Joystick (Constants.ButtonBoard.buttonBoardPort2);
         if (!m_joystickBoard2.getRawButton(1)){
             System.out.println("Switching ButtonBoard ports");
-            m_joystickBoard1 = new Joystick(port+1);
-            m_joystickBoard2 = new Joystick(port);
+            m_joystickBoard1 = new Joystick(Constants.ButtonBoard.buttonBoardPort2);
+            m_joystickBoard2 = new Joystick(Constants.ButtonBoard.buttonBoardPort1);
         }
         else{
             System.out.println("Not Switching ButtonBoard ports");
@@ -61,19 +62,19 @@ public class ReefscapeButtonBoard extends ReefscapeJoystick{
     }
 
     public boolean algaeIntake(){
-        return m_joystickBoard2.getRawButton(12);
+        return m_joystickBoard2.getRawButton(9);
     }
 
     public boolean algaeOuttake(){
-        return m_joystickBoard2.getRawButton(11);
-    }
-
-    public boolean autoProcessor(){
         return m_joystickBoard2.getRawButton(10);
     }
 
+    public boolean autoProcessor(){
+        return m_joystickBoard2.getRawButton(11);
+    }
+
     public boolean autoAlgaeReef(){
-        return m_joystickBoard2.getRawButton(9);
+        return m_joystickBoard2.getRawButton(12);
     }
 
     public boolean elevatorManual(){
