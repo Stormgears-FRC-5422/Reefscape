@@ -10,57 +10,80 @@ import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.utils.StormSubsystem;
+import frc.robot.subsystems.ColorSensorTemplate;
 
 public class ColorSensor extends StormSubsystem {
-    private final ColorSensorV3 colorSensor;
+
+    private final ColorSensorV3 colorSensorLeft;
+    private final ColorSensorV3 colorSensorRight;
     private final ColorMatch colorMatch;
 
     private final Color kBlueTarget = new Color(0.143, 0.427, 0.429);
     private final Color kRedTarget = new Color(0.561, 0.232, 0.114);
 
+    private final ColorSensorTemplate colorSensor;
+
     public ColorSensor() {
-        colorSensor = new ColorSensorV3(I2C.Port.kMXP);
+
+        colorSensorLeft = new ColorSensorV3(I2C.Port.kMXP);
+        colorSensorRight = new ColorSensorV3(I2C.Port.kOnboard);
         colorMatch = new ColorMatch();
 
         colorMatch.addColorMatch(kBlueTarget);
         colorMatch.addColorMatch(kRedTarget);
+
+        colorSensor = new ColorSensorTemplate(I2C.Port.kMXP);
     }
 
     @Override
     public void periodic() {
         super.periodic();
-        Color detectedColor = colorSensor.getColor();
 
-        String colorString;
-        ColorMatchResult match = colorMatch.matchClosestColor(detectedColor);
+        console(colorSensor.checkColor());
+        Color detectedColorLeft = colorSensorLeft.getColor();
+        Color detectedColorRight = colorSensorRight.getColor();
 
-        int proximity = colorSensor.getProximity();
+        String colorStringLeft;
+        String colorStringRight;
+        ColorMatchResult matchLeft = colorMatch.matchClosestColor(detectedColorLeft);
+        ColorMatchResult matchRight = colorMatch.matchClosestColor(detectedColorRight);
 
-        if (match.color == kBlueTarget) {
-            colorString = "Blue";
-        } else if (match.color == kRedTarget) {
-            colorString = "Red";
+//        int proximity = colorSensor.getProximity();
+
+        if (matchLeft.color == kBlueTarget) {
+            colorStringLeft = "Blue";
+        } else if (matchLeft.color == kRedTarget) {
+            colorStringLeft = "Red";
         } else {
-            colorString = "Blank";
+            colorStringLeft = "Blank";
+        }
+
+        if (matchRight.color == kBlueTarget) {
+            colorStringRight = "Blue";
+        } else if (matchRight.color == kRedTarget) {
+            colorStringRight = "Red";
+        } else {
+            colorStringRight = "Red";
         }
 
         // TODO find actual values that limit wrong color detection
 
-//        if (match.color == kBlueTarget && proximity > 250 && match.confidence > 0.8 && detectedColor.blue > 0.3) {
-//            colorString = "Blue";
-//        } else if (match.color == kRedTarget && proximity > 250 && match.confidence > 0.8 && detectedColor.red > 0.3) {
-//            colorString = "Red";
-//        } else {
-//            colorString = "Blank";
-//        }
-
         // TODO use smart dashboard
 
-        console("Red: " + detectedColor.red);
-        console("Green: " + detectedColor.green);
-        console("Blue: " + detectedColor.blue);
-        console("Color: " + colorString);
-        console("Confidence: " + match.confidence);
-        console("Proximity: " + proximity);
+//        console("Color left: " + colorStringLeft);
+//        console("Color right: " + colorStringRight);
+//
+//        console("Red right: " + detectedColorRight.red);
+//        console("Green right: " + detectedColorRight.green);
+//        console("Blue right: " + detectedColorRight.blue);
+//
+//        console("Red left: " + detectedColorLeft.red);
+//        console("Green left: " + detectedColorLeft.green);
+//        console("Blue left: " + detectedColorLeft.blue);
+
+
+//        console("Confidence: " + match.confidence);
+//        console("Proximity: " + proximity);
     }
 }
+
