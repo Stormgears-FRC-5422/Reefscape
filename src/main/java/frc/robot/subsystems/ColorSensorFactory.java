@@ -8,20 +8,19 @@ import edu.wpi.first.wpilibj.util.Color;
 
 import frc.utils.StormSubsystem;
 
-public class ColorSensorTemplate extends StormSubsystem {
+public class ColorSensorFactory extends StormSubsystem {
     private final ColorSensorV3 colorSensor;
     private final ColorMatch colorMatch;
 
     private final Color kBlueTarget = new Color(0.143, 0.427, 0.429);
     private final Color kRedTarget = new Color(0.561, 0.232, 0.114);
 
-    public ColorSensorTemplate(I2C.Port port) {
+    public ColorSensorFactory(I2C.Port port) {
         colorSensor = new ColorSensorV3(port);
         colorMatch = new ColorMatch();
 
         colorMatch.addColorMatch(kBlueTarget);
         colorMatch.addColorMatch(kRedTarget);
-
     }
 
     public String checkColor() {
@@ -52,4 +51,6 @@ public class ColorSensorTemplate extends StormSubsystem {
     public int getProximity() {
         return colorSensor.getProximity();
     }
+
+    public double getConfidence(ColorMatchResult match) {return match.confidence;}
 }
