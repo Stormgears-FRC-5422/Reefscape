@@ -181,7 +181,7 @@ public class RobotContainer {
 
         // TODO: Add the remaining button board triggers
         /*
-        if (Toggles.useAuto) {
+        if (Toggles.useAutoStation) {
             //new Trigger(() -> buttonBoard.autoStation()).onTrue(autoStationCommand);
         }
 
