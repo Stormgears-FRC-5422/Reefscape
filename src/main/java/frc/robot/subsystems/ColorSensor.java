@@ -9,16 +9,19 @@ import frc.utils.StormSubsystem;
 
 public class ColorSensor extends StormSubsystem {
 
-    private final ColorSensorFactory colorSensor;
+    private final ColorSensorFactory colorSensorLeft;
+    private final ColorSensorFactory colorSensorRight;
 
     public ColorSensor() {
-        colorSensor = new ColorSensorFactory(I2C.Port.kMXP);
+        colorSensorLeft = new ColorSensorFactory(I2C.Port.kMXP);
+        colorSensorRight = new ColorSensorFactory(I2C.Port.kOnboard);
     }
 
     @Override
     public void periodic() {
         super.periodic();
-        console(colorSensor.checkColor());
+        console(colorSensorLeft.checkColor());
+        console(colorSensorRight.checkColor());
     }
 }
 
