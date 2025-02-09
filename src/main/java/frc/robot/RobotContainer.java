@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.ElevatorDiagnostic;
+import frc.robot.commands.HomeElevator;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.MoveToLevels;
 import frc.robot.joysticks.IllegalJoystickTypeException;
@@ -24,7 +25,6 @@ import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
-import frc.robot.subsystems.Elevator;
 import frc.robot.commands.MoveToLevels;
 
 import frc.robot.Constants.Toggles;
@@ -116,17 +116,31 @@ public class RobotContainer {
         console("configure button bindings");
 
         if (Toggles.useDrive) {
-            new Trigger(() -> joystick.zeroGyro()).onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
+            new Trigger(() -> joystick.zeroGyro())
+            .and(() -> (robotState.climberHasBeenHomed()))
+            .onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
         }
 
         if (Toggles.useCoralIntake){
-            new Trigger(()-> joystick.coralIntake()).onTrue(coralIntakeCommand);
-            new Trigger(()-> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
+            new Trigger(()-> joystick.coralIntake())
+            .and(() -> (robotState.climberHasBeenHomed()))
+            .onTrue(coralIntakeCommand);
+            
+            new Trigger(()-> joystick.coralOuttake())
+            .and(() -> (robotState.climberHasBeenHomed()))
+            .onTrue(coralOuttakeCommand);
+
         }
 
         if (Toggles.useElevator) {
-            new Trigger(() -> joystick.elevatorLevel1()).whileTrue(new ElevatorDiagnostic(elevator, true));
-            new Trigger(() -> joystick.store()).whileTrue(new ElevatorDiagnostic(elevator, false));
+            new Trigger(() -> joystick.homeElevator())
+            .whileTrue(new HomeElevator(elevator));
+            new Trigger(() -> joystick.store())
+            .and(() -> (robotState.climberHasBeenHomed()))
+            .whileTrue(new ElevatorDiagnostic(elevator, false));
+            new Trigger(() -> joystick.elevatorLevel1())
+            .and(() -> (robotState.climberHasBeenHomed()))
+            .whileTrue(new ElevatorDiagnostic(elevator, true));
         }
 
     }
