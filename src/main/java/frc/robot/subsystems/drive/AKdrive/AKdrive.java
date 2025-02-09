@@ -19,6 +19,7 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -191,6 +192,11 @@ public class AKdrive extends DrivetrainBase {
 
         // Update gyro alert
         gyroDisconnectedAlert.set(!gyroInputs.connected && CTRConstants.currentMode != CTRConstants.Mode.SIM);
+
+        Logger.recordOutput("measured angle 0", MathUtil.angleModulus(getModuleStates()[0].angle.getRadians()));
+        Logger.recordOutput("measured angle 1", MathUtil.angleModulus(getModuleStates()[1].angle.getRadians()));
+        Logger.recordOutput("measured angle 2", MathUtil.angleModulus(getModuleStates()[2].angle.getRadians()));
+        Logger.recordOutput("measured angle 3", MathUtil.angleModulus(getModuleStates()[3].angle.getRadians()));
     }
 
     /**
