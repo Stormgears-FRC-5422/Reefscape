@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.AddressableLEDBufferView;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
 import edu.wpi.first.units.measure.Distance;
@@ -16,10 +17,14 @@ import static java.awt.Color.YELLOW;
 public class Lights extends StormSubsystem {
     private AddressableLED m_led;
     private AddressableLEDBuffer m_ledBuffer;
-    private AddressableLEDBufferView m_left;
-    private AddressableLEDBufferView m_middle;
-    private AddressableLEDBufferView m_right;
-    private AddressableLEDBufferView m_one;
+
+    // Views
+    private AddressableLEDBufferView m_left_top;
+    private AddressableLEDBufferView m_left_bottom;
+    private AddressableLEDBufferView m_right_top;
+    private AddressableLEDBufferView m_right_bottom;
+
+    // Patterns
     private LEDPattern defaultPattern;
 
     // Rainbow variables
@@ -31,17 +36,15 @@ public class Lights extends StormSubsystem {
     private final RobotState m_robotState;
     private RobotState.StateAlliance m_alliance;
 
-    // Constants
-    // Total LEDs 24(Left strip) + 18(Middle strip) + 24(Right strip)
-    private static final int LED_LENGTH = 18;
-    private static final int LED_PORT = 0;
-
     public Lights() {
-        m_led = new AddressableLED(LED_PORT);
-        m_ledBuffer = new AddressableLEDBuffer(LED_LENGTH);
+        m_led = new AddressableLED(Constants.Lights.ledPort);
+        m_ledBuffer = new AddressableLEDBuffer(Constants.Lights.ledLength);
 
         m_led.setLength(m_ledBuffer.getLength());
         m_led.start();
+
+        // split each strip into top and bottom views
+        setViews();
 
         // set color to alliance color at start
         m_robotState = RobotState.getInstance();
@@ -53,10 +56,12 @@ public class Lights extends StormSubsystem {
     public void periodic() {
         super.periodic();
 
-        // Reset alliance color
-
+        // Set alliance color by default to full strip
+        // if holding coral, change full strip to green
+        // if aligned to shoot coral, change top half to purple
         if (m_robotState.isCoralSensorTriggered()){
             setSolid(Color.kDarkGreen);
+            setAlignmentStatus();
         }
         else{
             if (m_robotState.getAlliance() != m_alliance){
@@ -64,27 +69,17 @@ public class Lights extends StormSubsystem {
             }
             setAllianceColor();
         }
-        setViews();
+
         // Write the data to the LED strip
         m_led.setData(m_ledBuffer);
     }
 
     public void setViews() {
-        // TODO - make lots of these constants!
-        //apply different patterns to each strip
-        m_left = m_ledBuffer.createView(0, 10);
-        //m_middle = m_ledBuffer.createView(24, 41);
-        m_right = m_ledBuffer.createView(11, 16);
-        m_one = m_ledBuffer.createView(17, 17);
-
-        LEDPattern pattern1 = LEDPattern.solid(Color.kAqua);
-        LEDPattern pattern2 = LEDPattern.solid(Color.kDeepPink);
-        LEDPattern pattern3 = LEDPattern.solid(Color.kAzure);
-        pattern1.applyTo(m_left);
-        pattern2.applyTo(m_middle);
-        pattern3.applyTo(m_right);
-
-
+        // split each strip into top and bottom views, so we can apply a different pattern to each section
+        m_left_top = m_ledBuffer.createView(Constants.Lights.leftTopViewStart, Constants.Lights.leftTopViewEnd);
+        m_left_bottom = m_ledBuffer.createView(Constants.Lights.leftBottomViewStart, Constants.Lights.leftBottomViewEnd);
+        m_right_top = m_ledBuffer.createView(Constants.Lights.rightTopViewStart, Constants.Lights.rightTopViewEnd);
+        m_right_bottom = m_ledBuffer.createView(Constants.Lights.rightBottomViewStart, Constants.Lights.rightBottomViewEnd);
     }
 
     public void setRainbow() {
@@ -110,42 +105,26 @@ public class Lights extends StormSubsystem {
     }
 
     public void setSolid(Color color) {
-        // Create an LED pattern that sets the entire strip to one color
+        // Create an LED pattern that sets the entire view to one color
         LEDPattern pattern = LEDPattern.solid(color);
         pattern.applyTo(m_ledBuffer);
     }
 
-    public void setManually() {
-        //Set a color for each LED manually
-        m_ledBuffer.setRGB(0, 100,100,100);
-    }
-
-    public void elevatorLights(){
-        m_one = m_ledBuffer.createView(LED_LENGTH-1, LED_LENGTH-1);
-        //if (robotState.isElevatorHomed)
-        LEDPattern pattern = LEDPattern.solid(Color.kLightGreen);
-        pattern.applyTo(m_one);
-
-        //else
-        LEDPattern pattern1 = LEDPattern.solid(Color.kRed);
-        pattern1.applyTo(m_one);
-    }
-
-    public void alignmentLights(){
-        /*
-        switch(m_robotState){
-            case sees april tag -> {
-                defaultPattern = LEDPattern.solid(Color.kLightYellow);
-            }
-            case doesn't see april tag -> {
-                defaultPattern = LEDPattern.solid(Color.kWhite);
-            }
-            default -> {
-                defaultPattern = LEDPattern.solid(Color.kMediumPurple);
-            }
+    public void setElevatorStatus() {
+        // Modify top view of strip based on elevator status
+        if (m_robotState.isElevatorHomed()) {
+            LEDPattern pattern = LEDPattern.solid(Color.kLightYellow);
+            pattern.applyTo(m_left_top);
+            pattern.applyTo(m_right_top);
         }
-        defaultPattern.applyTo(m_ledBuffer);
+    }
 
-         */
+    public void setAlignmentStatus() {
+        // Modify top view of strip based on alignment status
+        if (m_robotState.isAprilTagDetected()) {
+            LEDPattern pattern = LEDPattern.solid(Color.kMediumPurple);
+            pattern.applyTo(m_left_top);
+            pattern.applyTo(m_right_top);
+        }
     }
 }

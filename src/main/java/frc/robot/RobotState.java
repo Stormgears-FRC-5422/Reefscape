@@ -29,7 +29,7 @@ public class RobotState extends SubsystemBase {
 
     private static RobotState m_instance;
     // TODO - this should be set via updateAlliance()
-//    private StateAlliance m_alliance = StateAlliance.MISSING;
+    //  private StateAlliance m_alliance = StateAlliance.MISSING;
     private StateAlliance m_alliance = StateAlliance.BLUE;
     private Pose2d currentPose = new Pose2d();
     //private Pose2d visionPose = new Pose2d();
@@ -153,12 +153,21 @@ public class RobotState extends SubsystemBase {
         return new Pose2d(tran2d, r2d);
     }
 
-    public void setCoralSensorTriggered(boolean triggered){
+    public void setCoralSensorTriggered(boolean triggered) {
         m_isCoralSensorTriggered = triggered;
     }
 
-    public boolean isCoralSensorTriggered(){
+    public boolean isCoralSensorTriggered() {
         return m_isCoralSensorTriggered;
     }
 
+    // TODO: code this (Meher)
+    public boolean isElevatorHomed() {
+        return true;
+    }
+
+    // TODO: code this (Raghav)
+    public boolean isAprilTagDetected() {
+        return false;
+    }
 }
