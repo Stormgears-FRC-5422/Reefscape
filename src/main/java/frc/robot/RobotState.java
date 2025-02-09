@@ -178,4 +178,12 @@ public class RobotState extends SubsystemBase {
     public boolean isAprilTagDetected() {
         return false;
     }
+
+    public boolean isElevatorStored(){
+        return true;
+    }
+
+    public boolean isAutonomousAligned(){
+        return true;
+    }
 }
