@@ -39,6 +39,7 @@ public class RobotState extends SubsystemBase {
     private boolean m_didAuto = false;
     private boolean m_didTeleop = false;
     boolean m_isCoralSensorTriggered = false;
+    private boolean climberHasBeenHomed = false;
 
     // Call createInstance from robotInit()
     public static RobotState createInstance() {
@@ -124,6 +125,13 @@ public class RobotState extends SubsystemBase {
         return currentPose.getRotation();
     }
 
+    public void setClimberHasBeenHomed(boolean hasBeenHomed) {
+        climberHasBeenHomed = hasBeenHomed;
+    }
+
+    public boolean climberHasBeenHomed() {
+        return climberHasBeenHomed;
+    }
     public void setPose(Pose2d pose) {
         // Make a copy, not a reference to the same object!
         currentPose = new Pose2d(pose.getX(), pose.getY(), new Rotation2d(pose.getRotation().getRadians()));

@@ -1,5 +1,9 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkLimitSwitch;
@@ -14,6 +18,8 @@ import frc.robot.Constants;
 import frc.robot.Constants.SparkConstants;
 import frc.utils.StormSubsystem;
 
+import frc.robot.RobotState;
+
 
 
 public class Elevator extends StormSubsystem {
@@ -21,7 +27,8 @@ public class Elevator extends StormSubsystem {
     public enum ElevatorLevel {
         UNKNOWN(Double.NaN),
         FLOOR(Double.NEGATIVE_INFINITY),
-        BOTTOM(0),
+        HOME(0),
+        BOTTOM(1),
         STORE(Double.NaN),
         LEVEL1(Double.NaN),
         LEVEL2(Double.NaN),
@@ -42,6 +49,8 @@ public class Elevator extends StormSubsystem {
     }
     public enum ElevatorState {
         UNKNOWN,
+        HOMING,
+        HOME,
         FLOOR,
         BOTTOM,
         STORE,
@@ -54,9 +63,11 @@ public class Elevator extends StormSubsystem {
     }
 
     private double elevatorSpeed;
-
+    private boolean hasBeenHomed = false;
     private RelativeEncoder m_followerEncoder;
-    private RelativeEncoder m_leaderEncoder;
+    public RelativeEncoder m_leaderEncoder; 
+
+    private final RobotState robotState;
 
     private SparkLimitSwitch topLimitSwitch;
     private SparkLimitSwitch bottomLimitSwitch;
@@ -73,11 +84,20 @@ public class Elevator extends StormSubsystem {
     private ElevatorLevel targetLevel;
     private ElevatorState currentState;
 
+    private boolean softLimitsEnabled = true; 
+    private SparkMaxConfig globalConfig = new SparkMaxConfig();
+
+
+
     public Elevator() {
+        robotState = RobotState.getInstance();
+
+
         elevatorLeader = new SparkMax(14, SparkLowLevel.MotorType.kBrushless);
         elevatorFollower = new SparkMax(15, SparkLowLevel.MotorType.kBrushless);
 
         m_leaderEncoder = elevatorLeader.getEncoder();
+        
         m_followerEncoder = elevatorFollower.getEncoder();
 
         topLimitSwitch = elevatorLeader.getForwardLimitSwitch();
@@ -106,9 +126,9 @@ public class Elevator extends StormSubsystem {
 
         globalConfig.softLimit
         .forwardSoftLimit(ElevatorLevel.TOP.getValue()) 
-        .forwardSoftLimitEnabled(true)
+        .forwardSoftLimitEnabled(false)
         .reverseSoftLimit(ElevatorLevel.BOTTOM.getValue()) 
-        .reverseSoftLimitEnabled(true);
+        .reverseSoftLimitEnabled(false);
 
         SparkMaxConfig elevatorLeaderConfig = new SparkMaxConfig();
         SparkMaxConfig elevatorFollowerConfig = new SparkMaxConfig();
@@ -120,8 +140,8 @@ public class Elevator extends StormSubsystem {
         elevatorFollower.configure(elevatorFollowerConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
         targetLevel = ElevatorLevel.UNKNOWN;
+
         currentState = ElevatorState.UNKNOWN;
-        
         
     }
 
@@ -161,9 +181,35 @@ public class Elevator extends StormSubsystem {
 
         // ifelse position == target
         // stop
+
+        Logger.recordOutput("Elevator/LeaderEncoder", m_followerEncoder.getPosition());
+        Logger.recordOutput("Elevator/TargetLevel", targetLevel);
+    }
+
+    public void setTargetLevel(ElevatorLevel targetLevel) {
+        this.targetLevel = targetLevel;
+    }
+
+    public void setCurrentState(ElevatorState state) {
+        this.currentState = state;
         
-        switch (targetLevel) {
+        switch (state) {
             case UNKNOWN:
+                hasBeenHomed = false;
+                robotState.setClimberHasBeenHomed(false);
+                break;
+            case HOMING:
+                disableSoftLimits();
+            
+            break;
+
+            case HOME:
+                robotState.setClimberHasBeenHomed(true);
+                enableSoftLimits();
+                hasBeenHomed = true;
+                m_leaderEncoder.setPosition(ElevatorLevel.HOME.getValue());
+                m_followerEncoder.setPosition(ElevatorLevel.HOME.getValue());
+                break;
 
             case FLOOR:
 
@@ -172,8 +218,18 @@ public class Elevator extends StormSubsystem {
             case STORE:
 
             case LEVEL1:
-               
+                setTargetLevel(ElevatorLevel.LEVEL1);  
+
+                
+                if (m_leaderEncoder.getPosition() < ElevatorLevel.LEVEL1.getValue()) {
+                    moveElevatorUp();  
+                } else if (m_leaderEncoder.getPosition() > ElevatorLevel.LEVEL1.getValue()) {
+                    moveElevatorDown();
+                } else {
+                    stopElevator();
+                }
             case LEVEL2:
+                // setTargetLevel(ElevatorLevel.LEVEL2);
                 
             case LEVEL3:
                
@@ -183,10 +239,6 @@ public class Elevator extends StormSubsystem {
 
             case CEILING:
         }
-    }
-
-    public void setTargetLevel(ElevatorLevel targetLevel) {
-        this.targetLevel = targetLevel;
     }
 
     public void setSpeed(double speed) {
@@ -205,8 +257,47 @@ public class Elevator extends StormSubsystem {
         elevatorLeader.set(-elevatorSpeed);
     }
 
+    public boolean isAtHome() {
+        double encoderPosition = m_leaderEncoder.getPosition();
+        return encoderPosition >= -1 && encoderPosition <= 1;
+        // return bottomLimitSwitch.isPressed();
+    }
+
+    public boolean isatCeiling() {
+        return topLimitSwitch.isPressed();
+    }
+
     public void stopElevator() {
         setSpeed(0);
         elevatorLeader.set(0);
+    }
+
+    public void enableSoftLimits() {
+        softLimitsEnabled = true;
+    
+        globalConfig.softLimit
+            .forwardSoftLimit(ElevatorLevel.TOP.getValue())
+            .forwardSoftLimitEnabled(true)
+            .reverseSoftLimit(ElevatorLevel.BOTTOM.getValue())
+            .reverseSoftLimitEnabled(true);
+    
+        elevatorLeader.configure(globalConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        elevatorFollower.configure(globalConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+    }
+    public void disableSoftLimits() {
+        softLimitsEnabled = false;
+    
+        globalConfig.softLimit
+            .forwardSoftLimit(ElevatorLevel.TOP.getValue())
+            .forwardSoftLimitEnabled(false)
+            .reverseSoftLimit(ElevatorLevel.BOTTOM.getValue())
+            .reverseSoftLimitEnabled(false);
+    
+        elevatorLeader.configure(globalConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        elevatorFollower.configure(globalConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+    }
+
+    public boolean hasElevatorBeenHomed() {
+        return hasBeenHomed;
     }
 }

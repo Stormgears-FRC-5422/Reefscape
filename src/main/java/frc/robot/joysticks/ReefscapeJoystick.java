@@ -41,6 +41,10 @@ public abstract class ReefscapeJoystick {
         return false;
     }
 
+    public boolean homeElevator() {
+        return false;
+    }
+
     public boolean store() {
         return false;
     }
