@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.autos;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -8,6 +8,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.RobotState;
+import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.utils.StormCommand;
 
@@ -17,7 +18,7 @@ public class AutoAlign extends StormCommand {
 
     private final Pose2d targetPose;
     private Supplier<Pose2d> goalPose;
-    private XboxController xboxController;
+    private ReefscapeJoystick joystick;
     private RobotState robotState;
     private DrivetrainBase drivetrainBase;
     private final ProfiledPIDController translationPID;
@@ -33,16 +34,14 @@ public class AutoAlign extends StormCommand {
     private final double thetaTolerance = Units.degreesToRadians(2.0);
 
 
-
     /**
      * This command creates and follows a path.
-     * Nothing else is needed to do but instantiate class
      */
-    public AutoAlign(DrivetrainBase drivetrainBase, Pose2d targetPose, XboxController xboxController) {
+    public AutoAlign(DrivetrainBase drivetrainBase, Pose2d targetPose, ReefscapeJoystick joystick) {
         feedForward = new Translation2d();
         robotState = RobotState.getInstance();
         driverAdjustment = new Translation2d();
-        this.xboxController = xboxController;
+        this.joystick = joystick;
 
         this.drivetrainBase = drivetrainBase;
         this.targetPose = targetPose;
@@ -65,10 +64,10 @@ public class AutoAlign extends StormCommand {
     @Override
     public void initialize() {
         goalPose = () -> {
-            double linearMagnitude = MathUtil.applyDeadband(Math.hypot(xboxController.getLeftX(),
-                xboxController.getLeftY()), 0.1);
-            Translation2d linearVelocity = new Translation2d(xboxController.getLeftX(),
-                xboxController.getLeftY()).times(linearMagnitude);
+            double linearMagnitude = MathUtil.applyDeadband(Math.hypot(joystick.getWpiX(),
+                joystick.getWpiY()), 0.1);
+            Translation2d linearVelocity = new Translation2d(joystick.getWpiX(),
+                joystick.getWpiY()).times(linearMagnitude);
 
             Pose2d finalPose = new Pose2d(targetPose.getX(), targetPose.getY(),targetPose.getRotation());
             //scale by maxVelocity and then get movement in one periodic cycle

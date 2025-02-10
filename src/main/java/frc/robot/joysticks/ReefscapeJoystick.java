@@ -32,6 +32,9 @@ public abstract class ReefscapeJoystick {
     public boolean coralIntake() {
         return false;
     }
+    public boolean autoReef() {
+        return false;
+    }
 
     public boolean coralOuttake() {
         return false;
