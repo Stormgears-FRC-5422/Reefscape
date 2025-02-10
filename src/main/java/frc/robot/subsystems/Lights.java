@@ -127,4 +127,21 @@ public class Lights extends StormSubsystem {
             pattern.applyTo(m_right_top);
         }
     }
+
+    public void isElevatorStored() {
+        if (m_robotState.isElevatorStored()) {
+            LEDPattern pattern = LEDPattern.solid(Color.kPurple);
+            pattern.applyTo(m_left_top);
+            pattern.applyTo(m_right_top);
+        }
+    }
+
+    public void isAutonomousAligned() {
+        if (m_robotState.isAutonomousAligned()) {
+            LEDPattern pattern = LEDPattern.solid(Color.kDarkOrange);
+            pattern.applyTo(m_left_top);
+            pattern.applyTo(m_right_top);
+        }
+    }
+
 }

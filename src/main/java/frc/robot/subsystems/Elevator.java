@@ -110,16 +110,24 @@ public class Elevator extends StormSubsystem {
                 home();
                 elevatorLeader.set(elevatorSpeed);
             case SIMPLE_MOTION:
-                simpleMove(currentPosition);
-                elevatorLeader.set(elevatorSpeed);
+                if (hasBeenHomed) {
+                    simpleMove(currentPosition);
+                    elevatorLeader.set(elevatorSpeed);
+                } else {
+                    console("Stubbornly refusing to move before homed!", 25);
+                }
                 break;
             case PID_MOTION:
-                double ffVoltage = feedForward.calculate(0); // 0 here basically gives us gravity compensation
-                controller.setReference(targetLevel.getValue(), SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ffVoltage);
+                if (hasBeenHomed) {
+                    double ffVoltage = feedForward.calculate(0); // 0 here basically gives us gravity compensation
+                    controller.setReference(targetLevel.getValue(),
+                        SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ffVoltage);
+                } else {
+                    console("Stubbornly refusing to move before homed!", 25);
+                }
             default:
                 elevatorLeader.set(0);
         }
-
 
         if (robotState.getPeriod() != RobotState.StatePeriod.DISABLED) {
             console("position is " + currentPosition + ", target is " + targetLevel.getValue(), 50);
@@ -220,7 +228,7 @@ public class Elevator extends StormSubsystem {
         STORE(Double.NaN),
         LEVEL1(Double.NaN),
         LEVEL2(Double.NaN),
-        LEVEL3(Double.NaN),
+        LEVEL3(15.0),
         LEVEL4(Double.NaN),
         TOP(20),
         CEILING(Double.POSITIVE_INFINITY);

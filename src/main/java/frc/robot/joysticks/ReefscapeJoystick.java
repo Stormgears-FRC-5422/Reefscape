@@ -53,6 +53,10 @@ public abstract class ReefscapeJoystick {
         return false;
     }
 
+    public boolean elevatorLevel1() {
+        return false;
+    }
+
     public boolean elevatorLevel2() {
         return false;
     }
@@ -96,4 +100,7 @@ public abstract class ReefscapeJoystick {
     public boolean elevatorManual() {
         return false;
     }
+
+    public boolean elevatorTestPid() { return false; }
+
 }

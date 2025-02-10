@@ -4,7 +4,7 @@
 
 package frc.robot.commands;
 
-import frc.robot.Constants.Intake;
+import frc.robot.Constants;
 import frc.robot.subsystems.AlgaeIntake;
 import frc.robot.subsystems.AlgaeIntake.AlgaeIntakeState;
 import frc.utils.StormCommand;
@@ -49,6 +49,6 @@ public class AlgaeIntakeCommand extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return counter >= Intake.intakeIterationCount;
+        return counter >= Constants.AlgaeIntake.intakeIterationCount;
     }
 }

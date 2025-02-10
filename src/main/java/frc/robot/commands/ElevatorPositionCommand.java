@@ -4,12 +4,11 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.utils.StormCommand;
 
-public class ElevatorMoveToLevel extends StormCommand {
-
+public class ElevatorPositionCommand extends StormCommand {
     private final Elevator elevatorSubsystem;
     private final ElevatorLevel targetLevel;
 
-    public ElevatorMoveToLevel(Elevator elevatorSubsystem, ElevatorLevel targetLevel) {
+    public ElevatorPositionCommand(Elevator elevatorSubsystem, ElevatorLevel targetLevel) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.targetLevel = targetLevel;
 

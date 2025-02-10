@@ -28,7 +28,6 @@ public class AlgaeIntake extends SubsystemBase {
 
         SparkMaxConfig globalConfig = new SparkMaxConfig();
         SparkMaxConfig intakeLeaderConfig = new SparkMaxConfig();
-        SparkMaxConfig intakeFollowerConfig = new SparkMaxConfig();
 
         globalConfig.smartCurrentLimit(SparkConstants.Neo550CurrentLimit).idleMode(IdleMode.kBrake);
 
