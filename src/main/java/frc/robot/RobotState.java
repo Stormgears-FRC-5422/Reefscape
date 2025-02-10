@@ -19,6 +19,7 @@ public class RobotState extends SubsystemBase {
     public enum StatePeriod {
         NONE, DISABLED, AUTONOMOUS, TELEOP, TEST
     }
+    private double yawDouble;
 
     private static RobotState m_instance;
     private StateAlliance m_alliance = StateAlliance.MISSING;
@@ -138,6 +139,12 @@ public class RobotState extends SubsystemBase {
     }
     public boolean isTagDetected() {
         return LimelightHelpers.getTV(Constants.Vision.limelightID);
+    }
+    public void setYaw(double yaw) {
+        yawDouble = yaw;
+    }
+    public double getYaw() {
+        return yawDouble;
     }
 }
 

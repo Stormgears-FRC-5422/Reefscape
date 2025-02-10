@@ -9,7 +9,8 @@ import frc.utils.vision.LimelightHelpers;
 public class Pigeon extends SubsystemBase {
     Pigeon2 pigeon;
     public Pigeon() {
-        pigeon= new Pigeon2(0);
+        pigeon= new Pigeon2(0, "rio");
+        pigeon.setYaw(0);
     }
     public double getYaw() {
         return pigeon.getYaw().getValueAsDouble();
@@ -20,8 +21,8 @@ public class Pigeon extends SubsystemBase {
 
     @Override
     public void periodic() {
-        RobotState.getInstance().setHeading(getRotation2d());
-        LimelightHelpers.SetRobotOrientation("", -getYaw()-60, 0.0, 0.0, 0.0, 0.0, 0.0);
-
+//        System.out.println(getYaw());
+//        RobotState.getInstance().setHeading(getRotation2d());
+//        LimelightHelpers.SetRobotOrientation("", -getYaw()-60, 0.0, 0.0, 0.0, 0.0, 0.0);
     }
 }

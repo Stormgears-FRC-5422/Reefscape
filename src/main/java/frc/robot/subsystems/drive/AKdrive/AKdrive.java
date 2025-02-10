@@ -126,11 +126,14 @@ public class AKdrive extends DrivetrainBase {
 
     @Override
     public void periodic() {
+        super.periodic();
 
         runVelocity(m_chassisSpeeds);
 
         odometryLock.lock(); // Prevents odometry updates while reading data
         gyroIO.updateInputs(gyroInputs);
+        RobotState robotState = RobotState.getInstance();
+        robotState.setYaw(gyroInputs.yawPosition.getDegrees());
         Logger.processInputs("Drive/Gyro", gyroInputs);
         for (var module : modules) {
             module.periodic();

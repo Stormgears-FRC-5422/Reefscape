@@ -18,10 +18,7 @@ import frc.robot.commands.vision.CameraPose;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
-import frc.robot.subsystems.CoralIntake;
-import frc.robot.subsystems.Lights;
-import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.NavX;
+import frc.robot.subsystems.*;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
@@ -43,6 +40,7 @@ public class RobotContainer {
     private NavX navX;
     private CameraPose cameraPose;
     private Lights lights;
+    private Pigeon pigeon;
     // **********
     // Fields
     // **********
@@ -92,6 +90,9 @@ public class RobotContainer {
         }
         if (Constants.Toggles.useNavX) {
             navX = new NavX();
+        }
+        if (Constants.Toggles.usePigeon) {
+            pigeon = new Pigeon();
         }
 
         configureBindings();

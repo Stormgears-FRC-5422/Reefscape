@@ -172,6 +172,9 @@ public class VisionSubsystem extends StormSubsystem {
     public void periodic() {
         super.periodic();
         latestLimelightResults = null;
+        LimelightHelpers.SetRobotOrientation("", -robotState.getYaw()-60, 0.0, 0.0, 0.0, 0.0, 0.0);
+        System.out.println(robotState.getYaw());
+    //    console(getMT2PoseEstimate().get().pose.toString());
         //Pose2d botPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId).pose;
         //if (botPose != null) {
         //     Transform2d difference = poseTag.minus(botPose);
