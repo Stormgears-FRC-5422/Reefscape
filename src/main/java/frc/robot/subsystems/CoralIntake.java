@@ -5,43 +5,39 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Intake;
 import frc.robot.Constants.SparkConstants;
 import frc.robot.RobotState;
 
 public class CoralIntake extends SubsystemBase {
-    //different intake states
-    public enum CoralIntakeState {
-        OFF, INTAKE, OUTTAKE;
-    }
 
-    private final SparkMax wristSpark;
-    private double wristSpeed;
-
-    private final SparkMax rollerSpark;
-    private double rollerSpeed;
-
-    private final DigitalInput proximitySensorIntake;
     private final RobotState m_robotState;
-
+    private final SparkMax wristSpark;
+    private final SparkMax rollerSpark;
+    // Note that this is used to read the value, not directly control the motor
+    private final SparkLimitSwitch proximitySensorIntake;
+    private double wristSpeed;
+    private double rollerSpeed;
     public CoralIntake() {
         wristSpark = new SparkMax(Intake.wristID, SparkLowLevel.MotorType.kBrushless);
         rollerSpark = new SparkMax(Intake.rollerID, SparkLowLevel.MotorType.kBrushless);
-        proximitySensorIntake = new DigitalInput(0);
+        proximitySensorIntake = wristSpark.getForwardLimitSwitch();
 
         SparkMaxConfig globalConfig = new SparkMaxConfig();
         SparkMaxConfig rollerConfig = new SparkMaxConfig();
         SparkMaxConfig wristConfig = new SparkMaxConfig();
 
-        globalConfig.smartCurrentLimit(SparkConstants.Neo550CurrentLimit).idleMode(IdleMode.kBrake);
+        globalConfig.smartCurrentLimit(SparkConstants.Neo550CurrentLimit)
+            .voltageCompensation(SparkConstants.Neo550NominalVoltage);
 
+        // No hard limits in this system
         globalConfig.limitSwitch
             .forwardLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
             .forwardLimitSwitchEnabled(false)
@@ -49,32 +45,30 @@ public class CoralIntake extends SubsystemBase {
             .reverseLimitSwitchEnabled(false);
 
         // Apply the global config and invert (maybe) according to the config setting
-        rollerConfig.apply(globalConfig).inverted(Intake.rollerInvert);
-        wristConfig.apply(globalConfig).inverted(Intake.wristInvert);
+        rollerConfig.apply(globalConfig)
+            .inverted(Intake.rollerInvert)
+            .idleMode(Intake.rollerBrakeMode ? IdleMode.kBrake : IdleMode.kCoast);
+
+        wristConfig.apply(globalConfig)
+            .inverted(Intake.wristInvert)
+            .idleMode(Intake.wristBrakeMode ? IdleMode.kBrake : IdleMode.kCoast);
 
         wristConfig.softLimit
-            .forwardSoftLimit(3.0)
+            .forwardSoftLimit(Intake.wristForwardLimit)
             .forwardSoftLimitEnabled(true)
-            .reverseSoftLimit(0.0)
+            .reverseSoftLimit(Intake.wristReverseLimit)
             .reverseSoftLimitEnabled(true);
 
         rollerConfig.softLimit
-            .forwardSoftLimit(0.0)
             .forwardSoftLimitEnabled(false)
-            .reverseSoftLimit(0.0)
             .reverseSoftLimitEnabled(false);
-
-
-        // Apply the global config and set to follow the leader
-        // The "true" here means invert wrt the leader
 
         rollerSpark.configure(rollerConfig,
             SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-
         wristSpark.configure(wristConfig,
             SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-        setCoralIntakeState(CoralIntakeState.OFF);
+        setCoralIntakeState(CoralIntakeState.START);
         m_robotState = RobotState.getInstance();
     }
 
@@ -88,32 +82,34 @@ public class CoralIntake extends SubsystemBase {
 
     public void setCoralIntakeState(CoralIntakeState state) {
         switch (state) {
+            // TODO - do we need a home? Will belt slip?
+            case START -> {
+                rollerSpeed = 0.0;
+                wristSpeed = 0.0;
+                wristSpark.getEncoder().setPosition(0.0);
+            }
             case OFF -> {
-                setRollerSpeed(0.0);
-                setWristSpeed(0.0);
+                rollerSpeed = 0.0;
+                wristSpeed = 0.0;
             }
             case INTAKE -> {
-                setRollerSpeed(Intake.rollerSpeed);
-                setWristSpeed(Intake.wristSpeed);
+                rollerSpeed = Intake.rollerSpeed;
+                // TODO - need a position pid loop for the wrist.
+                wristSpeed = Intake.wristSpeed;
             }
             case OUTTAKE -> {
-                setRollerSpeed(-Intake.rollerSpeed);
-                setWristSpeed(0);
+                rollerSpeed = -Intake.rollerSpeed;
+                wristSpeed = 0.0;
             }
         }
     }
 
-    private void setRollerSpeed(double speed) {
-        rollerSpeed = speed;
+    public boolean isIntakeSensorTriggered() {
+        return proximitySensorIntake.isPressed();
     }
 
-    private void setWristSpeed(double speed) {
-        wristSpeed = speed;
+    public enum CoralIntakeState {
+        START, OFF, INTAKE, OUTTAKE;
     }
-
-    public boolean isIntakeSensorTriggered(){
-        return !proximitySensorIntake.get();
-    }
-
 }
 

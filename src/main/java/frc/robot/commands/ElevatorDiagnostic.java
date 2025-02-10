@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.utils.StormCommand;
@@ -19,7 +18,7 @@ public class ElevatorDiagnostic extends StormCommand {
     @Override
     public void initialize() {
         elevator.setTargetLevel(up ? ElevatorLevel.CEILING : ElevatorLevel.FLOOR);
-        elevator.setSpeed(up ? 0.2 : 0.05);
+        elevator.setState(Elevator.ElevatorState.SIMPLE_MOTION);
     }
 
     @Override
@@ -35,6 +34,7 @@ public class ElevatorDiagnostic extends StormCommand {
     @Override
     public void end(boolean interrupted) {
         elevator.stopElevator();
+        elevator.setState(Elevator.ElevatorState.IDLE);
         super.end(interrupted);
     }
 }

@@ -138,7 +138,7 @@ public class RobotContainer {
          */
        if (Toggles.useElevator) {
             new Trigger(() -> joystick.homeElevator())
-            .onTrue(new HomeElevator(elevator));
+            .onTrue(new ElevatorHome(elevator));
 
             new Trigger(() -> joystick.elevatorDown())
             .and(robotState::elevatorHasBeenHomed)

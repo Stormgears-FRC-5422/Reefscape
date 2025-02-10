@@ -1,14 +1,13 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.robot.subsystems.Elevator.ElevatorState;
 import frc.utils.StormCommand;
 
-public class HomeElevator extends StormCommand {
+public class ElevatorHome extends StormCommand {
     private final Elevator elevator;
 
-    public HomeElevator(Elevator elevator) {
+    public ElevatorHome(Elevator elevator) {
         this.elevator = elevator;
         addRequirements(elevator);
     }
@@ -16,7 +15,7 @@ public class HomeElevator extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
-        elevator.setCurrentState(ElevatorState.HOMING);
+        elevator.setState(ElevatorState.HOMING);
         // elevator.setTargetLevel(ElevatorLevel.FLOOR);
         // elevator.setSpeed(0.05);
     }
@@ -34,9 +33,9 @@ public class HomeElevator extends StormCommand {
     @Override
     public void end(boolean interrupted) {
         if (!interrupted) {
-            elevator.setCurrentState(ElevatorState.HOME);
+            elevator.setState(ElevatorState.HOME);
         } else {
-            elevator.setCurrentState(ElevatorState.UNKNOWN);
+            elevator.setState(ElevatorState.UNKNOWN);
         }
 
         super.end(interrupted);
