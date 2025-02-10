@@ -62,7 +62,7 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
      */
 
     @Override
-    public boolean store(){
+    public boolean elevatorDown(){
         return XboxController.getAButtonIsHeld();
     }
 
@@ -72,7 +72,7 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
     }
 
     @Override
-    public boolean elevatorLevel1(){
+    public boolean elevatorUp(){
         return XboxController.getYButtonIsHeld();
     }
 }

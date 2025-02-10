@@ -6,11 +6,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.utils.vision.LimelightHelpers;
-import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 
@@ -39,7 +34,7 @@ public class RobotState extends SubsystemBase {
     private boolean m_didAuto = false;
     private boolean m_didTeleop = false;
     boolean m_isCoralSensorTriggered = false;
-    private boolean climberHasBeenHomed = false;
+    private boolean elevatorHasBeenHomed = false;
 
     // Call createInstance from robotInit()
     public static RobotState createInstance() {
@@ -125,12 +120,12 @@ public class RobotState extends SubsystemBase {
         return currentPose.getRotation();
     }
 
-    public void setClimberHasBeenHomed(boolean hasBeenHomed) {
-        climberHasBeenHomed = hasBeenHomed;
+    public void setElevatorHasBeenHomed(boolean hasBeenHomed) {
+        elevatorHasBeenHomed = hasBeenHomed;
     }
 
-    public boolean climberHasBeenHomed() {
-        return climberHasBeenHomed;
+    public boolean elevatorHasBeenHomed() {
+        return elevatorHasBeenHomed;
     }
     public void setPose(Pose2d pose) {
         // Make a copy, not a reference to the same object!

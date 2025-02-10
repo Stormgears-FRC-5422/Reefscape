@@ -50,10 +50,10 @@ public class CoralIntakeCommand extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        // let the motor run for a few iterations after sensor is triggered to fully align Coral with the base
-        if (coralIntake.isSensorTriggered()) {
-            finished_counter++;
-        }
+//        // let the motor run for a few iterations after sensor is triggered to fully align Coral with the base
+//        if (coralIntake.isIntakeSensorTriggered()) {
+//            finished_counter++;
+//        }
         // TODO: determine the value of finished_counter during tuning and save it as a constant.
         return (counter >= Intake.intakeIterationCount || finished_counter == 5);
     }

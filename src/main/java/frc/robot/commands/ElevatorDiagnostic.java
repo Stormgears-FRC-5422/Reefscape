@@ -19,7 +19,7 @@ public class ElevatorDiagnostic extends StormCommand {
     @Override
     public void initialize() {
         elevator.setTargetLevel(up ? ElevatorLevel.CEILING : ElevatorLevel.FLOOR);
-        elevator.setSpeed(0.05);
+        elevator.setSpeed(up ? 0.2 : 0.05);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class ElevatorDiagnostic extends StormCommand {
         super.execute();
     }
 
-    @Override 
+    @Override
     public boolean isFinished() {
         return false;
     }

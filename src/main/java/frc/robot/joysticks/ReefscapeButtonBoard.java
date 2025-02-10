@@ -37,7 +37,7 @@ public class ReefscapeButtonBoard extends ReefscapeJoystick{
         return m_joystickBoard1.getRawButton(4);
     }
 
-    public boolean elevatorLevel1(){
+    public boolean elevatorUp(){
         return m_joystickBoard1.getRawButton(5);
     }
 

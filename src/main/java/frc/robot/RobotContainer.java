@@ -15,13 +15,10 @@ import frc.robot.commands.*;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
-import frc.robot.joysticks.ReefscapeButtonBoard;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
-import frc.robot.commands.MoveToLevels;
 
 import frc.robot.Constants.Toggles;
 import frc.robot.Constants.Debug;
@@ -122,20 +119,14 @@ public class RobotContainer {
 
         if (Toggles.useDrive) {
             new Trigger(() -> joystick.zeroGyro())
-            .and(() -> (robotState.climberHasBeenHomed()))
-            .onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
+                .onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
         }
 
         if (Toggles.useCoralIntake){
-            new Trigger(()-> joystick.coralIntake())
-            .and(() -> (robotState.climberHasBeenHomed()))
-            .onTrue(coralIntakeCommand);
-
-            new Trigger(()-> joystick.coralOuttake())
-            .and(() -> (robotState.climberHasBeenHomed()))
-            .onTrue(coralOuttakeCommand);
-
+            new Trigger(()-> joystick.coralIntake()).onTrue(coralIntakeCommand);
+            new Trigger(()-> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
         }
+
         /*
         if (Toggles.useAlgaeIntake){
             new Trigger(()-> joystick.algaeIntake())
@@ -147,12 +138,14 @@ public class RobotContainer {
          */
        if (Toggles.useElevator) {
             new Trigger(() -> joystick.homeElevator())
-            .whileTrue(new HomeElevator(elevator));
-            new Trigger(() -> joystick.store())
-            .and(() -> (robotState.climberHasBeenHomed()))
+            .onTrue(new HomeElevator(elevator));
+
+            new Trigger(() -> joystick.elevatorDown())
+            .and(robotState::elevatorHasBeenHomed)
             .whileTrue(new ElevatorDiagnostic(elevator, false));
-            new Trigger(() -> joystick.elevatorLevel1())
-            .and(() -> (robotState.climberHasBeenHomed()))
+
+            new Trigger(() -> joystick.elevatorUp())
+            .and(robotState::elevatorHasBeenHomed)
             .whileTrue(new ElevatorDiagnostic(elevator, true));
         }
 
@@ -173,7 +166,7 @@ public class RobotContainer {
 
         // TODO: Fix elevator code below to trigger the correct level. We don't have a button on board for store()?
         if (Toggles.useElevator) {
-            new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(new ElevatorDiagnostic(elevator, true));
+            new Trigger(() -> buttonBoard.elevatorUp()).whileTrue(new ElevatorDiagnostic(elevator, true));
             new Trigger(() -> buttonBoard.elevatorLevel2()).whileTrue(new ElevatorDiagnostic(elevator, true));
             new Trigger(() -> buttonBoard.elevatorLevel3()).whileTrue(new ElevatorDiagnostic(elevator, true));
             new Trigger(() -> buttonBoard.elevatorLevel4()).whileTrue(new ElevatorDiagnostic(elevator, true));
