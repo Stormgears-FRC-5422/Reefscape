@@ -49,6 +49,7 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
         return XboxController.getBButtonIsHeld();
     }
 
+    // TODO: Uncomment after week 0, uses same buttons as diagnostic elevator
     /*
     @Override
     public boolean algaeIntake(){
