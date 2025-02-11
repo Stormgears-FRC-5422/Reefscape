@@ -49,7 +49,7 @@ public abstract class ReefscapeJoystick {
         return false;
     }
 
-    public boolean getAutoManual() {
+    public boolean isAutoMode() {
         return false;
     }
 
@@ -69,7 +69,7 @@ public abstract class ReefscapeJoystick {
         return false;
     }
 
-    public boolean getLeftRight() {
+    public boolean isRightReef() {
         return false;
     }
 
@@ -94,10 +94,6 @@ public abstract class ReefscapeJoystick {
     }
 
     public boolean autoAlgaeReef() {
-        return false;
-    }
-
-    public boolean elevatorManual() {
         return false;
     }
 

@@ -55,6 +55,6 @@ public class CoralIntakeCommand extends StormCommand {
 //            finished_counter++;
 //        }
         // TODO: determine the value of finished_counter during tuning and save it as a constant.
-        return (counter >= Intake.intakeIterationCount || finished_counter == 5);
+        return (counter >= Intake.rollerIterationCount || finished_counter == 5);
     }
 }
