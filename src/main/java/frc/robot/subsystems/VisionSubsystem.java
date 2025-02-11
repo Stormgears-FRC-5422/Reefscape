@@ -164,17 +164,13 @@ public class VisionSubsystem extends StormSubsystem {
     }
 
 
-
-
-
-
     @Override
     public void periodic() {
         super.periodic();
         latestLimelightResults = null;
-        LimelightHelpers.SetRobotOrientation("", -robotState.getYaw()-60, 0.0, 0.0, 0.0, 0.0, 0.0);
-        System.out.println(robotState.getYaw());
-    //    console(getMT2PoseEstimate().get().pose.toString());
+        LimelightHelpers.SetRobotOrientation("", -robotState.getYaw() - 60, 0.0, 0.0, 0.0, 0.0, 0.0);
+//        System.out.println(robotState.getYaw());
+        //    console(getMT2PoseEstimate().get().pose.toString());
         //Pose2d botPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId).pose;
         //if (botPose != null) {
         //     Transform2d difference = poseTag.minus(botPose);
@@ -213,10 +209,11 @@ public class VisionSubsystem extends StormSubsystem {
             linearStdDev *= linearStdDevMegatag2Factor;
 //        MegaTag2 does not give rotation data (comes from gyro)
             angularStdDev *= angularStdDevMegatag2Factor;
-
-            robotState.addVisionMeasurments(getMT2PoseEstimate().get().pose,
-                getMT2PoseEstimate().get().timestampSeconds,
-                VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+            if (getMT2PoseEstimate().isPresent()) {
+                robotState.addVisionMeasurments(getMT2PoseEstimate().get().pose,
+                    getMT2PoseEstimate().get().timestampSeconds,
+                    VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+            }
         }
     }
 

@@ -30,13 +30,13 @@ public class ReefscapeTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     private static final Slot0Configs steerGains = new Slot0Configs()
-        .withKP(40).withKI(0.0).withKD(2)
+        .withKP(100).withKI(0.0).withKD(7)
         .withKS(0.1).withKV(2.66).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs driveGains = new Slot0Configs()
-        .withKP(10).withKI(0).withKD(0)
+        .withKP(6).withKI(0).withKD(0)
         .withKS(0.18868).withKV(0.88504);
 
     // The closed-loop output type to use for the steer motors;
@@ -135,7 +135,7 @@ public class ReefscapeTunerConstants {
     private static final int kFrontLeftDriveMotorId = 11;
     private static final int kFrontLeftSteerMotorId = 10;
     private static final int kFrontLeftEncoderId = 1;
-    private static final Angle kFrontLeftEncoderOffset = Rotations.of(-0.13720703125);
+    private static final Angle kFrontLeftEncoderOffset = Rotations.of(-0.130859375);
     private static final boolean kFrontLeftSteerMotorInverted = true;
     private static final boolean kFrontLeftEncoderInverted = false;
 
@@ -146,7 +146,7 @@ public class ReefscapeTunerConstants {
     private static final int kFrontRightDriveMotorId = 21;
     private static final int kFrontRightSteerMotorId = 20;
     private static final int kFrontRightEncoderId = 2;
-    private static final Angle kFrontRightEncoderOffset = Rotations.of(0.219482421875);
+    private static final Angle kFrontRightEncoderOffset = Rotations.of(0.223876953125);
     private static final boolean kFrontRightSteerMotorInverted = true;
     private static final boolean kFrontRightEncoderInverted = false;
 
@@ -157,7 +157,7 @@ public class ReefscapeTunerConstants {
     private static final int kBackLeftDriveMotorId = 41;
     private static final int kBackLeftSteerMotorId = 40;
     private static final int kBackLeftEncoderId = 4;
-    private static final Angle kBackLeftEncoderOffset = Rotations.of(0.3408203125);
+    private static final Angle kBackLeftEncoderOffset = Rotations.of(0.34521484375);
     private static final boolean kBackLeftSteerMotorInverted = true;
     private static final boolean kBackLeftEncoderInverted = false;
 
@@ -168,7 +168,7 @@ public class ReefscapeTunerConstants {
     private static final int kBackRightDriveMotorId = 31;
     private static final int kBackRightSteerMotorId = 30;
     private static final int kBackRightEncoderId = 3;
-    private static final Angle kBackRightEncoderOffset = Rotations.of(0.084228515625);
+    private static final Angle kBackRightEncoderOffset = Rotations.of(0.083740234375);
     private static final boolean kBackRightSteerMotorInverted = true;
     private static final boolean kBackRightEncoderInverted = false;
 

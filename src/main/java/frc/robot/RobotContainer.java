@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.JoyStickDrive;
+import frc.robot.commands.autos.AutoCommandFactory;
 import frc.robot.commands.autos.AutoReef;
 import frc.robot.commands.vision.CameraPose;
 import frc.robot.joysticks.IllegalJoystickTypeException;
@@ -114,7 +115,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        return new AutoCommandFactory(drivetrain);
     }
 
     public void updateAlliance() {
