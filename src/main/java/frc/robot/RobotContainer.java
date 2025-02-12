@@ -224,25 +224,30 @@ public class RobotContainer {
             new Trigger(() -> buttonBoard.elevatorDown()).whileTrue(moveDownElevator);
 
             // In manual mode, buttons L1 - L4 only move elevator
-            if (!buttonBoard.isAutoMode()) {
-                new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(toLevel1);
-                new Trigger(() -> buttonBoard.elevatorLevel2()).whileTrue(toLevel2);
-                new Trigger(() -> buttonBoard.elevatorLevel3()).whileTrue(toLevel3);
-                new Trigger(() -> buttonBoard.elevatorLevel4()).whileTrue(toLevel4);
-            }
+            new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(toLevel1);
+            new Trigger(() -> buttonBoard.elevatorLevel2()).whileTrue(toLevel2);
+            new Trigger(() -> buttonBoard.elevatorLevel3()).whileTrue(toLevel3);
+            new Trigger(() -> buttonBoard.elevatorLevel4()).whileTrue(toLevel4);
+
             // In auto mode, buttons L1 - L4: move to the right/left reef, move elevator to correct level, and Outtake
-            else {
-                if (Toggles.useAutoReef) {
-                    boolean isRightReef = buttonBoard.isRightReef();
-                    new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(
-                        new AutoReefCommand(ElevatorLevel.LEVEL1, isRightReef));
-                    new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(
-                        new AutoReefCommand(ElevatorLevel.LEVEL2, isRightReef));
-                    new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(
-                        new AutoReefCommand(ElevatorLevel.LEVEL3, isRightReef));
-                    new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(
-                        new AutoReefCommand(ElevatorLevel.LEVEL4, isRightReef));
-                }
+            if (Toggles.useAutoReef) {
+                new Trigger(() -> buttonBoard.elevatorLevel1AutoRight()).whileTrue(
+                    new AutoReefCommand(ElevatorLevel.LEVEL1, true));
+                new Trigger(() -> buttonBoard.elevatorLevel2AutoRight()).whileTrue(
+                    new AutoReefCommand(ElevatorLevel.LEVEL2, true));
+                new Trigger(() -> buttonBoard.elevatorLevel3AutoRight()).whileTrue(
+                    new AutoReefCommand(ElevatorLevel.LEVEL3, true));
+                new Trigger(() -> buttonBoard.elevatorLevel4AutoRight()).whileTrue(
+                    new AutoReefCommand(ElevatorLevel.LEVEL4, true));
+
+                new Trigger(() -> buttonBoard.elevatorLevel1AutoLeft()).whileTrue(
+                    new AutoReefCommand(ElevatorLevel.LEVEL1, false));
+                new Trigger(() -> buttonBoard.elevatorLevel2AutoLeft()).whileTrue(
+                    new AutoReefCommand(ElevatorLevel.LEVEL2, false));
+                new Trigger(() -> buttonBoard.elevatorLevel3AutoLeft()).whileTrue(
+                    new AutoReefCommand(ElevatorLevel.LEVEL3, false));
+                new Trigger(() -> buttonBoard.elevatorLevel4AutoLeft()).whileTrue(
+                    new AutoReefCommand(ElevatorLevel.LEVEL4, false));
             }
         }
 
