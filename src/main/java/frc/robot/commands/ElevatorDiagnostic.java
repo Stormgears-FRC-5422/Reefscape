@@ -33,7 +33,6 @@ public class ElevatorDiagnostic extends StormCommand {
 
     @Override
     public void end(boolean interrupted) {
-        elevator.stopElevator();
         elevator.setState(Elevator.ElevatorState.IDLE);
         super.end(interrupted);
     }

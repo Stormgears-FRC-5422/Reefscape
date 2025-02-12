@@ -8,6 +8,7 @@ import frc.robot.Constants.Intake;
 import frc.robot.subsystems.CoralIntake;
 import frc.robot.subsystems.CoralIntake.CoralIntakeState;
 import frc.utils.StormCommand;
+import edu.wpi.first.wpilibj.Timer;
 
 public class CoralIntakeCommand extends StormCommand {
     /**
@@ -15,12 +16,13 @@ public class CoralIntakeCommand extends StormCommand {
      */
     private final CoralIntake coralIntake;
     private final CoralIntake.CoralIntakeState direction;
-    private int counter;
     private int finished_counter;
+    private final Timer timer;
 
     public CoralIntakeCommand(CoralIntake coralIntake, boolean intake) {
         this.coralIntake = coralIntake;
         this.direction = intake ? CoralIntakeState.INTAKE : CoralIntakeState.OUTTAKE;
+        timer = new Timer();
         addRequirements(coralIntake);
     }
 
@@ -30,7 +32,7 @@ public class CoralIntakeCommand extends StormCommand {
         super.initialize();
         console("direction = " + (direction == CoralIntakeState.INTAKE ? "Intake" : "Outtake"));
 
-        counter = 0;
+        timer.restart();
         finished_counter = 0;
         coralIntake.setCoralIntakeState(direction);
     }
@@ -38,7 +40,20 @@ public class CoralIntakeCommand extends StormCommand {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        counter++;
+        super.execute();
+    }
+
+    @Override
+    public boolean isFinished() {
+        if (direction == CoralIntakeState.INTAKE) {
+            // let the motor run for a few iterations after sensor is triggered to fully align Coral with the base
+            if (coralIntake.isIntakeSensorTriggered()) {
+                finished_counter++;
+            }
+            return (timer.get() >= Intake.rollerIntakeDuration || finished_counter == 5);
+        } else {
+            return (timer.get() >= Intake.rollerOuttakeDuration);
+        }
     }
 
     // Called once the command ends or is interrupted.
@@ -46,15 +61,5 @@ public class CoralIntakeCommand extends StormCommand {
     public void end(boolean interrupted) {
         coralIntake.setCoralIntakeState(CoralIntake.CoralIntakeState.OFF);
         super.end(interrupted);
-    }
-
-    @Override
-    public boolean isFinished() {
-//        // let the motor run for a few iterations after sensor is triggered to fully align Coral with the base
-//        if (coralIntake.isIntakeSensorTriggered()) {
-//            finished_counter++;
-//        }
-        // TODO: determine the value of finished_counter during tuning and save it as a constant.
-        return (counter >= Intake.intakeIterationCount || finished_counter == 5);
     }
 }
