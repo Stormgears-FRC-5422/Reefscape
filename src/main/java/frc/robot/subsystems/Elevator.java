@@ -161,6 +161,7 @@ public class Elevator extends StormSubsystem {
 
     public void setState(ElevatorState state) {
         this.currentState = state;
+        robotState.setElevatorState(state);
         // Unless explicitly turned off
 
         switch (state) {

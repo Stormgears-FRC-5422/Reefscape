@@ -62,4 +62,5 @@ public class CoralIntakeCommand extends StormCommand {
         coralIntake.setCoralIntakeState(CoralIntake.CoralIntakeState.OFF);
         super.end(interrupted);
     }
+
 }

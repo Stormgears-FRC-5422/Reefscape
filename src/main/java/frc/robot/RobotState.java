@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.utils.vision.LimelightHelpers;
+import frc.robot.subsystems.Elevator.ElevatorState;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 
@@ -35,6 +36,7 @@ public class RobotState extends SubsystemBase {
     private boolean m_didTeleop = false;
     boolean m_isCoralSensorTriggered = false;
     private boolean elevatorHasBeenHomed = false;
+    private ElevatorState elevatorState = ElevatorState.UNKNOWN;
 
     // Call createInstance from robotInit()
     public static RobotState createInstance() {
@@ -127,6 +129,14 @@ public class RobotState extends SubsystemBase {
     public boolean elevatorHasBeenHomed() {
         return elevatorHasBeenHomed;
     }
+
+    public ElevatorState getElevatorState() {
+        return elevatorState;
+    }
+    public void setElevatorState(ElevatorState state) {
+        elevatorState = state;
+    }
+
     public void setPose(Pose2d pose) {
         // Make a copy, not a reference to the same object!
         currentPose = new Pose2d(pose.getX(), pose.getY(), new Rotation2d(pose.getRotation().getRadians()));
@@ -164,21 +174,12 @@ public class RobotState extends SubsystemBase {
         return m_isCoralSensorTriggered;
     }
 
-    // TODO: code this (Meher)
-    public boolean isElevatorHomed() {
-        return true;
-    }
-
     // TODO: code this (Raghav)
     public boolean isAprilTagDetected() {
         return false;
     }
 
-    public boolean isElevatorStored(){
-        return true;
-    }
-
     public boolean isAutonomousAligned(){
-        return true;
+        return false;
     }
 }

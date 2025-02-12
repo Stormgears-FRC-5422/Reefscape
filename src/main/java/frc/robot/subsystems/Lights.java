@@ -61,7 +61,6 @@ public class Lights extends StormSubsystem {
         // if aligned to shoot coral, change top half to purple
         if (m_robotState.isCoralSensorTriggered()){
             setSolid(Color.kDarkGreen);
-            setAlignmentStatus();
         }
         else{
             if (m_robotState.getAlliance() != m_alliance){
@@ -69,6 +68,12 @@ public class Lights extends StormSubsystem {
             }
             setAllianceColor();
         }
+
+        // Modify bottom view of strip based on april tag detection/alignment
+        setAlignmentStatus();
+
+        // Modify top view of strip based on elevator status
+        setElevatorStatus();
 
         // Write the data to the LED strip
         m_led.setData(m_ledBuffer);
@@ -110,38 +115,49 @@ public class Lights extends StormSubsystem {
         pattern.applyTo(m_ledBuffer);
     }
 
+    public void setAlignmentStatus() {
+        // Modify bottom view of strip based on alignment status
+        if (m_robotState.isAprilTagDetected()) {
+            LEDPattern pattern = LEDPattern.solid(Color.kYellow);
+            pattern.applyTo(m_left_bottom);
+            pattern.applyTo(m_right_bottom);
+        }
+
+        if (m_robotState.isAutonomousAligned()) {
+            LEDPattern pattern = LEDPattern.solid(Color.kGreen);
+            pattern.applyTo(m_left_bottom);
+            pattern.applyTo(m_right_bottom);
+        }
+    }
+
     public void setElevatorStatus() {
         // Modify top view of strip based on elevator status
-        if (m_robotState.isElevatorHomed()) {
+        isElevatorHomed();
+        isElevatorMoving();
+        isElevatorOnHoldAtPosition();
+    }
+
+    public void isElevatorHomed() {
+        if (m_robotState.elevatorHasBeenHomed()) {
             LEDPattern pattern = LEDPattern.solid(Color.kLightYellow);
             pattern.applyTo(m_left_top);
             pattern.applyTo(m_right_top);
         }
     }
 
-    public void setAlignmentStatus() {
-        // Modify top view of strip based on alignment status
-        if (m_robotState.isAprilTagDetected()) {
-            LEDPattern pattern = LEDPattern.solid(Color.kMediumPurple);
+    public void isElevatorMoving() {
+        if (m_robotState.getElevatorState().equals(Elevator.ElevatorState.SIMPLE_MOTION)
+        || m_robotState.getElevatorState().equals(Elevator.ElevatorState.PID_MOTION)
+        || m_robotState.getElevatorState().equals(Elevator.ElevatorState.HOMING)) {
+            setRainbow();
+        }
+    }
+
+    public void isElevatorOnHoldAtPosition() {
+        if (m_robotState.getElevatorState().equals(Elevator.ElevatorState.HOLD)) {
+            LEDPattern pattern = LEDPattern.solid(Color.kGreen);
             pattern.applyTo(m_left_top);
             pattern.applyTo(m_right_top);
         }
     }
-
-    public void isElevatorStored() {
-        if (m_robotState.isElevatorStored()) {
-            LEDPattern pattern = LEDPattern.solid(Color.kPurple);
-            pattern.applyTo(m_left_top);
-            pattern.applyTo(m_right_top);
-        }
-    }
-
-    public void isAutonomousAligned() {
-        if (m_robotState.isAutonomousAligned()) {
-            LEDPattern pattern = LEDPattern.solid(Color.kDarkOrange);
-            pattern.applyTo(m_left_top);
-            pattern.applyTo(m_right_top);
-        }
-    }
-
 }

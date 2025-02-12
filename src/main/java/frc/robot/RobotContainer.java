@@ -122,7 +122,7 @@ public class RobotContainer {
         }
 
         if (Toggles.useAutoReef) {
-            autoReefCommand = new AutoReefCommand();
+            autoReefCommand = new AutoReefCommand(ElevatorLevel.LEVEL4, true);
         }
 
         if (Toggles.useAutoStation) {
@@ -141,7 +141,8 @@ public class RobotContainer {
         // will still work in this case, just not move the robot.
         if (Constants.Toggles.useController) {
             console("Making drive joystick!");
-            joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick, Constants.ButtonBoard.driveJoystickPort);
+            joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick,
+                Constants.ButtonBoard.driveJoystickPort);
             JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
             if (!isNull(drivetrain)) {
                 drivetrain.setDefaultCommand(driveWithJoystick);
@@ -154,7 +155,8 @@ public class RobotContainer {
 
         if (Toggles.useButtonBoard) {
             console("Making button board!");
-            buttonBoard = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.buttonBoard, Constants.ButtonBoard.buttonBoardPort1);
+            buttonBoard = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.buttonBoard,
+                Constants.ButtonBoard.buttonBoardPort1);
             configureButtonBoardBindings();
         }
 
@@ -217,20 +219,39 @@ public class RobotContainer {
         }
 
         if (Toggles.useElevator) {
-            new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(toLevel1);
-            new Trigger(() -> buttonBoard.elevatorLevel2()).whileTrue(toLevel2);
-            new Trigger(() -> buttonBoard.elevatorLevel3()).whileTrue(toLevel3);
-            new Trigger(() -> buttonBoard.elevatorLevel4()).whileTrue(toLevel4);
-        }
+            // manual joystick on button board
+            new Trigger(() -> buttonBoard.elevatorUp()).whileTrue(moveUpElevator);
+            new Trigger(() -> buttonBoard.elevatorDown()).whileTrue(moveDownElevator);
 
-        // TODO: Add trigger for manual elevator joystick on button board
-        //  using moveUpElevator and moveDownElevator commands
+            // In manual mode, buttons L1 - L4 only move elevator
+            if (!buttonBoard.isAutoMode()) {
+                new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(toLevel1);
+                new Trigger(() -> buttonBoard.elevatorLevel2()).whileTrue(toLevel2);
+                new Trigger(() -> buttonBoard.elevatorLevel3()).whileTrue(toLevel3);
+                new Trigger(() -> buttonBoard.elevatorLevel4()).whileTrue(toLevel4);
+            }
+            // In auto mode, buttons L1 - L4: move to the right/left reef, move elevator to correct level, and Outtake
+            else {
+                if (Toggles.useAutoReef) {
+                    boolean isRightReef = buttonBoard.isRightReef();
+                    new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(
+                        new AutoReefCommand(ElevatorLevel.LEVEL1, isRightReef));
+                    new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(
+                        new AutoReefCommand(ElevatorLevel.LEVEL2, isRightReef));
+                    new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(
+                        new AutoReefCommand(ElevatorLevel.LEVEL3, isRightReef));
+                    new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(
+                        new AutoReefCommand(ElevatorLevel.LEVEL4, isRightReef));
+                }
+            }
+        }
 
         if (Toggles.useAutoStation) {
             new Trigger(() -> buttonBoard.autoStation()).onTrue(autoStationCommand);
         }
 
         if (Toggles.useAutoReef) {
+            // quick auto reef command, outtakes to level 4, right reef with a single button press
             new Trigger(() -> buttonBoard.autoReef()).onTrue(autoReefCommand);
         }
 
@@ -241,7 +262,6 @@ public class RobotContainer {
         if (Toggles.useAutoAlgaeReef) {
             new Trigger(() -> buttonBoard.autoAlgaeReef()).onTrue(autoAlgaeReefCommand);
         }
-
     }
 
 

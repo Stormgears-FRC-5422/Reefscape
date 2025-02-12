@@ -21,7 +21,7 @@ public class ReefscapeButtonBoard extends ReefscapeJoystick{
         }
     }
 
-    public boolean getAutoManual(){
+    public boolean isAutoMode(){
         return m_joystickBoard1.getRawButton(1);
     }
 
@@ -37,11 +37,11 @@ public class ReefscapeButtonBoard extends ReefscapeJoystick{
         return m_joystickBoard1.getRawButton(4);
     }
 
-    public boolean elevatorUp(){
+    public boolean elevatorLevel1(){
         return m_joystickBoard1.getRawButton(5);
     }
 
-    public boolean getLeftRight(){
+    public boolean isRightReef(){
         return m_joystickBoard1.getRawButton(6);
     }
 
@@ -77,7 +77,18 @@ public class ReefscapeButtonBoard extends ReefscapeJoystick{
         return m_joystickBoard2.getRawButton(12);
     }
 
-    public boolean elevatorManual(){
-        return m_joystickBoard2.getRawButton(8);
+    // Move manual stick up or down to move elevator up and down manually
+    public boolean elevatorUp() {
+        double y = m_joystickBoard2.getY();
+        // There is a slight voltage bias that causes the joystick to report != 0 at rest
+        // any actual motion sets it to -1.0 or 1.0, so we just need some reasonable number in the middle here
+        return (Math.abs(y) > 0.5) && (y > 0);
+    }
+
+    public boolean elevatorDown() {
+        double y = m_joystickBoard2.getY();
+        // There is a slight voltage bias that causes the joystick to report != 0 at rest
+        // any actual motion sets it to -1.0 or 1.0, so we just need some reasonable number in the middle here
+        return (Math.abs(y) > 0.5) && (y < 0);
     }
 }
