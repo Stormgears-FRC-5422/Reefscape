@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
 import frc.robot.joysticks.IllegalJoystickTypeException;
@@ -186,10 +187,6 @@ public class RobotContainer {
         }
          */
        if (Toggles.useElevator) {
-           // TODO - we need to NOT move the elevator if it has not been homed
-            new Trigger(() -> joystick.homeElevator())
-            .onTrue(new ElevatorHome(elevator));
-
             new Trigger(() -> joystick.elevatorDown())
             .and(robotState::elevatorHasBeenHomed)
             .whileTrue(new ElevatorDiagnostic(elevator, false));
@@ -201,7 +198,6 @@ public class RobotContainer {
            new Trigger(() -> joystick.elevatorTestPid())
                .and(robotState::elevatorHasBeenHomed)
                .whileTrue(new ElevatorPositionCommand(elevator, Elevator.ElevatorLevel.LEVEL3));
-
         }
     }
 
@@ -264,11 +260,6 @@ public class RobotContainer {
         }
     }
 
-
-    public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
-    }
-
     public void updateAlliance() {
         RobotState.StateAlliance a = RobotState.StateAlliance.MISSING;
         String defaultAlliance = Debug.defaultAlliance.toLowerCase();
@@ -301,6 +292,32 @@ public class RobotContainer {
         }
         if (Toggles.useDrive)
             drivetrain.declarePoseIsNow(initialPose);
+    }
+
+    // Sequence called from teleopInit
+    public void autoHome() {
+        if (Toggles.useElevator) {
+            if (!robotState.elevatorHasBeenHomed()) {
+                console("Auto Homing");
+                new SequentialCommandGroup(
+                    elevatorHome
+                    // might want to move to stow position here
+                ).schedule();
+            } else {
+                console("Not auto-homing - already done!");
+            }
+        } else {
+            console("Not auto-homing - elevator disabled!");
+        }
+    }
+
+    // Home the elevator here
+    public Command getAutonomousCommand() {
+        if (Toggles.useElevator && Constants.Elevator.autoHome) {
+            return elevatorHome;
+        } else {
+            return Commands.print("No autonomous command specified");
+        }
     }
 
     public void console(String message) {
