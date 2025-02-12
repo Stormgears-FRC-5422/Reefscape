@@ -113,6 +113,7 @@ public abstract class DrivetrainBase extends StormSubsystem {
         drive(new ChassisSpeeds(0, 0, 0), false);
     }
 
+    @AutoLogOutput
     public ChassisSpeeds getCurrentChassisSpeeds() {
         return m_chassisSpeeds;
     }

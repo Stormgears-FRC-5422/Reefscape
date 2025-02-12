@@ -4,6 +4,7 @@ import choreo.Choreo;
 import choreo.auto.AutoTrajectory;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -17,23 +18,31 @@ import org.littletonrobotics.junction.Logger;
 import java.util.Optional;
 
 public class AutoCommandFactory extends Command {
-    private final Optional<Trajectory<SwerveSample>> trajectory = Choreo.loadTrajectory("test");
+    private final Optional<Trajectory<SwerveSample>> trajectory = Choreo.loadTrajectory("test2");
     static DrivetrainBase drivetrainBase;
-    private static final PIDController xController = new PIDController(0, 0.0, 0.0);
+    private static final PIDController xController = new PIDController(3.5, 0.0, 0.0);
     private static final PIDController yController = new PIDController(0, 0.0, 0.0);
-    private static final PIDController headingController = new PIDController(0, 0.0, 0.0);
+    private static final PIDController headingController = new PIDController(3.1, 0.0, 0.1);
     private Timer timer;
+    private int count = 0;
 
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase) {
         this.drivetrainBase = drivetrainBase;
         timer = new Timer();
+        headingController.enableContinuousInput(-Math.PI, Math.PI);
+
+        addRequirements(drivetrainBase);
     }
 
-    public  void followTrajectory(SwerveSample sample) {
+    public void followTrajectory(SwerveSample sample) {
+        if (trajectory.isPresent()) {
+            trajectory.get().getInitialPose(false);
+        }
         // Get the current pose of the robot
         Pose2d pose = drivetrainBase.getPose();
-        Logger.recordOutput("pose trj", sample.getPose());
+        Logger.recordOutput("Auto/pose trj", sample.getPose());
+        Logger.recordOutput("Auto/pose chass speeds", sample.getChassisSpeeds());
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
@@ -41,26 +50,32 @@ public class AutoCommandFactory extends Command {
             sample.vy + yController.calculate(pose.getY(), sample.y),
             sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
-        Logger.recordOutput("header", sample.heading);
-        Logger.recordOutput("omega", sample.omega);
-        System.out.println(speeds);
+        Logger.recordOutput("Auto/header", sample.heading);
+        Logger.recordOutput("Auto/omega", sample.omega);
+        Logger.recordOutput("Auto/speed", speeds);
         drivetrainBase.drive(speeds, true);
     }
 
     @Override
     public void initialize() {
-        timer.restart();
+        count = 0;
     }
 
     @Override
     public void execute() {
-//        Optional<SwerveSample> sample = trajectory.get().sampleAt(timer.get(), false);
-        Optional<SwerveSample> sample = trajectory.get().sampleAt(0.27225, false);
-        System.out.println("t " + timer.get());
+        if (count == 0) {
+            timer.restart();
+            count++;
+        }
+
+        double time = timer.get();
+        Optional<SwerveSample> sample = trajectory.get().sampleAt(time, false);
+//        Optional<SwerveSample> sample = trajectory.get().sampleAt(0.27225, false);
+        Logger.recordOutput("Auto/timer timer", time);
 
         if (sample.isPresent()) {
             followTrajectory(sample.get());
-        } else{
+        } else {
             System.out.println("no");
         }
 
