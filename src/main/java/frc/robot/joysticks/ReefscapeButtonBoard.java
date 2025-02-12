@@ -7,17 +7,19 @@ public class ReefscapeButtonBoard extends ReefscapeJoystick{
 
     Joystick m_joystickBoard1;
     Joystick m_joystickBoard2;
+    Joystick js1;
+    Joystick js2;
 
     public ReefscapeButtonBoard(int port){
-        m_joystickBoard1 = new Joystick(Constants.ButtonBoard.buttonBoardPort1);
-        m_joystickBoard2 = new Joystick (Constants.ButtonBoard.buttonBoardPort2);
-        if (!m_joystickBoard2.getRawButton(1)){
-            System.out.println("Switching ButtonBoard ports");
-            m_joystickBoard1 = new Joystick(Constants.ButtonBoard.buttonBoardPort2);
-            m_joystickBoard2 = new Joystick(Constants.ButtonBoard.buttonBoardPort1);
-        }
-        else{
-            System.out.println("Not Switching ButtonBoard ports");
+        js1 = new Joystick(1);
+        js2 = new Joystick(2);
+
+        if (js2.getRawButton(1)) {
+            m_joystickBoard2 = js2;
+            m_joystickBoard1 = js1;
+        } else {
+            m_joystickBoard1 = js2;
+            m_joystickBoard2 = js1;
         }
     }
 
@@ -41,8 +43,40 @@ public class ReefscapeButtonBoard extends ReefscapeJoystick{
         return m_joystickBoard1.getRawButton(5);
     }
 
+    public boolean elevatorLevel4AutoRight(){
+        return m_joystickBoard1.getRawButton(2) && isAutoMode() && isRightReef();
+    }
+
+    public boolean elevatorLevel3AutoRight(){
+        return m_joystickBoard1.getRawButton(3) && isAutoMode() && isRightReef();
+    }
+
+    public boolean elevatorLevel2AutoRight(){
+        return m_joystickBoard1.getRawButton(4) && isAutoMode() && isRightReef();
+    }
+
+    public boolean elevatorLevel1AutoRight(){
+        return m_joystickBoard1.getRawButton(5) && isAutoMode() && isRightReef();
+    }
+
+    public boolean elevatorLevel4AutoLeft(){
+        return m_joystickBoard1.getRawButton(2) && isAutoMode() && !isRightReef();
+    }
+
+    public boolean elevatorLevel3AutoLeft(){
+        return m_joystickBoard1.getRawButton(3) && isAutoMode() && !isRightReef();
+    }
+
+    public boolean elevatorLevel2AutoLeft(){
+        return m_joystickBoard1.getRawButton(4) && isAutoMode() && !isRightReef();
+    }
+
+    public boolean elevatorLevel1AutoLeft(){
+        return m_joystickBoard1.getRawButton(5) && isAutoMode() && !isRightReef();
+    }
+
     public boolean isRightReef(){
-        return m_joystickBoard1.getRawButton(6);
+        return !m_joystickBoard1.getRawButton(6);
     }
 
     public boolean coralIntake(){

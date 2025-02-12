@@ -24,7 +24,7 @@ public class AutoReefCommand extends StormCommand {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        console("AutoReefCommand executed");
+        console("AutoReefCommand executed " + isRightReef.toString());
         counter++;
     }
 
