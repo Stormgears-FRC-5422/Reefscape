@@ -74,19 +74,14 @@ public class LimelightExtra {
     }
     public static double[] getTagIDs(String limelight) {
         NetworkTable table = NetworkTableInstance.getDefault().getTable(limelight);
-        String rawData = table.getEntry("tid").getString("");
-        String[] data = rawData.split(",");
-        double[] tagIDs = new double[data.length];
-        for (String id: data) {
-            try {
-                int parsedNumber = Integer.parseInt(id);
-                tagIDs[parsedNumber] = parsedNumber;
-            } catch (NumberFormatException e) {
-                System.out.println("Error parsing tag ID: " + id);
-            }
+        double[] mainTID = table.getEntry("tid").getDoubleArray(new double[0]);
+        return mainTID;
 
-        }
-        return tagIDs;
+    }
+    public static double[] getRawFiducials(String limelight) {
+        NetworkTable table = NetworkTableInstance.getDefault().getTable(limelight);
+        double[] rawFiducials = table.getEntry("getRawFiducials").getDoubleArray(new double[0]);
+        return rawFiducials;
 
     }
 

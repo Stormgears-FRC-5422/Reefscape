@@ -59,6 +59,9 @@ public class AutoCommandFactory extends Command {
     @Override
     public void initialize() {
         count = 0;
+        if (trajectory.isPresent() && trajectory.get().getInitialPose(false).isPresent()) {
+            drivetrainBase.declarePoseIsNow(trajectory.get().getInitialPose(false).get());
+        }
     }
 
     @Override

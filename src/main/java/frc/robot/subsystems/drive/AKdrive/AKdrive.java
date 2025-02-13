@@ -45,6 +45,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
+import frc.utils.vision.LimelightHelpers;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -133,6 +134,7 @@ public class AKdrive extends DrivetrainBase {
 
         odometryLock.lock(); // Prevents odometry updates while reading data
         gyroIO.updateInputs(gyroInputs);
+        //setGyroMT2();
         RobotState robotState = RobotState.getInstance();
         robotState.setYaw(gyroInputs.yawPosition.getDegrees());
         Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -419,5 +421,12 @@ public class AKdrive extends DrivetrainBase {
             new Translation2d(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
             new Translation2d(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)
         };
+    }
+    /*
+    Set the gyro to the MegaTag2
+     */
+    @Override
+    public void setGyroMT2() {
+        LimelightHelpers.SetRobotOrientation("", poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
     }
 }

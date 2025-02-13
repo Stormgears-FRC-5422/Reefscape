@@ -167,6 +167,9 @@ public abstract class DrivetrainBase extends StormSubsystem {
 
     }
 
+    public void setGyroMT2(){
+    }
+
 
     protected void setDriveFlip(boolean flip) {
         driveFlip = flip;

@@ -150,15 +150,17 @@ public class VisionSubsystem extends StormSubsystem {
 
     public double getDistance(int id) {
         Pose2d tagPose = FieldConstants.getPoseTag(id);
+
         Pose2d robotPose = robotState.getPose();
         return robotPose.minus(tagPose).getTranslation().getNorm();
     }
 
     public double getAvgDist() {
-        double[] a = LimelightExtra.getTagIDs(limelightId);
+        LimelightHelpers.RawFiducial[] rawFiducials = LimelightHelpers.getRawFiducials(limelightId);
+        double[] a = Arrays.stream(rawFiducials).mapToDouble(f -> f.id).toArray();
         double[] distances = new double[a.length];
-        for (double i : a) {
-            distances[(int) i] = getDistance((int) i);
+        for (int index = 0; index < a.length; index++) {
+            distances[index] = getDistance((int) a[index]);
         }
         return Arrays.stream(distances).sum() / distances.length;
     }
@@ -168,17 +170,20 @@ public class VisionSubsystem extends StormSubsystem {
     public void periodic() {
         super.periodic();
         latestLimelightResults = null;
-        LimelightHelpers.SetRobotOrientation("", -robotState.getYaw() - 60, 0.0, 0.0, 0.0, 0.0, 0.0);
-//        System.out.println(robotState.getYaw());
-        //    console(getMT2PoseEstimate().get().pose.toString());
-        //Pose2d botPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId).pose;
-        //if (botPose != null) {
-        //     Transform2d difference = poseTag.minus(botPose);
-        //   console(difference.toString());
-        //}
+        LimelightHelpers.SetRobotOrientation("", robotState.getYaw()-60, 0.0, 0.0, 0.0, 0.0, 0.0);
 
+//        System.out.println(LimelightHelpers.getRawFiducials(limelightId)[0].id);
+        System.out.println(getAvgDist());
+//        System.out.println(robotState.getYaw());
+//            console(getMT2PoseEstimate().get().pose.toString());
+//        Pose2d botPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId).pose;
+//        if (botPose != null) {
+//             Transform2d difference = poseTag.minus(botPose);
+//           console(difference.toString());
+//        }
+//
 //        Transform2d sigma = new Transform2d(poseTag, LimelightHelpers.getBotPose2d_wpiBlue(limelightId));
-        //console("botPose in target space" + Arrays.toString(LimelightHelpers.getBotPose_TargetSpace(limelightId)));
+//        console("botPose in target space" + Arrays.toString(LimelightHelpers.getBotPose_TargetSpace(limelightId)));
 //        RobotState.getInstance().setVisionPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"),
 //            LimelightHelpers.getTV("limelight"));
 
