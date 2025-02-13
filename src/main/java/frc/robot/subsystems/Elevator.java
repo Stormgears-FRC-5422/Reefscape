@@ -6,6 +6,7 @@ import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.Constants.SparkConstants;
 import frc.robot.RobotState;
@@ -18,14 +19,14 @@ public class Elevator extends StormSubsystem {
     private final SparkMax elevatorLeader;
     private final SparkMax elevatorFollower;
     private final RelativeEncoder leaderEncoder;
-    private final RelativeEncoder followerEncoder;
     private final SparkClosedLoopController controller;
     private final ElevatorFeedforward feedForward;
 
     private double elevatorSpeed;
     private boolean hasBeenHomed = false;
 
-    private ElevatorLevel targetLevel;
+    private double targetPosition;
+    private double currentPosition;
     private ElevatorState currentState;
     private SparkMaxConfig elevatorLeaderConfig = new SparkMaxConfig();
 
@@ -36,7 +37,6 @@ public class Elevator extends StormSubsystem {
         elevatorFollower = new SparkMax(Constants.Elevator.followerID, SparkLowLevel.MotorType.kBrushless);
 
         leaderEncoder = elevatorLeader.getEncoder();
-        followerEncoder = elevatorFollower.getEncoder();
 
         elevatorLeaderConfig = new SparkMaxConfig();
         SparkMaxConfig globalConfig = new SparkMaxConfig();
@@ -99,7 +99,7 @@ public class Elevator extends StormSubsystem {
 
         controller = elevatorLeader.getClosedLoopController();
 
-        targetLevel = ElevatorLevel.UNKNOWN;
+        targetPosition = Double.NaN;
         currentState = ElevatorState.UNKNOWN;
     }
 
@@ -107,7 +107,7 @@ public class Elevator extends StormSubsystem {
     public void periodic() {
         super.periodic();
 
-        double currentPosition = leaderEncoder.getPosition();
+        currentPosition = leaderEncoder.getPosition();
         double ffVoltage = 0;
 
         switch (currentState) {
@@ -128,15 +128,9 @@ public class Elevator extends StormSubsystem {
             case PID_MOTION:
                 if (hasBeenHomed) {
                     ffVoltage = feedForward.calculate(0); // 0 here basically gives us gravity compensation
-//                    elevatorLeader.set(ffVoltage / 10.0);
-                    controller.setReference(targetLevel.getValue(),
+                    //elevatorLeader.set(ffVoltage / 10.0); // voltage->percentage
+                    controller.setReference(targetPosition,
                         SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ffVoltage);
-//                    controller.setReference(targetLevel.getValue(),
-//                        SparkBase.ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0, ffVoltage);
-//                    console("position is " + currentPosition
-//                        + ", target is " + targetLevel.getValue()
-//                        + ", speed is " + elevatorSpeed
-//                        + ", ffVoltage is " + ffVoltage);
                 } else {
                     console("Stubbornly refusing to move before homed!", 25);
                 }
@@ -146,23 +140,15 @@ public class Elevator extends StormSubsystem {
                 elevatorLeader.set(0);
         }
 
-//        if (robotState.getPeriod() != RobotState.StatePeriod.DISABLED) {
-//            console("position is " + currentPosition
-//                + ", target is " + targetLevel.getValue()
-//                + ", speed is " + elevatorSpeed
-//                + ", ffVoltage is " + ffVoltage, 50);
-//        }
-
         Logger.recordOutput("Elevator/LeaderEncoder", currentPosition);
         Logger.recordOutput("Elevator/LeaderVelocity", leaderEncoder.getVelocity());
-        Logger.recordOutput("Elevator/TargetLevel", targetLevel.getValue());
+        Logger.recordOutput("Elevator/TargetLevel", targetPosition);
         Logger.recordOutput("Elevator/Feedforward", ffVoltage);
     }
 
     public void setState(ElevatorState state) {
         this.currentState = state;
         robotState.setElevatorState(state);
-        // Unless explicitly turned off
 
         switch (state) {
             case UNKNOWN:
@@ -170,6 +156,7 @@ public class Elevator extends StormSubsystem {
                 hasBeenHomed = false;
                 robotState.setElevatorHasBeenHomed(hasBeenHomed);
                 enableSoftLimits(true);
+                targetPosition = Double.NaN;
                 break;
 
             case HOMING:
@@ -186,7 +173,7 @@ public class Elevator extends StormSubsystem {
                 break;
 
             case SIMPLE_MOTION:
-                console("***** HOME state *****");
+                console("***** SIMPLE_MOTION state *****");
                 break;
 
             case PID_MOTION:
@@ -195,27 +182,41 @@ public class Elevator extends StormSubsystem {
 
             case IDLE:
                 console("***** IDLE state *****");
+                targetPosition = Double.NaN;
                 stopElevator();
                 break;
         }
     }
 
-    private void home() {
-        setSpeed(0.0);
+    public boolean isAtHome() {
+        if (Constants.Elevator.useCurrentLimitHomeStrategy) {
+            // might want to use an average here to minimize spikes
+            console("isAtHome output current: " + elevatorLeader.getOutputCurrent());
+            return elevatorLeader.getOutputCurrent() > Constants.Elevator.stallCurrentLimit;
+        } else {
+            console("isAtHome current position: " + currentPosition);
+            return Math.abs(currentPosition) < 1.0;
+        }
     }
 
-    public boolean isAtHome() {
-        // TODO - the home sequence should be a current limiter if there is no good home switch.
-        // but this is pretty safe since the elevator wants to rest at the bottom. So call this 0.
-        double encoderPosition = leaderEncoder.getPosition();
-        return encoderPosition >= -5 && encoderPosition <= 5;
-        // return bottomLimitSwitch.isPressed();
+    private void home() {
+        if (Constants.Elevator.useCurrentLimitHomeStrategy) {
+            // might want to use an average here to minimize spikes
+            setSpeed(Constants.Elevator.stallCurrentSpeed);
+        } else {
+            setSpeed(0.0);
+        }
     }
+
+    public boolean isAtTarget() {
+        return Math.abs(currentPosition - targetPosition) < Constants.Elevator.allowedError;
+    }
+
 
     private void simpleMove(double currentPosition) {
-        if (currentPosition < targetLevel.getValue()) {
+        if (currentPosition < targetPosition) {
             setSpeed(Constants.Elevator.simpleUpSpeed);
-        } else if (currentPosition > targetLevel.getValue()) {
+        } else if (currentPosition > targetPosition) {
             setSpeed(-Constants.Elevator.simpleDownSpeed);
         } else {
             setSpeed(0);
@@ -226,13 +227,15 @@ public class Elevator extends StormSubsystem {
         this.elevatorSpeed = speed;
     }
 
-    public ElevatorLevel getTargetLevel() {
-        return targetLevel;
+    public void setTargetLevel(ElevatorLevel targetLevel) {
+        setTargetPosition(targetLevel.getValue());
     }
 
-    public void setTargetLevel(ElevatorLevel targetLevel) {
-        this.targetLevel = targetLevel;
+    public void setTargetPosition(double position) {
+        this.targetPosition = position;
     }
+
+    public double getCurrentPosition() {return currentPosition;}
 
     public void stopElevator() {
         setSpeed(0);

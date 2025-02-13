@@ -189,9 +189,7 @@ public class Robot extends LoggedRobot {
             console("NOT Resetting initial pose in teleopInit because we did autonomous already");
         }
 
-        if (Constants.Toggles.useElevator && Constants.Elevator.autoHome) {
-            robotContainer.autoHome();
-        }
+        robotContainer.autoHome();
 
         System.out.println("tele Init Pos X: " + RobotState.getInstance().getPose().getX());
         System.out.println("tele Init Pos Y: " + RobotState.getInstance().getPose().getY());

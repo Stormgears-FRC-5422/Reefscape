@@ -4,21 +4,25 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.utils.StormCommand;
 
-public class ElevatorPositionCommand extends StormCommand {
-    private final Elevator elevatorSubsystem;
-    private final ElevatorLevel targetLevel;
+public class ElevatorMoveToPosition extends StormCommand {
+    protected final Elevator elevatorSubsystem;
+    protected final double targetPosition;
 
-    public ElevatorPositionCommand(Elevator elevatorSubsystem, ElevatorLevel targetLevel) {
+    public ElevatorMoveToPosition(Elevator elevatorSubsystem, double position) {
         this.elevatorSubsystem = elevatorSubsystem;
-        this.targetLevel = targetLevel;
+        this.targetPosition = position;
 
         addRequirements(elevatorSubsystem);
+    }
+
+    public ElevatorMoveToPosition(Elevator elevatorSubsystem, ElevatorLevel targetLevel) {
+        this(elevatorSubsystem, targetLevel.getValue());
     }
 
     @Override
     public void initialize() {
         super.initialize();
-        elevatorSubsystem.setTargetLevel(targetLevel);
+        elevatorSubsystem.setTargetPosition(targetPosition);
         elevatorSubsystem.setState(Elevator.ElevatorState.PID_MOTION);
     }
 
@@ -30,9 +34,7 @@ public class ElevatorPositionCommand extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        // return elevatorSubsystem.getTargetLevel() == targetLevel;
-        // For now this doesn't really end - we want it to hold. This might not need a separate command
-        return false;
+        return elevatorSubsystem.isAtTarget();
     }
 
     @Override

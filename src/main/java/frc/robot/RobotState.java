@@ -36,6 +36,7 @@ public class RobotState extends SubsystemBase {
     private boolean m_didTeleop = false;
     boolean m_isCoralSensorTriggered = false;
     private boolean elevatorHasBeenHomed = false;
+    private boolean m_intakeWristHasBeenHomed = false;
     private ElevatorState elevatorState = ElevatorState.UNKNOWN;
 
     // Call createInstance from robotInit()
@@ -168,6 +169,14 @@ public class RobotState extends SubsystemBase {
 
     public void setCoralSensorTriggered(boolean triggered) {
         m_isCoralSensorTriggered = triggered;
+    }
+
+    public void setIntakeWristHasBeenHomed(boolean homed) {
+        m_intakeWristHasBeenHomed = homed;
+    }
+
+    public boolean getIntakeWristHasBeenHomed() {
+        return m_intakeWristHasBeenHomed;
     }
 
     public boolean isCoralSensorTriggered() {

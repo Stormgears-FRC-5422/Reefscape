@@ -7,10 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
 import frc.robot.joysticks.IllegalJoystickTypeException;
@@ -20,7 +17,7 @@ import frc.robot.subsystems.*;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
-import frc.robot.commands.ElevatorPositionCommand;
+import frc.robot.commands.ElevatorMoveToPosition;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorLevel;
 
@@ -69,13 +66,13 @@ public class RobotContainer {
     AutoAlgaeReefCommand autoAlgaeReefCommand;
 
     // Elevator
-    ElevatorHome elevatorHome;
     ElevatorDiagnostic moveUpElevator;
     ElevatorDiagnostic moveDownElevator;
-    ElevatorPositionCommand toLevel1;
-    ElevatorPositionCommand toLevel2;
-    ElevatorPositionCommand toLevel3;
-    ElevatorPositionCommand toLevel4;
+    ElevatorManual manualElevator;
+    ElevatorMoveToPosition toLevel1;
+    ElevatorMoveToPosition toLevel2;
+    ElevatorMoveToPosition toLevel3;
+    ElevatorMoveToPosition toLevel4;
 
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
@@ -113,13 +110,12 @@ public class RobotContainer {
 
         if (Toggles.useElevator) {
             elevator = new Elevator();
-            elevatorHome = new ElevatorHome(elevator);
             moveDownElevator = new ElevatorDiagnostic(elevator, false);
             moveUpElevator = new ElevatorDiagnostic(elevator, true);
-            toLevel1 = new ElevatorPositionCommand(elevator, ElevatorLevel.LEVEL1);
-            toLevel2 = new ElevatorPositionCommand(elevator, ElevatorLevel.LEVEL2);
-            toLevel3 = new ElevatorPositionCommand(elevator, ElevatorLevel.LEVEL3);
-            toLevel4 = new ElevatorPositionCommand(elevator, ElevatorLevel.LEVEL4);
+            toLevel1 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1);
+            toLevel2 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL2);
+            toLevel3 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL3);
+            toLevel4 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4);
         }
 
         if (Toggles.useAutoReef) {
@@ -138,20 +134,19 @@ public class RobotContainer {
             autoProcessorCommand = new AutoProcessorCommand();
         }
 
-        // Note that this might pass a NULL drive if that is disabled. The JoyStick drive
-        // will still work in this case, just not move the robot.
-        if (Constants.Toggles.useController) {
+        if (Toggles.useController) {
             console("Making drive joystick!");
             joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick,
                 Constants.ButtonBoard.driveJoystickPort);
+
+            configureBindings();
+
+            // Note that this might pass a NULL drive if that is disabled. The JoyStick drive
+            // will still work in this case, just not move the robot.
             JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
             if (!isNull(drivetrain)) {
                 drivetrain.setDefaultCommand(driveWithJoystick);
             }
-        }
-
-        if (Toggles.useController) {
-            configureBindings();
         }
 
         if (Toggles.useButtonBoard) {
@@ -159,6 +154,11 @@ public class RobotContainer {
             buttonBoard = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.buttonBoard,
                 Constants.ButtonBoard.buttonBoardPort1);
             configureButtonBoardBindings();
+
+            if (!isNull(elevator) && !Constants.Elevator.useDiagnosticElevator) {
+                manualElevator = new ElevatorManual(elevator, buttonBoard);
+                elevator.setDefaultCommand(manualElevator);
+            }
         }
 
         console("constructor ended");
@@ -187,18 +187,20 @@ public class RobotContainer {
         }
          */
        if (Toggles.useElevator) {
-            new Trigger(() -> joystick.elevatorDown())
-            .and(robotState::elevatorHasBeenHomed)
-            .whileTrue(new ElevatorDiagnostic(elevator, false));
+           if (Constants.Elevator.useDiagnosticElevator) {
+               new Trigger(() -> joystick.elevatorDown())
+                   .and(robotState::elevatorHasBeenHomed)
+                   .whileTrue(new ElevatorDiagnostic(elevator, false));
 
-            new Trigger(() -> joystick.elevatorUp())
-            .and(robotState::elevatorHasBeenHomed)
-            .whileTrue(new ElevatorDiagnostic(elevator, true));
+               new Trigger(() -> joystick.elevatorUp())
+                   .and(robotState::elevatorHasBeenHomed)
+                   .whileTrue(new ElevatorDiagnostic(elevator, true));
 
-           new Trigger(() -> joystick.elevatorTestPid())
-               .and(robotState::elevatorHasBeenHomed)
-               .whileTrue(new ElevatorPositionCommand(elevator, Elevator.ElevatorLevel.LEVEL3));
-        }
+               new Trigger(() -> joystick.elevatorTestPid())
+                   .and(robotState::elevatorHasBeenHomed)
+                   .whileTrue(new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL3));
+           }
+       }
     }
 
     private void configureButtonBoardBindings() {
@@ -215,9 +217,10 @@ public class RobotContainer {
         }
 
         if (Toggles.useElevator) {
+            // unnecessary if manual control is the default command
             // manual joystick on button board
-            new Trigger(() -> buttonBoard.elevatorUp()).whileTrue(moveUpElevator);
-            new Trigger(() -> buttonBoard.elevatorDown()).whileTrue(moveDownElevator);
+            // new Trigger(() -> buttonBoard.elevatorUp()).whileTrue(moveUpElevator);
+            // new Trigger(() -> buttonBoard.elevatorDown()).whileTrue(moveDownElevator);
 
             // In manual mode, buttons L1 - L4 only move elevator
             new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(toLevel1);
@@ -301,28 +304,25 @@ public class RobotContainer {
 
     // Sequence called from teleopInit
     public void autoHome() {
-        if (Toggles.useElevator) {
-            if (!robotState.elevatorHasBeenHomed()) {
-                console("Auto Homing");
-                new SequentialCommandGroup(
-                    elevatorHome
-                    // might want to move to stow position here
-                ).schedule();
-            } else {
-                console("Not auto-homing - already done!");
-            }
-        } else {
-            console("Not auto-homing - elevator disabled!");
-        }
+        new SequentialCommandGroup(
+            new ConditionalCommand(new ElevatorHome(elevator),
+                new PrintCommand("Elevator disabled"),
+                () ->Toggles.useElevator),
+            new ConditionalCommand(new CoralIntakeHome(coralIntake),
+                new PrintCommand("CoralIntake disabled"),
+                () ->Toggles.useCoralIntake)
+        ).schedule();
     }
 
-    // Home the elevator here
     public Command getAutonomousCommand() {
-        if (Toggles.useElevator && Constants.Elevator.autoHome) {
-            return elevatorHome;
-        } else {
-            return Commands.print("No autonomous command specified");
-        }
+        return new SequentialCommandGroup(
+            new ConditionalCommand(new ElevatorHome(elevator),
+                new PrintCommand("Elevator disabled"),
+                () ->Toggles.useElevator),
+            new ConditionalCommand(new CoralIntakeHome(coralIntake),
+                new PrintCommand("CoralIntake disabled"),
+                () ->Toggles.useCoralIntake)
+        );
     }
 
     public void console(String message) {

@@ -34,7 +34,7 @@ public class CoralIntakeCommand extends StormCommand {
 
         timer.restart();
         finished_counter = 0;
-        coralIntake.setCoralIntakeState(direction);
+        coralIntake.setState(direction);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -59,7 +59,7 @@ public class CoralIntakeCommand extends StormCommand {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        coralIntake.setCoralIntakeState(CoralIntake.CoralIntakeState.OFF);
+        coralIntake.setState(CoralIntake.CoralIntakeState.IDLE);
         super.end(interrupted);
     }
 
