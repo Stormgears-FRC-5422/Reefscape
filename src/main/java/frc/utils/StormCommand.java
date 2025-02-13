@@ -14,11 +14,14 @@ public class StormCommand extends Command {
 
     @Override
     public void initialize() {
+        // we want printing to alway happen on the first iteration. So
+        _count = -1;
         console("initialized");
     }
 
     @Override public void execute() {
         _count++;
+        console("running",50);
     }
     @Override
     public void end(boolean interrupted) {

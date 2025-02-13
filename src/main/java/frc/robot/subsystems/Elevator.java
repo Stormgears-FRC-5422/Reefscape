@@ -63,7 +63,7 @@ public class Elevator extends StormSubsystem {
             .reverseSoftLimitEnabled(true);
 
         double kP = Constants.Elevator.kP ; // volts/rot 0.5 - 1
-        double kI = Constants.Elevator.kI; // volts/ rot*s  0.01 - 0.1
+        double kI = Constants.Elevator.kI;  // volts/ rot*s  0.01 - 0.1
         double kD = Constants.Elevator.kD;  // volts / rot/s  0.001 - 0.01
 
         double maxV = Constants.Elevator.maxV;  // volts
@@ -75,6 +75,8 @@ public class Elevator extends StormSubsystem {
             .i(kI)
             .d(kD)
             .outputRange(-maxVPct, maxVPct);
+
+        elevatorLeaderConfig.closedLoopRampRate(0.1);
 
         double kS = Constants.Elevator.kS;  // volts
         double kG = Constants.Elevator.kG;  // volts

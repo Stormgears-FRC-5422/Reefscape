@@ -33,7 +33,6 @@ public class ElevatorManual extends StormCommand {
     @Override
     public void execute() {
         super.execute();
-
         Direction direction = buttonBoard.elevatorUp() ? Direction.UP :
             buttonBoard.elevatorDown() ? Direction.DOWN : Direction.HOLD;
 
@@ -43,6 +42,7 @@ public class ElevatorManual extends StormCommand {
             direction = Direction.IDLE;
         }
 
+        console("direction = " + direction + ", oldDirection = " + oldDirection, 50);
         if (direction == oldDirection) {
             return;
         }

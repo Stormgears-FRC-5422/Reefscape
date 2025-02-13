@@ -88,6 +88,9 @@ public class CoralIntake extends StormSubsystem {
 
         currentPosition = wristEncoder.getPosition();
         double ffVoltage = 0;
+        if (robotState.getPeriod() != RobotState.StatePeriod.DISABLED) {
+            console("Current position: " + currentPosition, 50);
+        }
 
         switch (currentState) {
             case HOMING:
