@@ -6,7 +6,6 @@ import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.Constants.SparkConstants;
 import frc.robot.RobotState;
@@ -63,33 +62,35 @@ public class Elevator extends StormSubsystem {
             .reverseSoftLimit(ElevatorLevel.BOTTOM.getValue())
             .reverseSoftLimitEnabled(true);
 
-        double kP = 0.25 ; // volts/rot 0.5 - 1
-        double kI = 0; // volts/ rot*s  0.01 - 0.1
-        double kD = 0.005;  // volts / rot/s  0.001 - 0.01
-        double maxV = 3;
+        double kP = Constants.Elevator.kP ; // volts/rot 0.5 - 1
+        double kI = Constants.Elevator.kI; // volts/ rot*s  0.01 - 0.1
+        double kD = Constants.Elevator.kD;  // volts / rot/s  0.001 - 0.01
+
+        double maxV = Constants.Elevator.maxV;  // volts
+        double maxVPct = maxV / SparkConstants.NominalVoltage; // percentage (-1 to 1)
 
         // These functions can optionally take a slot - e.g. ClosedLoopSlot.kSlot0 is the default
         elevatorLeaderConfig.closedLoop
             .p(kP)
             .i(kI)
             .d(kD)
-            .outputRange(-maxV/10.0, maxV/10.0);
+            .outputRange(-maxVPct, maxVPct);
 
-        double kS = 0.1; // volts
-        double kG = 1.0; // volts
-        double kV = 0.5;  // volts / rot/s
-        double kA = 0; // negligible - ignore - 0.032 volts / rot/s
+        double kS = Constants.Elevator.kS;  // volts
+        double kG = Constants.Elevator.kG;  // volts
+        double kV = Constants.Elevator.kV;  // volts / rot/s
+        double kA = Constants.Elevator.kA;  // negligible - ignore - 0.032 volts / rot/s
 
         feedForward = new ElevatorFeedforward(kS, kG, kV, kA);
 
-        double maxVel = 1200;
-        double maxAccel = 1200;
-        double allowedError = 0.1;
-
-        elevatorLeaderConfig.closedLoop.maxMotion
-            .maxVelocity(maxVel)
-            .maxAcceleration(maxAccel)
-            .allowedClosedLoopError(allowedError);
+//        double maxVel = 1200;
+//        double maxAccel = 1200;
+//        double allowedError = 0.1;
+//
+//        elevatorLeaderConfig.closedLoop.maxMotion
+//            .maxVelocity(maxVel)
+//            .maxAcceleration(maxAccel)
+//            .allowedClosedLoopError(allowedError);
 
         elevatorLeader.configure(elevatorLeaderConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
@@ -128,7 +129,6 @@ public class Elevator extends StormSubsystem {
             case PID_MOTION:
                 if (hasBeenHomed) {
                     ffVoltage = feedForward.calculate(0); // 0 here basically gives us gravity compensation
-                    //elevatorLeader.set(ffVoltage / 10.0); // voltage->percentage
                     controller.setReference(targetPosition,
                         SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, ffVoltage);
                 } else {
@@ -257,14 +257,13 @@ public class Elevator extends StormSubsystem {
     public enum ElevatorLevel {
         UNKNOWN(Double.NaN),
         FLOOR(Double.NEGATIVE_INFINITY),
-        HOME(0),
-        BOTTOM(1),
-        STORE(Double.NaN),
-        LEVEL1(Double.NaN),
-        LEVEL2(Double.NaN),
-        LEVEL3(15.0),
-        LEVEL4(Double.NaN),
-        TOP(18.0),
+        HOME(Constants.Elevator.home),
+        BOTTOM(Constants.Elevator.bottom),
+        LEVEL1(Constants.Elevator.level1),
+        LEVEL2(Constants.Elevator.level2),
+        LEVEL3(Constants.Elevator.level3),
+        LEVEL4(Constants.Elevator.level4),
+        TOP(Constants.Elevator.top),
         CEILING(Double.POSITIVE_INFINITY);
 
         private double position;
