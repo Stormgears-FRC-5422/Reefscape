@@ -18,10 +18,10 @@ import org.littletonrobotics.junction.Logger;
 import java.util.Optional;
 
 public class AutoCommandFactory extends Command {
-    private final Optional<Trajectory<SwerveSample>> trajectory = Choreo.loadTrajectory("test2");
+    private final Optional<Trajectory<SwerveSample>> trajectory = Choreo.loadTrajectory("test3");
     static DrivetrainBase drivetrainBase;
-    private static final PIDController xController = new PIDController(3.5, 0.0, 0.0);
-    private static final PIDController yController = new PIDController(0, 0.0, 0.0);
+    private static final PIDController xController = new PIDController(2.6, 0.0, 0.1);
+    private static final PIDController yController = new PIDController(2.6, 0.0, 0.1);
     private static final PIDController headingController = new PIDController(3.1, 0.0, 0.1);
     private Timer timer;
     private int count = 0;
@@ -41,7 +41,7 @@ public class AutoCommandFactory extends Command {
         }
         // Get the current pose of the robot
         Pose2d pose = drivetrainBase.getPose();
-        Logger.recordOutput("Auto/pose trj", sample.getPose());
+//        Logger.recordOutput("Auto/pose trj x", sample.x);
         Logger.recordOutput("Auto/pose chass speeds", sample.getChassisSpeeds());
 
         // Generate the next speeds for the robot
@@ -58,6 +58,9 @@ public class AutoCommandFactory extends Command {
 
     @Override
     public void initialize() {
+        if (trajectory.isPresent()) {
+            drivetrainBase.declarePoseIsNow(trajectory.get().getInitialPose(false).get());
+        }
         count = 0;
         if (trajectory.isPresent() && trajectory.get().getInitialPose(false).isPresent()) {
             drivetrainBase.declarePoseIsNow(trajectory.get().getInitialPose(false).get());
@@ -81,6 +84,8 @@ public class AutoCommandFactory extends Command {
         } else {
             System.out.println("no");
         }
+        Logger.recordOutput("Auto/pose trj y", trajectory.get().sampleAt(time, false).get().getPose().getY());
+
 
     }
 

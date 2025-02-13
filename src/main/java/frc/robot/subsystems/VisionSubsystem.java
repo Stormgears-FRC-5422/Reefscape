@@ -173,7 +173,7 @@ public class VisionSubsystem extends StormSubsystem {
         LimelightHelpers.SetRobotOrientation("", robotState.getYaw()-60, 0.0, 0.0, 0.0, 0.0, 0.0);
 
 //        System.out.println(LimelightHelpers.getRawFiducials(limelightId)[0].id);
-        System.out.println(getAvgDist());
+//        System.out.println(getAvgDist());
 //        System.out.println(robotState.getYaw());
 //            console(getMT2PoseEstimate().get().pose.toString());
 //        Pose2d botPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId).pose;

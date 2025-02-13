@@ -45,12 +45,12 @@ public class AutoAlign extends StormCommand {
 
         this.drivetrainBase = drivetrainBase;
         this.targetPose = targetPose;
-        translationPID = new ProfiledPIDController(1.5, 0.0, 0.1,
+        translationPID = new ProfiledPIDController(2.6, 0.0, 0.1,
             new TrapezoidProfile.Constraints(3.0, 3.0));
         translationPID.setTolerance(linearTolerance);
 
 
-        thetaController = new ProfiledPIDController(1.5, 0.0, 0.1,
+        thetaController = new ProfiledPIDController(3.1, 0.0, 0.1,
             new TrapezoidProfile.Constraints(3.0, 3.0));
         thetaController.setTolerance(thetaTolerance);
 
