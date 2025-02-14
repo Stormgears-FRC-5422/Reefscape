@@ -4,71 +4,195 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkLimitSwitch;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.Intake;
 import frc.robot.Constants.SparkConstants;
+import frc.robot.RobotState;
+import frc.utils.StormSubsystem;
 
-public class CoralIntake extends SubsystemBase {
-    //different intake states
-    public enum CoralIntakeState {
-        OFF, INTAKE, OUTTAKE;
-    }
+public class CoralIntake extends StormSubsystem {
+    private final RobotState robotState;
+    private final SparkMax wristSpark;
+    private final SparkMaxConfig wristConfig;
 
-    private final SparkMax intakeLeader;
-    private final SparkMax intakeFollower;
-    private double intakeMotorSpeed;
+    private final SparkMax rollerSpark;
+    private final RelativeEncoder wristEncoder;
+    // Note that this is used to read the value, not directly control the motor
+    private final SparkLimitSwitch proximitySensorIntake;
+    private double wristSpeed;
+    private double rollerSpeed;
+
+    CoralIntakeState currentState;
+    private double currentPosition;
+    private boolean hasBeenHomed = false;
 
     public CoralIntake() {
-        intakeLeader = new SparkMax(Intake.leaderID, SparkLowLevel.MotorType.kBrushless);
-        intakeFollower = new SparkMax(Intake.followerID, SparkLowLevel.MotorType.kBrushless);
+        wristSpark = new SparkMax(Intake.wristID, SparkLowLevel.MotorType.kBrushless);
+        rollerSpark = new SparkMax(Intake.rollerID, SparkLowLevel.MotorType.kBrushless);
+        proximitySensorIntake = wristSpark.getForwardLimitSwitch();
 
+        wristEncoder = wristSpark.getEncoder();
         SparkMaxConfig globalConfig = new SparkMaxConfig();
-        SparkMaxConfig intakeLeaderConfig = new SparkMaxConfig();
-        SparkMaxConfig intakeFollowerConfig = new SparkMaxConfig();
+        SparkMaxConfig rollerConfig = new SparkMaxConfig();
+        wristConfig = new SparkMaxConfig();
 
-        globalConfig.smartCurrentLimit(SparkConstants.Neo550CurrentLimit).idleMode(IdleMode.kBrake);
+        globalConfig.smartCurrentLimit(SparkConstants.Neo550CurrentLimit)
+            .voltageCompensation(SparkConstants.Neo550NominalVoltage);
+
+        // No hard limits in this system
+        globalConfig.limitSwitch
+            .forwardLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
+            .forwardLimitSwitchEnabled(false)
+            .reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
+            .reverseLimitSwitchEnabled(false);
 
         // Apply the global config and invert (maybe) according to the config setting
-        intakeLeaderConfig.apply(globalConfig).inverted(Intake.invertLeader);
+        rollerConfig.apply(globalConfig)
+            .inverted(Intake.rollerInvert)
+            .idleMode(Intake.rollerBrakeMode ? IdleMode.kBrake : IdleMode.kCoast);
 
-        // Apply the global config and set to follow the leader
-        // The "true" here means invert wrt the leader
-        intakeFollowerConfig.apply(globalConfig).follow(intakeLeader, true);
+        wristConfig.apply(globalConfig)
+            .inverted(Intake.wristInvert)
+            .idleMode(Intake.wristBrakeMode ? IdleMode.kBrake : IdleMode.kCoast);
 
-        intakeLeader.configure(intakeLeaderConfig,
+        wristConfig.softLimit
+            .forwardSoftLimit(Intake.wristForwardLimit)
+            .forwardSoftLimitEnabled(true)
+            .reverseSoftLimit(Intake.wristReverseLimit)
+            .reverseSoftLimitEnabled(true);
+
+        rollerConfig.softLimit
+            .forwardSoftLimitEnabled(false)
+            .reverseSoftLimitEnabled(false);
+
+        rollerSpark.configure(rollerConfig,
             SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-        intakeFollower.configure(intakeFollowerConfig,
+        wristSpark.configure(wristConfig,
             SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-        setCoralIntakeState(CoralIntakeState.OFF);
+        setState(CoralIntakeState.UNKNOWN);
+        robotState = RobotState.getInstance();
     }
 
     @Override
     public void periodic() {
         super.periodic();
-        intakeLeader.set(intakeMotorSpeed);
+
+        currentPosition = wristEncoder.getPosition();
+        double ffVoltage = 0;
+        if (robotState.getPeriod() != RobotState.StatePeriod.DISABLED) {
+            console("Current position: " + currentPosition, 50);
+        }
+
+        switch (currentState) {
+            case HOMING:
+                home();
+                wristSpark.set(wristSpeed);
+                break;
+
+            case INTAKE:
+            case OUTTAKE:
+                if (hasBeenHomed) {
+                    rollerSpark.set(rollerSpeed);
+                    wristSpark.set(wristSpeed);
+                } else {
+                    console("Stubbornly refusing to move before homed!", 25);
+                }
+                break;
+
+            default:
+                rollerSpark.set(0);
+                wristSpark.set(0);
+        }
+
+        robotState.setCoralSensorTriggered(isIntakeSensorTriggered());
     }
 
-    public void setCoralIntakeState(CoralIntakeState state) {
+    public void setState(CoralIntakeState state) {
+        currentState = state;
+
         switch (state) {
-            case OFF -> {
-                setSpeed(0.0);
+            case UNKNOWN -> {
+                console("***** START state *****");
+                rollerSpeed = 0.0;
+                wristSpeed = 0.0;
+                wristSpark.getEncoder().setPosition(0.0);
+            }
+            case HOMING -> {
+                console("***** HOMING state *****");
+                enableSoftLimits(false);
+            }
+            case HOME -> {
+                console("***** HOME state *****");
+                hasBeenHomed = true;
+                robotState.setIntakeWristHasBeenHomed(hasBeenHomed);
+                wristEncoder.setPosition(Constants.Intake.wristHomePosition);
+                enableSoftLimits(true);
+                rollerSpeed = 0.0;
+                wristSpeed = 0.0;
             }
             case INTAKE -> {
-                setSpeed(Intake.speed);
+                console("***** INTAKE state *****");
+                rollerSpeed = Intake.rollerSpeed;
+                wristSpeed = Intake.wristSpeed;
             }
             case OUTTAKE -> {
-                setSpeed(-Intake.speed);
+                console("***** OUTTAKE state *****");
+                rollerSpeed = -Intake.rollerSpeed;
+                wristSpeed = -Intake.wristSpeed;
+            }
+            case IDLE -> {
+                rollerSpeed = 0.0;
+                wristSpeed = 0.0;
             }
         }
     }
 
-    private void setSpeed(double speed) {
-        intakeMotorSpeed = speed;
+    public boolean isAtHome() {
+        if (Constants.Intake.useCurrentLimitHomeStrategy) {
+            // might want to use an average here to minimize spikes
+            console("isAtHome output current: " + wristSpark.getOutputCurrent());
+            return wristSpark.getOutputCurrent() > Constants.Intake.stallCurrentLimit;
+        } else {
+            console("isAtHome current position: " + currentPosition);
+            return Math.abs(currentPosition) < 1.0;
+        }
+    }
+
+    private void home() {
+        if (Constants.Intake.useCurrentLimitHomeStrategy) {
+            // might want to use an average here to minimize spikes
+            wristSpeed = Constants.Intake.stallCurrentSpeed;
+        } else {
+            wristSpeed = 0.0;
+        }
+    }
+
+    public boolean isIntakeSensorTriggered() {
+        return proximitySensorIntake.isPressed();
+    }
+
+    public void enableSoftLimits(boolean enable) {
+        wristConfig.softLimit
+            .forwardSoftLimit(Intake.wristForwardLimit)
+            .forwardSoftLimitEnabled(enable)
+            .reverseSoftLimit(Intake.wristReverseLimit)
+            .reverseSoftLimitEnabled(enable);
+
+        wristSpark.configure(wristConfig, SparkBase.ResetMode.kNoResetSafeParameters,
+            SparkBase.PersistMode.kNoPersistParameters);
+    }
+
+    public enum CoralIntakeState {
+        UNKNOWN, IDLE, HOMING, HOME, INTAKE, OUTTAKE;
     }
 }
+

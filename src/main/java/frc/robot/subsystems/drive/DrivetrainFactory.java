@@ -22,7 +22,7 @@ public class DrivetrainFactory {
     // Right now there is only one subtype. This could be more complicated if that changes.
     // We could just make a different get function for a different subtype
     private static Class<?> getTunerConstants(String subtype) throws IllegalDriveTypeException {
-        System.out.println("Collected constants for " + subtype + " subtype");
+        System.out.println("Collected constants for subtype: " + subtype);
         return switch (subtype.toLowerCase()) {
             case "ctrcrescendo" -> CrescendoTunerConstants.class;
             case "ctrreefscape" -> ReefscapeTunerConstants.class;

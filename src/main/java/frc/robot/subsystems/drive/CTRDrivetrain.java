@@ -5,7 +5,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -20,7 +19,7 @@ import java.lang.reflect.Method;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 public class CTRDrivetrain extends DrivetrainBase {
-    public final CTRDriveInternal drivetrain;
+    public final CTRDriveInternal driveInternal;
     private final SwerveRequest.FieldCentric driveFieldCentric;
     private final SwerveRequest.RobotCentric driveRobotCentric;
 
@@ -35,7 +34,7 @@ public class CTRDrivetrain extends DrivetrainBase {
 
         double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
         double MaxSpeed = getMaxSpeed(tunerConstantsClass);
-        drivetrain = getInternalDriveTrain(tunerConstantsClass);
+        driveInternal = getInternalDriveTrain(tunerConstantsClass);
 
         logger = new Telemetry(MaxSpeed);
 
@@ -51,14 +50,11 @@ public class CTRDrivetrain extends DrivetrainBase {
 
         // This class will flip for alliance as necessary, rather than relying on base class
         setDriveFlip(true);
-        // This class will handle field-relative converstions,  rather than relying on base class
+        // This class will handle field-relative conversions, rather than relying on base class
         setFieldRelativeOn(false);
 
-//        if (Utils.isSimulation()) {
-//            drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
-//        }
-        drivetrain.resetPose(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
-        drivetrain.registerTelemetry(logger::telemeterize);
+//        drivetrain.resetPose(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(0)));
+        driveInternal.registerTelemetry(logger::telemeterize);
     }
 
 // Reflection functions
@@ -81,32 +77,35 @@ public class CTRDrivetrain extends DrivetrainBase {
             throw new RuntimeException("Failed to create drivetrain: " + e.getMessage(), e);
         }
     }
-
 // end of reflection functions
 
     @Override
     public void resetOrientation() {
+//        // Note that this behavior defaults to blue if alliance is missing.
+//        Rotation2d newRotation = m_state.isAllianceRed() ? new Rotation2d(-1, 0) : new Rotation2d(1, 0);
+//        console("Reset orientation at degrees: " + newRotation.getDegrees());
+//        drivetrain.getPigeon2().setYaw(newRotation.getDegrees());
+        Pose2d oldPose = getPose();
+
         // Note that this behavior defaults to blue if alliance is missing.
-        Rotation2d newRotation = m_state.isAllianceRed() ? new Rotation2d(-1, 0) : new Rotation2d(1, 0);
-        console("Reset orientation at degrees: " + newRotation.getDegrees());
-        drivetrain.getPigeon2().setYaw(newRotation.getDegrees());
+        Rotation2d newRotation = m_state.isAllianceRed()
+            ? new Rotation2d(-1, 0)
+            : new Rotation2d(1, 0);
+
+        Pose2d newPose = new Pose2d(oldPose.getX(), oldPose.getY(), newRotation);
+        declarePoseIsNow(newPose);
     }
 
     public void declarePoseIsNow(Pose2d newPose) {
-        // These *MUST* be done in this order or odometry will be wrong.
-        drivetrain.getPigeon2().setYaw(newPose.getRotation().getDegrees());
-        resetPose(newPose);
+        console("declaring pose is now = " + newPose);
+        driveInternal.resetPose(newPose);
         m_state.setPose(newPose);
-    }
-
-    public void resetPose(Pose2d pose) {
-//        drivetrain.getPoseEstimator().resetPosition(drivetrain.getPigeon2().getRotation2d(), drivetrain.getModulePositions(), pose);
     }
 
     @AutoLogOutput
     public Pose2d getPose() {
-        return new Pose2d();
-//        return new Pose2d(poseSub.get()[0], poseSub.get()[1], new Rotation2d(Math.toRadians(poseSub.get()[2])));
+        Pose2d internalPose = driveInternal.getState().Pose;
+        return new Pose2d(internalPose.getTranslation(), internalPose.getRotation());
     }
 
     @Override
@@ -118,16 +117,16 @@ public class CTRDrivetrain extends DrivetrainBase {
     @Override
     public void periodic() {
         super.periodic();
-        drivetrain.periodic();
+        driveInternal.periodic();
 
         if (m_state.getPeriod() == RobotState.StatePeriod.AUTONOMOUS) {
             console("in CTRDrive chassisSpeeds: " + m_chassisSpeeds, 100);
         }
 
         if (m_fieldRelative) {
-            drivetrain.setControl(driveFieldCentric.withVelocityX(m_chassisSpeeds.vxMetersPerSecond).withVelocityY(m_chassisSpeeds.vyMetersPerSecond).withRotationalRate(m_chassisSpeeds.omegaRadiansPerSecond));
+            driveInternal.setControl(driveFieldCentric.withVelocityX(m_chassisSpeeds.vxMetersPerSecond).withVelocityY(m_chassisSpeeds.vyMetersPerSecond).withRotationalRate(m_chassisSpeeds.omegaRadiansPerSecond));
         } else {
-            drivetrain.setControl(driveRobotCentric.withVelocityX(m_chassisSpeeds.vxMetersPerSecond).withVelocityY(m_chassisSpeeds.vyMetersPerSecond).withRotationalRate(m_chassisSpeeds.omegaRadiansPerSecond));
+            driveInternal.setControl(driveRobotCentric.withVelocityX(m_chassisSpeeds.vxMetersPerSecond).withVelocityY(m_chassisSpeeds.vyMetersPerSecond).withRotationalRate(m_chassisSpeeds.omegaRadiansPerSecond));
         }
     }
 }

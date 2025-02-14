@@ -6,8 +6,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.utils.vision.LimelightHelpers;
+import frc.robot.subsystems.Elevator.ElevatorState;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 
@@ -21,20 +23,55 @@ public class RobotState extends SubsystemBase {
     }
     private double yawDouble;
 
+    public enum StateSimMode {
+        REAL, SIMULATION, AKIT_REPLAY, AKIT_SIM;
+    }
+
     private static RobotState m_instance;
-    private StateAlliance m_alliance = StateAlliance.MISSING;
+    // TODO - this should be set via updateAlliance()
+    //  private StateAlliance m_alliance = StateAlliance.MISSING;
+    private StateAlliance m_alliance = StateAlliance.BLUE;
     private Pose2d currentPose = new Pose2d();
     private VisionMeasurement visionMeasurement = null;
 
     private StatePeriod m_period = StatePeriod.NONE;
+    private final StateSimMode m_simMode;
     private boolean m_didAuto = false;
     private boolean m_didTeleop = false;
 
-    public static RobotState getInstance() {
+    boolean m_isCoralSensorTriggered = false;
+    private boolean elevatorHasBeenHomed = false;
+    private boolean m_intakeWristHasBeenHomed = false;
+    private ElevatorState elevatorState = ElevatorState.UNKNOWN;
+
+    // Call createInstance from robotInit()
+    public static RobotState createInstance() {
         if (m_instance != null) return m_instance;
 
         m_instance = new RobotState();
         return m_instance;
+    }
+
+    public static RobotState getInstance() {
+        return m_instance;
+    }
+
+    private RobotState() {
+        if (RobotBase.isReal()) {
+            m_simMode = StateSimMode.REAL;
+        } else if (Constants.Toggles.useAdvantageKit) {
+            if (Constants.Akit.doReplay) {
+                m_simMode = StateSimMode.AKIT_REPLAY;
+            } else {
+                m_simMode = StateSimMode.AKIT_SIM;
+            }
+        } else { // basic simulation
+            m_simMode = StateSimMode.SIMULATION;            ;
+        }
+    }
+
+    public StateSimMode getSimMode() {
+        return m_simMode;
     }
 
     public void setAlliance(StateAlliance alliance) {
@@ -91,6 +128,21 @@ public class RobotState extends SubsystemBase {
         return currentPose.getRotation();
     }
 
+    public void setElevatorHasBeenHomed(boolean hasBeenHomed) {
+        elevatorHasBeenHomed = hasBeenHomed;
+    }
+
+    public boolean elevatorHasBeenHomed() {
+        return elevatorHasBeenHomed;
+    }
+
+    public ElevatorState getElevatorState() {
+        return elevatorState;
+    }
+    public void setElevatorState(ElevatorState state) {
+        elevatorState = state;
+    }
+
     public void setPose(Pose2d pose) {
         // Make a copy, not a reference to the same object!
         currentPose = new Pose2d(pose.getX(), pose.getY(), new Rotation2d(pose.getRotation().getRadians()));
@@ -144,7 +196,32 @@ public class RobotState extends SubsystemBase {
         yawDouble = yaw;
     }
     public double getYaw() {
-        return yawDouble;
+            return yawDouble;
+        }
+
+    public void setCoralSensorTriggered(boolean triggered) {
+        m_isCoralSensorTriggered = triggered;
+    }
+
+    public void setIntakeWristHasBeenHomed(boolean homed) {
+        m_intakeWristHasBeenHomed = homed;
+    }
+
+    public boolean getIntakeWristHasBeenHomed() {
+        return m_intakeWristHasBeenHomed;
+    }
+
+    public boolean isCoralSensorTriggered() {
+        return m_isCoralSensorTriggered;
+    }
+
+    // TODO: code this (Raghav)
+    public boolean isAprilTagDetected() {
+        return false;
+    }
+
+    public boolean isAutonomousAligned(){
+        return false;
     }
 }
 

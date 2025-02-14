@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -14,9 +15,11 @@ import static edu.wpi.first.units.Units.Amps;
 public class DiagnosticSwerve extends DrivetrainBase {
     TalonFX m_frontLeftDrive, m_frontRightDrive, m_backLeftDrive, m_backRightDrive;
     TalonFX m_frontLeftSteer, m_frontRightSteer, m_backLeftSteer, m_backRightSteer;
+    CANcoder m_frontLeftEncoder, m_frontRightEncoder, m_backLeftEncoder, m_backRightEncoder;
 
     TalonFX[] m_driveArray;
     TalonFX[] m_steerArray;
+    CANcoder[] m_encoderArray;
 
     public static final double m_maxMotorVoltage = Drive.maxMotorVoltage;
 
@@ -32,18 +35,26 @@ public class DiagnosticSwerve extends DrivetrainBase {
         String CANBus = Drive.driveCAN;
         m_frontLeftDrive = new TalonFX(Drive.frontLeftDriveID, CANBus);
         m_frontLeftSteer = new TalonFX(Drive.frontLeftSteerID, CANBus);
+        m_frontLeftEncoder = new CANcoder(Drive.frontLeftEncoderID, CANBus);
+
         m_frontRightDrive = new TalonFX(Drive.frontRightDriveID, CANBus);
         m_frontRightSteer = new TalonFX(Drive.frontRightSteerID, CANBus);
+        m_frontRightEncoder = new CANcoder(Drive.frontRightEncoderID, CANBus);
 
         m_backLeftDrive = new TalonFX(Drive.backLeftDriveID, CANBus);
         m_backLeftSteer = new TalonFX(Drive.backLeftSteerID, CANBus);
+        m_backLeftEncoder = new CANcoder(Drive.backLeftEncoderID, CANBus);
+
         m_backRightDrive = new TalonFX(Drive.backRightDriveID, CANBus);
         m_backRightSteer = new TalonFX(Drive.backRightSteerID, CANBus);
+        m_backRightEncoder = new CANcoder(Drive.backRightEncoderID, CANBus);
 
         m_driveArray = new TalonFX[]{m_frontLeftDrive, m_frontRightDrive,
             m_backLeftDrive, m_backRightDrive};
         m_steerArray = new TalonFX[]{m_frontLeftSteer, m_frontRightSteer,
             m_backLeftSteer, m_backRightSteer};
+        m_encoderArray = new CANcoder[]{m_frontLeftEncoder, m_frontRightEncoder,
+            m_backLeftEncoder, m_backRightEncoder};
 
         var driveLimitConfigs = new CurrentLimitsConfigs();
         driveLimitConfigs.StatorCurrentLimit = TalonConstants.driveStatorCurrentLimit;
@@ -63,6 +74,11 @@ public class DiagnosticSwerve extends DrivetrainBase {
             var talonFXConfigurator = m.getConfigurator();
             talonFXConfigurator.apply(steerLimitConfigs);
         }
+
+        for (CANcoder c : m_encoderArray) {
+            ;
+        }
+
     }
 
     @Override
@@ -92,6 +108,10 @@ public class DiagnosticSwerve extends DrivetrainBase {
             Logger.recordOutput("Position steer module " + m.getDeviceID(), m.getPosition().getValue());
             Logger.recordOutput("Velocity steer module " + m.getDeviceID(), m.getVelocity().getValue());
 // TODO           Logger.recordOutput("Volts steer module " + m.getDeviceID.(), m.getAppliedOutput() * m.getBusVoltage());
+        }
+        for (CANcoder c : m_encoderArray) {
+            Logger.recordOutput("Position encoder " + c.getDeviceID(), c.getPosition().getValue());
+            Logger.recordOutput("Velocity encoder " + c.getDeviceID(), c.getVelocity().getValue());
         }
     }
 }
