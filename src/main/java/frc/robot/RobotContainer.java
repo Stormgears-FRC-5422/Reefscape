@@ -69,10 +69,10 @@ public class RobotContainer {
     ElevatorDiagnostic moveUpElevator;
     ElevatorDiagnostic moveDownElevator;
     ElevatorManual manualElevator;
-    ElevatorMoveToPosition toLevel1;
-    ElevatorMoveToPosition toLevel2;
-    ElevatorMoveToPosition toLevel3;
-    ElevatorMoveToPosition toLevel4;
+    ElevatorMoveToHold toLevel1;
+    ElevatorMoveToHold toLevel2;
+    ElevatorMoveToHold toLevel3;
+    ElevatorMoveToHold toLevel4;
 
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
@@ -112,10 +112,10 @@ public class RobotContainer {
             elevator = new Elevator();
             moveDownElevator = new ElevatorDiagnostic(elevator, false);
             moveUpElevator = new ElevatorDiagnostic(elevator, true);
-            toLevel1 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1);
-            toLevel2 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL2);
-            toLevel3 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL3);
-            toLevel4 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4);
+            toLevel1 = new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL1);
+            toLevel2 = new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL2);
+            toLevel3 = new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL3);
+            toLevel4 = new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4);
         }
 
         if (Toggles.useAutoReef) {
@@ -256,7 +256,22 @@ public class RobotContainer {
 
         if (Toggles.useAutoReef) {
             // quick auto reef command, outtakes to level 4, right reef with a single button press
-            new Trigger(() -> buttonBoard.autoReef()).onTrue(autoReefCommand);
+            // TODO: add "auto align with Reef" command after merging with Vision branch
+
+            // runs a combination of sequential and parallel commands
+            // * first go toLevel4,
+            // * then holdAtLevel4 until coralOuttake done (parallel with deadline)
+            // * then go toLevel1 (ready for next intake)
+            new Trigger(() -> buttonBoard.autoReef()).onTrue(
+                        new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4)
+                    .andThen(
+                        new CoralIntakeCommand(coralIntake, false).deadlineFor(
+                        new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4))
+                            )
+                    .andThen(
+                        new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1)
+                    )
+            );
         }
 
         if (Toggles.useAutoProcessor) {

@@ -8,8 +8,23 @@ import frc.robot.subsystems.Elevator;
 // move-to that level and then hold position, rather than end-then-release.
 public class ElevatorMoveToHold extends ElevatorMoveToPosition {
 
+    /**
+     * Default Constructor
+     * Holds elevator at the current position
+     * @param  elevatorSubsystem  Elevator Subsystem
+     */
     public ElevatorMoveToHold(Elevator elevatorSubsystem) {
         super(elevatorSubsystem, elevatorSubsystem.getCurrentPosition());
+    }
+
+    /**
+     * Overloaded Constructor
+     * Holds elevator at the specified position
+     * @param  elevatorSubsystem Elevator Subsystem
+     * @param  level position to hold the elevator at
+     */
+    public ElevatorMoveToHold(Elevator elevatorSubsystem, Elevator.ElevatorLevel level) {
+        super(elevatorSubsystem, level);
     }
 
     @Override
