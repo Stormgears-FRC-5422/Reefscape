@@ -228,25 +228,27 @@ public class RobotContainer {
             new Trigger(() -> buttonBoard.elevatorLevel3()).whileTrue(toLevel3);
             new Trigger(() -> buttonBoard.elevatorLevel4()).whileTrue(toLevel4);
 
-            // In auto mode, buttons L1 - L4: move to the right/left reef, move elevator to correct level, and Outtake
+            // In auto mode, buttons L1 - L4: move to the right/left reef, move elevator to correct level,
+            // Outtake and then return to L1 (level for next intake)
             if (Toggles.useAutoReef) {
+                // TODO: add right/left reef alignment to command group after merging with vision branch
                 new Trigger(() -> buttonBoard.elevatorLevel1AutoRight()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL1, true));
+                    commandGroupL1());
                 new Trigger(() -> buttonBoard.elevatorLevel2AutoRight()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL2, true));
+                    commandGroupL2());
                 new Trigger(() -> buttonBoard.elevatorLevel3AutoRight()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL3, true));
+                    commandGroupL3());
                 new Trigger(() -> buttonBoard.elevatorLevel4AutoRight()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL4, true));
+                    commandGroupL4());
 
                 new Trigger(() -> buttonBoard.elevatorLevel1AutoLeft()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL1, false));
+                    commandGroupL1());
                 new Trigger(() -> buttonBoard.elevatorLevel2AutoLeft()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL2, false));
+                    commandGroupL2());
                 new Trigger(() -> buttonBoard.elevatorLevel3AutoLeft()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL3, false));
+                    commandGroupL3());
                 new Trigger(() -> buttonBoard.elevatorLevel4AutoLeft()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL4, false));
+                    commandGroupL4());
             }
         }
 
@@ -286,6 +288,47 @@ public class RobotContainer {
         if (Toggles.useAutoAlgaeReef) {
             new Trigger(() -> buttonBoard.autoAlgaeReef()).onTrue(autoAlgaeReefCommand);
         }
+    }
+
+    public Command commandGroupL1() {
+       return new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1)
+            .andThen(
+                new CoralIntakeCommand(coralIntake, false).deadlineFor(
+                    new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL1))
+            );
+    }
+
+    public Command commandGroupL2() {
+        return new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL2)
+            .andThen(
+                new CoralIntakeCommand(coralIntake, false).deadlineFor(
+                    new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL2))
+            )
+            .andThen(
+                new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1)
+            );
+    }
+
+    public Command commandGroupL3() {
+        return new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL3)
+            .andThen(
+                new CoralIntakeCommand(coralIntake, false).deadlineFor(
+                    new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL3))
+            )
+            .andThen(
+                new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1)
+            );
+    }
+
+    public Command commandGroupL4() {
+        return new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4)
+            .andThen(
+                new CoralIntakeCommand(coralIntake, false).deadlineFor(
+                    new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4))
+            )
+            .andThen(
+                new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1)
+            );
     }
 
     public void updateAlliance() {
