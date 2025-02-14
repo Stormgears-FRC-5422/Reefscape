@@ -251,7 +251,12 @@ public class RobotContainer {
         }
 
         if (Toggles.useAutoStation) {
-            new Trigger(() -> buttonBoard.autoStation()).onTrue(autoStationCommand);
+            // runs sequential commands for Coral intake
+            // * first go toLevel1,
+            // * then coralIntake
+            new Trigger(() -> buttonBoard.autoStation()).onTrue(
+                new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1)
+                    .andThen(new CoralIntakeCommand(coralIntake, true)));
         }
 
         if (Toggles.useAutoReef) {
