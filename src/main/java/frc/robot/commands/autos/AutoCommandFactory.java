@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -37,7 +38,7 @@ public class AutoCommandFactory extends Command {
 
     public void followTrajectory(SwerveSample sample) {
         if (trajectory.isPresent()) {
-            trajectory.get().getInitialPose(false);
+            trajectory.get().getInitialPose(RobotState.getInstance().isAllianceRed());
         }
         // Get the current pose of the robot
         Pose2d pose = drivetrainBase.getPose();
@@ -62,8 +63,8 @@ public class AutoCommandFactory extends Command {
             drivetrainBase.declarePoseIsNow(trajectory.get().getInitialPose(false).get());
         }
         count = 0;
-        if (trajectory.isPresent() && trajectory.get().getInitialPose(false).isPresent()) {
-            drivetrainBase.declarePoseIsNow(trajectory.get().getInitialPose(false).get());
+        if (trajectory.isPresent() && trajectory.get().getInitialPose(RobotState.getInstance().isAllianceRed()).isPresent()) {
+            drivetrainBase.declarePoseIsNow(trajectory.get().getInitialPose(RobotState.getInstance().isAllianceRed()).get());
         }
     }
 
@@ -75,7 +76,7 @@ public class AutoCommandFactory extends Command {
         }
 
         double time = timer.get();
-        Optional<SwerveSample> sample = trajectory.get().sampleAt(time, false);
+        Optional<SwerveSample> sample = trajectory.get().sampleAt(time, RobotState.getInstance().isAllianceRed());
 //        Optional<SwerveSample> sample = trajectory.get().sampleAt(0.27225, false);
         Logger.recordOutput("Auto/timer timer", time);
 
@@ -84,7 +85,7 @@ public class AutoCommandFactory extends Command {
         } else {
             System.out.println("no");
         }
-        Logger.recordOutput("Auto/pose trj y", trajectory.get().sampleAt(time, false).get().getPose().getY());
+        Logger.recordOutput("Auto/pose trj y", trajectory.get().sampleAt(time, RobotState.getInstance().isAllianceRed()).get().getPose().getY());
 
 
     }
