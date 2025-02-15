@@ -137,7 +137,7 @@ public class AKdrive extends DrivetrainBase {
         gyroIO.updateInputs(gyroInputs);
         //setGyroMT2();
         RobotState robotState = RobotState.getInstance();
-        robotState.setYaw(gyroInputs.yawPosition.getDegrees());
+        robotState.setYaw(poseEstimator.getEstimatedPosition().getRotation().getDegrees());
         Logger.processInputs("Drive/Gyro", gyroInputs);
         for (var module : modules) {
             module.periodic();
@@ -438,9 +438,19 @@ public class AKdrive extends DrivetrainBase {
         LimelightHelpers.SetRobotOrientation("", poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
     }
 
-//
-//    @Override
-//    public void resetOrientation() {
-//        poseEstimator.resetRotation(new Rotation2d());
-//    }
+
+    @Override
+    public void resetOrientation() {
+//        // Note that this behavior defaults to blue if alliance is missing.
+//        Rotation2d newRotation = m_state.isAllianceRed() ? new Rotation2d(-1, 0) : new Rotation2d(1, 0);
+//        console("Reset orientation at degrees: " + newRotation.getDegrees());
+//        drivetrain.getPigeon2().setYaw(newRotation.getDegrees());
+
+        // Note that this behavior defaults to blue if alliance is missing.
+        Rotation2d newRotation = m_state.isAllianceRed()
+            ? new Rotation2d(-1, 0)
+            : new Rotation2d(1, 0);
+
+        poseEstimator.resetRotation(newRotation);
+    }
 }

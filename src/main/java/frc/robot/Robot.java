@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.joysticks.IllegalJoystickTypeException;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -81,7 +82,7 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void startCompetition(){
+    public void startCompetition() {
         boolean hold = false;
         Exception tmpException = null;
 
@@ -125,17 +126,17 @@ public class Robot extends LoggedRobot {
     public void disabledInit() {
         console("DisabledInit");
         state.setPeriod(StatePeriod.DISABLED);
-		if (robotContainer != null) {
-		    robotContainer.updateAlliance();
-		}
+        if (robotContainer != null) {
+            robotContainer.updateAlliance();
+        }
     }
 
     @Override
     public void disabledPeriodic() {
         if (iteration % 25 == 0) {
-		    if (robotContainer != null) {
+            if (robotContainer != null) {
                 robotContainer.updateAlliance();
-			}
+            }
         }
     }
 
@@ -150,7 +151,13 @@ public class Robot extends LoggedRobot {
         state.setPeriod(StatePeriod.AUTONOMOUS);
         if (robotContainer != null) {
             robotContainer.updateAlliance();
+            try {
+                robotContainer.configJoysticks();
+            } catch (IllegalJoystickTypeException e) {
+                throw new RuntimeException(e);
+            }
             autonomousCommand = robotContainer.getAutonomousCommand();
+
 
         }
 
@@ -165,7 +172,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousExit() {
-		console("AutoExit");
+        console("AutoExit");
     }
 
     @Override
@@ -222,6 +229,7 @@ public class Robot extends LoggedRobot {
     public void testExit() {
         console("TestExit");
     }
+
     @Override
     public void simulationInit() {
         console("SimulationInit");

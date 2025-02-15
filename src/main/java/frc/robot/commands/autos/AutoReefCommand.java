@@ -25,7 +25,7 @@ public class AutoReefCommand extends StormCommand {
     ElevatorMoveToPosition elevatorMoveToPosition;
     ElevatorMoveToHold elevatorMoveToHold;
     Elevator elevator;
-    CoralIntake coralIntake;
+//    CoralIntake coralIntake;
 
 
 
@@ -40,11 +40,11 @@ public class AutoReefCommand extends StormCommand {
         this.level = level;
         this.elevatorMoveToPosition = new ElevatorMoveToPosition(elevator, level);
         this.elevatorMoveToHold = new ElevatorMoveToHold(elevator);
-        this.coralIntake = new CoralIntake();
+//        this.coralIntake = new CoralIntake();
 
         this.elevator = elevator;
 
-        addRequirements(visionSubsystem, drivetrainBase, coralIntake);
+        addRequirements(visionSubsystem, drivetrainBase);
     }
 
     // Called when the command is initially scheduled.

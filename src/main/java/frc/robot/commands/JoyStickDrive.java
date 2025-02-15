@@ -103,9 +103,9 @@ public class JoyStickDrive extends StormCommand {
 //            y = yScaleLimiter.calculate(y*Math.abs(y));
 //            omega = omegaScaleLimiter.calculate(omega*Math.abs(omega));
 //        } else {
-//            x = xScaleLimiter.calculate(x);
-//            y = yScaleLimiter.calculate(y);
-//            omega = omegaScaleLimiter.calculate(omega);
+            x = xScaleLimiter.calculate(x);
+            y = yScaleLimiter.calculate(y);
+            omega = omegaScaleLimiter.calculate(omega);
 //        }
 
         // When on the red alliance, we want to have "forward" mean "move in the -X direction" and so on.
