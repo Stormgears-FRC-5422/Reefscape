@@ -6,18 +6,8 @@ import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.utils.StormCommand;
 
 public class ElevatorManual extends StormCommand {
-    enum Direction {
-        UNKNOWN,
-        HOLD,
-        IDLE,
-        UP,
-        DOWN
-    }
-
     private Elevator elevator;
     private ReefscapeJoystick buttonBoard;
-    private Direction oldDirection;
-
     public ElevatorManual(Elevator elevator, ReefscapeJoystick buttonBoard) {
         this.elevator = elevator;
         this.buttonBoard = buttonBoard;
@@ -26,42 +16,32 @@ public class ElevatorManual extends StormCommand {
 
     @Override
     public void initialize() {
-        oldDirection = Direction.UNKNOWN;
         super.initialize();
+        elevator.setTargetPosition(elevator.getCurrentPosition());
+        elevator.setState(Elevator.ElevatorState.PID_MOTION);
     }
 
     @Override
     public void execute() {
         super.execute();
-        Direction direction = buttonBoard.elevatorUp() ? Direction.UP :
-            buttonBoard.elevatorDown() ? Direction.DOWN : Direction.HOLD;
 
-        // TODO - use coral sensor to decide?
-        boolean holdWhenStopped = true;
-        if (direction == Direction.HOLD && holdWhenStopped == false) {
-            direction = Direction.IDLE;
-        }
+        // Note that this has the potential to drift a bit over time,
+        // but this approach allows us to avoid backlash when changing direction
+        // or stopping.
+        double currentPosition = elevator.getCurrentPosition();
 
-        console("direction = " + direction + ", oldDirection = " + oldDirection, 50);
-        if (direction == oldDirection) {
-            return;
-        }
+        Direction direction = buttonBoard.elevatorUp() ? Direction.UP
+            : buttonBoard.elevatorDown() ? Direction.DOWN
+            : Direction.HOLD;
 
+        console("direction = " + direction + ", currentPosition = " + currentPosition);
         if (direction == Direction.UP) {
-            elevator.setTargetLevel(ElevatorLevel.CEILING);
-            elevator.setState(Elevator.ElevatorState.SIMPLE_MOTION);
+            elevator.setTargetLevel(ElevatorLevel.LEVEL4);
         } else if (direction == Direction.DOWN) {
-            elevator.setTargetLevel(ElevatorLevel.FLOOR);
-            elevator.setState(Elevator.ElevatorState.SIMPLE_MOTION);
-        } else if (holdWhenStopped) {
-            elevator.setTargetPosition(elevator.getCurrentPosition());
-            elevator.setState(Elevator.ElevatorState.PID_MOTION);
+            elevator.setTargetLevel(ElevatorLevel.LEVEL1);
         } else {
-            elevator.setState(Elevator.ElevatorState.IDLE);
+            elevator.setTargetPosition(currentPosition);
         }
-
-        // remember what we were doing
-        oldDirection = direction;
     }
 
     @Override
@@ -73,5 +53,11 @@ public class ElevatorManual extends StormCommand {
     public void end(boolean interrupted) {
         elevator.setState(Elevator.ElevatorState.IDLE);
         super.end(interrupted);
+    }
+
+    enum Direction {
+        HOLD,
+        UP,
+        DOWN
     }
 }

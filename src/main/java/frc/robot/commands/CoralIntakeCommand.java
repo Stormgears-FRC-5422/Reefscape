@@ -15,13 +15,13 @@ public class CoralIntakeCommand extends StormCommand {
      * Creates a new Intake.
      */
     private final CoralIntake coralIntake;
-    private final CoralIntake.CoralIntakeState direction;
+    private final CoralIntake.CoralIntakeState operation;
     private int finished_counter;
     private final Timer timer;
 
     public CoralIntakeCommand(CoralIntake coralIntake, boolean intake) {
         this.coralIntake = coralIntake;
-        this.direction = intake ? CoralIntakeState.INTAKE : CoralIntakeState.OUTTAKE;
+        this.operation = intake ? CoralIntakeState.INTAKE : CoralIntakeState.OUTTAKE;
         timer = new Timer();
         addRequirements(coralIntake);
     }
@@ -30,11 +30,11 @@ public class CoralIntakeCommand extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
-        console("direction = " + (direction == CoralIntakeState.INTAKE ? "Intake" : "Outtake"));
+        console("operation = " + (operation == CoralIntakeState.INTAKE ? "Intake" : "Outtake"));
 
         timer.restart();
         finished_counter = 0;
-        coralIntake.setState(direction);
+        coralIntake.setState(operation);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -45,7 +45,7 @@ public class CoralIntakeCommand extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        if (direction == CoralIntakeState.INTAKE) {
+        if (operation == CoralIntakeState.INTAKE) {
             // let the motor run for a few iterations after sensor is triggered to fully align Coral with the base
             if (coralIntake.isIntakeSensorTriggered()) {
                 finished_counter++;

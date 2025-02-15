@@ -51,7 +51,7 @@ public class Elevator extends StormSubsystem {
         // Hard limits
         elevatorLeaderConfig.limitSwitch
             .forwardLimitSwitchType(Type.kNormallyOpen)
-            .forwardLimitSwitchEnabled(true)
+            .forwardLimitSwitchEnabled(false)
             .reverseLimitSwitchType(Type.kNormallyOpen)
             .reverseLimitSwitchEnabled(false);
 
@@ -112,6 +112,10 @@ public class Elevator extends StormSubsystem {
 
         currentPosition = leaderEncoder.getPosition();
         double ffVoltage = 0;
+
+        if (Constants.Debug.debug && robotState.getPeriod() != RobotState.StatePeriod.DISABLED) {
+            console("currentPosition = " + currentPosition, 50);
+        }
 
         switch (currentState) {
             case HOMING:
