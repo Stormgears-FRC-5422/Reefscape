@@ -4,7 +4,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Angle;
 import frc.utils.vision.LimelightHelpers;
+import org.littletonrobotics.junction.Logger;
 
 public class FieldConstants {
     public static boolean isAndyMark = false;
@@ -69,9 +71,11 @@ public class FieldConstants {
     public static Pose2d getReefTargetPose(Side side, int id) {
         if ((id <= 11 && id >=6) || (id >= 17 && id <=22)) {
             if (side == Side.LEFT) {
-                return getPoseTag(id).transformBy(new Transform2d(new Translation2d(0, -6.5), new Rotation2d(0)));
+                Logger.recordOutput("apriTsgPOse", getPoseTag(id));
+                return getPoseTag(id).transformBy(new Transform2d(new Translation2d(0.5, -0.1978), new Rotation2d(Math.PI)));
             } else if (side == Side.RIGHT) {
-                return getPoseTag(id).transformBy(new Transform2d(new Translation2d(0, 6.5), new Rotation2d(0)));
+                Logger.recordOutput("apriTsgPOse", getPoseTag(id));
+                return getPoseTag(id).transformBy(new Transform2d(new Translation2d(0.5, 0.1978), new Rotation2d(Math.PI)));
             } else {
                 return null;
             }

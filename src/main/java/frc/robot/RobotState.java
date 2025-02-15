@@ -165,13 +165,14 @@ public class RobotState extends SubsystemBase {
     public void addVisionMeasurments(Pose2d visionRobotPoseMeters,
                                      double timestampSeconds,
                                      Matrix<N3, N1> visionMeasurementStdDevs) {
-        visionMeasurement = new VisionMeasurement(visionRobotPoseMeters,
+        Pose2d tempPose = new Pose2d(visionRobotPoseMeters.getTranslation(), visionRobotPoseMeters.getRotation());
+        visionMeasurement = new VisionMeasurement(tempPose,
             timestampSeconds, visionMeasurementStdDevs);
 
     }
 
     public VisionMeasurement getVisionMeasurments() {
-        return  visionMeasurement;
+        return visionMeasurement;
     }
 
     private static Pose2d toPose2D(double[] inData) {

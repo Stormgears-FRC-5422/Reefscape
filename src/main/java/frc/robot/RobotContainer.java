@@ -8,19 +8,16 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.CoralIntakeCommand;
-import frc.robot.commands.DriveCommands;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.autos.AutoCommandFactory;
 import frc.robot.commands.autos.AutoReef;
+import frc.robot.commands.autos.AutoReefCommand;
 import frc.robot.commands.vision.CameraPose;
 import edu.wpi.first.wpilibj2.command.*;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
@@ -188,9 +185,9 @@ public class RobotContainer {
         }
         if (Toggles.useDrive && Toggles.useVision) {
 //            temporarily left side
-            new Trigger(() -> joystick.autoReef())
-                .onTrue(new AutoReef(drivetrain, visionSubsystem,
-                    joystick, FieldConstants.Side.LEFT)); //B
+//            new Trigger(() -> joystick.autoReef())
+//                .onTrue(new AutoReef(drivetrain, visionSubsystem,
+//                    joystick, FieldConstants.Side.LEFT)); //B
             console("configure button bindings");
 
             new Trigger(() -> joystick.zeroGyro())
@@ -281,7 +278,8 @@ public class RobotContainer {
 
         if (Toggles.useAutoReef) {
             // quick auto reef command, outtakes to level 4, right reef with a single button press
-            new Trigger(() -> buttonBoard.autoReef()).onTrue(autoReefCommand);
+            new Trigger(() -> buttonBoard.autoReef()).onTrue(new AutoReef(drivetrain, visionSubsystem,
+                joystick, FieldConstants.Side.LEFT));
         }
 
         if (Toggles.useAutoProcessor) {

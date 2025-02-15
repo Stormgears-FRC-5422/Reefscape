@@ -31,7 +31,8 @@ public class AutoAlign extends StormCommand {
     private final double loopTimeSec = 0.02;
     private Translation2d feedForward;
     private final double linearTolerance = 0.08;
-    private final double thetaTolerance = Units.degreesToRadians(2.0);
+    private final double thetaTolerance = Units.degreesToRadians(2.5);
+    private boolean flag = false;
 
 
     /**
@@ -45,13 +46,13 @@ public class AutoAlign extends StormCommand {
 
         this.drivetrainBase = drivetrainBase;
         this.targetPose = targetPose;
-        translationPID = new ProfiledPIDController(2.6, 0.0, 0.1,
-            new TrapezoidProfile.Constraints(3.0, 3.0));
+        translationPID = new ProfiledPIDController(3.5, 0.0, 0.1,
+            new TrapezoidProfile.Constraints(1.5, 1.5));
         translationPID.setTolerance(linearTolerance);
 
 
-        thetaController = new ProfiledPIDController(3.1, 0.0, 0.1,
-            new TrapezoidProfile.Constraints(3.0, 3.0));
+        thetaController = new ProfiledPIDController(3.2, 0.0, 0.1,
+            new TrapezoidProfile.Constraints(1.5, 1.5));
         thetaController.setTolerance(thetaTolerance);
 
 
@@ -84,7 +85,7 @@ public class AutoAlign extends StormCommand {
             double offsetT = MathUtil.clamp((distance - 0.3) / 2.5, 0.0, 1.0);
 //            multiply by 1.75 causes correction to bigger: decrease to make corrections smaller
 //            and vice versa. Decrease for less overshoot
-            return finalPose.transformBy(new Transform2d(offsetT * 1.75, 0.0 , new Rotation2d()));
+            return finalPose.transformBy(new Transform2d(0.0, offsetT * 1.0 , new Rotation2d()));
         };
         Pose2d currentPose = drivetrainBase.getPose();
         Pose2d currentGoalPose = goalPose.get();
@@ -155,9 +156,13 @@ public class AutoAlign extends StormCommand {
             new Pose2d(
                 new Translation2d(),
                 currentPose.getTranslation().minus(currentGoalPose.getTranslation()).getAngle())
-                .transformBy(new Transform2d(driveVelocityScalar, 0.0, new Rotation2d()))
+                .transformBy(new Transform2d(0.0, driveVelocityScalar, new Rotation2d()))
                 .getTranslation()
                 .plus(feedForward);
+
+        if (driveVelocity.getX()<0.02 && driveVelocity.getY()<0.02 && thetaVelocity<0.02){
+            flag = true;
+        }
 
         drivetrainBase.drive(new ChassisSpeeds(driveVelocity.getX(), driveVelocity.getY(), thetaVelocity),
             true);
@@ -166,8 +171,11 @@ public class AutoAlign extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return thetaController.atGoal() && thetaController.atGoal();
+        return (translationPID.atGoal() && thetaController.atGoal()) ||
+            (flag);
     }
+
+
 }
 
 

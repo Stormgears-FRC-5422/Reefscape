@@ -43,6 +43,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import frc.robot.RobotState;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
 import frc.utils.vision.LimelightHelpers;
@@ -183,13 +184,20 @@ public class AKdrive extends DrivetrainBase {
                 Twist2d twist = kinematics.toTwist2d(moduleDeltas);
                 rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
             }
+            VisionSubsystem.setHeading(rawGyroRotation);
 
             // Apply update
             poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
         }
         if (m_state.getVisionMeasurments() != null) {
-            addVisionMeasurement(m_state.getVisionMeasurments().visionRobotPoseMeters()
-                , m_state.getVisionMeasurments().timestampSeconds(),
+            double tRadians = m_state.getVisionMeasurments().visionRobotPoseMeters().getRotation().getRadians();
+            Pose2d tempPose = new Pose2d(m_state.getVisionMeasurments().visionRobotPoseMeters().getTranslation(),
+                new Rotation2d(tRadians)
+                );
+
+//            System.out.println(m_state.getVisionMeasurments().visionRobotPoseMeters().getRotation());
+            addVisionMeasurement(tempPose
+                ,m_state.getVisionMeasurments().timestampSeconds(),
                 m_state.getVisionMeasurments().visionMeasurementStdDevs());
         }
 
@@ -429,4 +437,10 @@ public class AKdrive extends DrivetrainBase {
     public void setGyroMT2() {
         LimelightHelpers.SetRobotOrientation("", poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
     }
+
+//
+//    @Override
+//    public void resetOrientation() {
+//        poseEstimator.resetRotation(new Rotation2d());
+//    }
 }

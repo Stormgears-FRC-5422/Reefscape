@@ -12,6 +12,7 @@ import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
 import frc.utils.vision.LimelightExtra;
 import frc.utils.vision.LimelightHelpers;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -30,6 +31,7 @@ public class VisionSubsystem extends StormSubsystem {
     // (Adjusted automatically based on distance and # of tags)
     public static double linearStdDevBaseline = 0.02; // Meters
     public static double angularStdDevBaseline = 0.06; // Radians
+    private static Rotation2d heading;
 
     public VisionSubsystem(String limelightId) {
         this.limelightId = limelightId;
@@ -169,8 +171,8 @@ public class VisionSubsystem extends StormSubsystem {
     @Override
     public void periodic() {
         super.periodic();
-        latestLimelightResults = null;
-        LimelightHelpers.SetRobotOrientation("", robotState.getYaw()-60, 0.0, 0.0, 0.0, 0.0, 0.0);
+        getLatestResults();
+        LimelightHelpers.SetRobotOrientation("", robotState.getYaw(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
 //        System.out.println(LimelightHelpers.getRawFiducials(limelightId)[0].id);
 //        System.out.println(getAvgDist());
@@ -190,10 +192,13 @@ public class VisionSubsystem extends StormSubsystem {
         boolean rejectPose = false;
         if (getMT2PoseEstimate().isPresent()) {
             rejectPose =
-                getLatestFiducialsTarget().isEmpty()
+                !LimelightHelpers.getTV(limelightId)
 
                     || getMT2PoseEstimate().get().pose.getX() < 0.0
                     || getMT2PoseEstimate().get().pose.getY() < 0.0;
+
+//            System.out.println("Empty? " + !LimelightHelpers.getTV(limelightId));
+
         }
         if (!rejectPose) {
             double stdDevFactor = 0.0;
@@ -217,13 +222,20 @@ public class VisionSubsystem extends StormSubsystem {
             if (getMT2PoseEstimate().isPresent()) {
                 robotState.addVisionMeasurments(getMT2PoseEstimate().get().pose,
                     getMT2PoseEstimate().get().timestampSeconds,
-                    VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+                    VecBuilder.fill(linearStdDev, linearStdDev, 1));
+                Logger.recordOutput("Vision/VisionPose", getMT2PoseEstimate().get().pose);
             }
+
+        } else {
+//            System.out.println("reject");
         }
     }
 
     public double[] getCameraPose_TargetSpace() {
         return LimelightHelpers.getCameraPose_TargetSpace(limelightId);
+    }
+    public static void setHeading(Rotation2d rotation2d){
+        heading = rotation2d;
     }
 
     public double getTX() {
