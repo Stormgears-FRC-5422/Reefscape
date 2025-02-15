@@ -12,6 +12,14 @@ public class ElevatorMoveToHold extends ElevatorMoveToPosition {
         super(elevatorSubsystem, elevatorSubsystem.getCurrentPosition());
     }
 
+    public ElevatorMoveToHold(Elevator elevatorSubsystem, Elevator.ElevatorLevel targetLevel) {
+        super(elevatorSubsystem, targetLevel);
+    }
+
+    public ElevatorMoveToHold(Elevator elevatorSubsystem, double position) {
+        super(elevatorSubsystem, position);
+    }
+
     @Override
     public boolean isFinished() {
         return false;

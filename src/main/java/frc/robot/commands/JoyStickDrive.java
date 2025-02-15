@@ -63,14 +63,14 @@ public class JoyStickDrive extends StormCommand {
     public void initialize() {
         super.initialize();
 
-        if (m_state.isAllianceMissing()) {
+        if (!m_state.isAllianceMissing()) {
+            m_flipJoystick = m_state.isAllianceRed() && ButtonBoard.flipJoystickForRed;
+            console("Joystick is " + (m_flipJoystick ? "" : "NOT ") + "flipped for alliance");
+            m_finish = false;
+        } else {
             console("Alliance is not set. Exiting command");
             m_finish = true;
         }
-
-        m_flipJoystick = ButtonBoard.flipJoystickForRed && m_state.isAllianceRed();
-        console("Joystick is " + (m_flipJoystick ? "" : "NOT ") + "flipped for alliance");
-        m_finish = false;
     }
 
     @Override
@@ -111,7 +111,7 @@ public class JoyStickDrive extends StormCommand {
         // When on the red alliance, we want to have "forward" mean "move in the -X direction" and so on.
         // But only for field relative driving. Robot relative driving is always the same
         ChassisSpeeds speeds;
-        if (m_flipJoystick && fieldRelative && driveFlip) {
+        if (m_flipJoystick && fieldRelative && !driveFlip) {
             speeds = new ChassisSpeeds(-x, -y, -omega);
         } else {
             speeds = new ChassisSpeeds(x, y, omega);

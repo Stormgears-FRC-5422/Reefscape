@@ -78,9 +78,10 @@ public abstract class DrivetrainBase extends StormSubsystem {
 
     public void drive(ChassisSpeeds speeds, boolean fieldRelative, double speedScale) {
         m_fieldRelative = fieldRelative;
+        setFieldRelativeOn(true);
 
         if (fieldRelativeOn && fieldRelative) {
-            Rotation2d rotation = m_state.getHeading();
+            Rotation2d rotation = getRotation();
             m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, rotation);
         } else {
             m_chassisSpeeds = speeds;

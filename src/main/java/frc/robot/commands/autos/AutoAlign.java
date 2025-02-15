@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.RobotState;
 import frc.robot.joysticks.ReefscapeJoystick;
@@ -32,6 +33,7 @@ public class AutoAlign extends StormCommand {
     private Translation2d feedForward;
     private final double linearTolerance = 0.08;
     private final double thetaTolerance = Units.degreesToRadians(2.5);
+    private Timer timer;
     private boolean flag = false;
 
 
@@ -39,6 +41,7 @@ public class AutoAlign extends StormCommand {
      * This command creates and follows a path.
      */
     public AutoAlign(DrivetrainBase drivetrainBase, Pose2d targetPose, ReefscapeJoystick joystick) {
+        timer = new Timer();
         feedForward = new Translation2d();
         robotState = RobotState.getInstance();
         driverAdjustment = new Translation2d();
@@ -59,11 +62,11 @@ public class AutoAlign extends StormCommand {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
 
-        addRequirements(drivetrainBase);
     }
 
     @Override
     public void initialize() {
+        timer.restart();
         goalPose = () -> {
             double linearMagnitude = MathUtil.applyDeadband(Math.hypot(joystick.getWpiX(),
                 joystick.getWpiY()), 0.1);
@@ -156,13 +159,10 @@ public class AutoAlign extends StormCommand {
             new Pose2d(
                 new Translation2d(),
                 currentPose.getTranslation().minus(currentGoalPose.getTranslation()).getAngle())
-                .transformBy(new Transform2d(0.0, driveVelocityScalar, new Rotation2d()))
+                .transformBy(new Transform2d(driveVelocityScalar, 0.0, new Rotation2d()))
                 .getTranslation()
                 .plus(feedForward);
 
-        if (driveVelocity.getX()<0.02 && driveVelocity.getY()<0.02 && thetaVelocity<0.02){
-            flag = true;
-        }
 
         drivetrainBase.drive(new ChassisSpeeds(driveVelocity.getX(), driveVelocity.getY(), thetaVelocity),
             true);
@@ -172,7 +172,7 @@ public class AutoAlign extends StormCommand {
     @Override
     public boolean isFinished() {
         return (translationPID.atGoal() && thetaController.atGoal()) ||
-            (flag);
+            (timer.get()>4);
     }
 
 

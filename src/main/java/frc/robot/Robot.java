@@ -161,7 +161,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousPeriodic() {
-        throw new RuntimeException("This is a test exception. Delete me");
     }
 
     @Override

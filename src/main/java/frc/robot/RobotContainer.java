@@ -33,6 +33,7 @@ import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.robot.Constants.Toggles;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static java.util.Objects.isNull;
 
@@ -126,13 +127,14 @@ public class RobotContainer {
             moveDownElevator = new ElevatorDiagnostic(elevator, false);
             moveUpElevator = new ElevatorDiagnostic(elevator, true);
             toLevel1 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1);
+//            toLevel1 = new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL1);
             toLevel2 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL2);
             toLevel3 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL3);
             toLevel4 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4);
         }
 
         if (Toggles.useAutoReef) {
-            autoReefCommand = new AutoReefCommand(ElevatorLevel.LEVEL4, true);
+//            autoReefCommand = new AutoReefCommand(ElevatorLevel.LEVEL4, true);
         }
 
         if (Toggles.useAutoStation) {
@@ -222,7 +224,23 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new AutoCommandFactory(drivetrain);
+        return new SequentialCommandGroup(new SequentialCommandGroup(
+            new ConditionalCommand(new ElevatorHome(elevator),
+                new PrintCommand("Elevator disabled"),
+                () -> Toggles.useElevator),
+            new ConditionalCommand(new CoralIntakeHome(coralIntake),
+                new PrintCommand("CoralIntake disabled"),
+                () -> Toggles.useCoralIntake)
+        ), new AutoCommandFactory(drivetrain),
+//            new AutoReef(drivetrain, visionSubsystem,
+//                joystick, () -> FieldConstants.Side.RIGHT),
+            new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
+            Commands.race(new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
+                new CoralIntakeCommand(coralIntake, false)));
+
+
+
+
     }
 
     private void configureButtonBoardBindings() {
@@ -245,30 +263,37 @@ public class RobotContainer {
             // new Trigger(() -> buttonBoard.elevatorDown()).whileTrue(moveDownElevator);
 
             // In manual mode, buttons L1 - L4 only move elevator
-            new Trigger(() -> buttonBoard.elevatorLevel1()).whileTrue(toLevel1);
-            new Trigger(() -> buttonBoard.elevatorLevel2()).whileTrue(toLevel2);
-            new Trigger(() -> buttonBoard.elevatorLevel3()).whileTrue(toLevel3);
-            new Trigger(() -> buttonBoard.elevatorLevel4()).whileTrue(toLevel4);
+            new Trigger(() -> buttonBoard.elevatorLevel1()).onTrue(toLevel1);
+            new Trigger(() -> buttonBoard.elevatorLevel2()).onTrue(toLevel2);
+            new Trigger(() -> buttonBoard.elevatorLevel3()).onTrue(toLevel3);
+            new Trigger(() -> buttonBoard.elevatorLevel4()).onTrue(toLevel4);
 
             // In auto mode, buttons L1 - L4: move to the right/left reef, move elevator to correct level, and Outtake
             if (Toggles.useAutoReef) {
-                new Trigger(() -> buttonBoard.elevatorLevel1AutoRight()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL1, true));
-                new Trigger(() -> buttonBoard.elevatorLevel2AutoRight()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL2, true));
-                new Trigger(() -> buttonBoard.elevatorLevel3AutoRight()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL3, true));
-                new Trigger(() -> buttonBoard.elevatorLevel4AutoRight()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL4, true));
+//                new Trigger(() -> buttonBoard.elevatorLevel1AutoRight()).whileTrue(
+//                    new AutoReefCommand(ElevatorLevel.LEVEL1, true));
+//                new Trigger(() -> buttonBoard.elevatorLevel2AutoRight()).whileTrue(
+//                    new AutoReefCommand(ElevatorLevel.LEVEL2, true));
+//                new Trigger(() -> buttonBoard.elevatorLevel3AutoRight()).whileTrue(
+//                    new AutoReefCommand(ElevatorLevel.LEVEL3, true));
+//                new Trigger(() -> buttonBoard.elevatorLevel4AutoRight()).whileTrue(
+//                    new AutoReefCommand(ElevatorLevel.LEVEL4, true));
+//
+//                new Trigger(() -> buttonBoard.elevatorLevel1AutoLeft()).whileTrue(
+//                    new AutoReefCommand(ElevatorLevel.LEVEL1, false));
+//                new Trigger(() -> buttonBoard.elevatorLevel2AutoLeft()).whileTrue(
+//                    new AutoReefCommand(ElevatorLevel.LEVEL2, false));
+//                new Trigger(() -> buttonBoard.elevatorLevel3AutoLeft()).whileTrue(
+//                    new AutoReefCommand(ElevatorLevel.LEVEL3, false));
+//                new Trigger(() -> buttonBoard.elevatorLevel4AutoLeft()).whileTrue(
+//                    new AutoReefCommand(ElevatorLevel.LEVEL4, false));
 
-                new Trigger(() -> buttonBoard.elevatorLevel1AutoLeft()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL1, false));
-                new Trigger(() -> buttonBoard.elevatorLevel2AutoLeft()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL2, false));
-                new Trigger(() -> buttonBoard.elevatorLevel3AutoLeft()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL3, false));
-                new Trigger(() -> buttonBoard.elevatorLevel4AutoLeft()).whileTrue(
-                    new AutoReefCommand(ElevatorLevel.LEVEL4, false));
+                new Trigger(() -> buttonBoard.autoReef()).onTrue(
+                    new AutoReef(drivetrain, visionSubsystem, joystick,
+                        () -> (joystick.isRightReef() ? FieldConstants.Side.RIGHT : FieldConstants.Side.LEFT)
+                    )
+                );
+
             }
         }
 
@@ -276,11 +301,11 @@ public class RobotContainer {
             new Trigger(() -> buttonBoard.autoStation()).onTrue(autoStationCommand);
         }
 
-        if (Toggles.useAutoReef) {
-            // quick auto reef command, outtakes to level 4, right reef with a single button press
-            new Trigger(() -> buttonBoard.autoReef()).onTrue(new AutoReef(drivetrain, visionSubsystem,
-                joystick, FieldConstants.Side.LEFT));
-        }
+//        if (Toggles.useAutoReef) {
+//            // quick auto reef command, outtakes to level 4, right reef with a single button press
+//            new Trigger(() -> buttonBoard.autoReef()).onTrue(new AutoReef(drivetrain, visionSubsystem,
+//                joystick, FieldConstants.Side.LEFT));
+//        }
 
         if (Toggles.useAutoProcessor) {
             new Trigger(() -> buttonBoard.autoProcessor()).onTrue(autoProcessorCommand);
@@ -337,16 +362,6 @@ public class RobotContainer {
         ).schedule();
     }
 
-//    public Command getAutonomousCommand() {
-//        return new SequentialCommandGroup(
-//            new ConditionalCommand(new ElevatorHome(elevator),
-//                new PrintCommand("Elevator disabled"),
-//                () ->Toggles.useElevator),
-//            new ConditionalCommand(new CoralIntakeHome(coralIntake),
-//                new PrintCommand("CoralIntake disabled"),
-//                () ->Toggles.useCoralIntake)
-//        );
-//    }
 
     public void console(String message) {
         System.out.println("RobotContainer : " + message);

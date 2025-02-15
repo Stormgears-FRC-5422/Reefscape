@@ -2,6 +2,7 @@ package frc.robot.commands.autos;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
@@ -13,21 +14,24 @@ import frc.utils.StormCommand;
 import frc.utils.vision.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.function.Supplier;
+
 public class AutoReef extends StormCommand {
     DrivetrainBase drivetrainBase;
     VisionSubsystem visionSubsystem;
     ReefscapeJoystick joystick;
     int tagID = -1;
-    FieldConstants.Side side;
+    Supplier<FieldConstants.Side> sideSupplier;
+    Timer timer = new Timer();
 
     public AutoReef(DrivetrainBase drivetrainBase,
                     VisionSubsystem visionSubsystem,
                     ReefscapeJoystick joystick,
-                    FieldConstants.Side side) {
+                    Supplier<FieldConstants.Side> side) {
         this.drivetrainBase = drivetrainBase;
         this.visionSubsystem = visionSubsystem;
         this.joystick = joystick;
-        this.side = side;
+        this.sideSupplier = side;
 
 
         addRequirements(drivetrainBase, visionSubsystem);
@@ -35,6 +39,13 @@ public class AutoReef extends StormCommand {
 
     @Override
     public void initialize() {
+        timer.restart();
+        super.initialize();
+        FieldConstants.Side side;
+        side = sideSupplier.get();
+        if(side==null){
+            System.out.println("side null?");
+        }
         if (LimelightHelpers.getTV(Constants.Vision.limelightID)) {
             tagID = LimelightHelpers.getRawFiducials(Constants.Vision.limelightID)[0].id;
         }
@@ -50,8 +61,12 @@ public class AutoReef extends StormCommand {
         }
     }
 
-//    @Override
-//    public boolean isFinished() {
-//        return true;
-//    }
+    @Override
+    public void end(boolean interrupted) {
+        super.end(interrupted);
+    }
+        @Override
+    public boolean isFinished() {
+        return timer.get()>3.5;
+    }
 }

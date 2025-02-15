@@ -2,6 +2,8 @@ package frc.robot.commands.autos;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.FieldConstants;
+import frc.robot.commands.ElevatorMoveToHold;
+import frc.robot.commands.ElevatorMoveToPosition;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.subsystems.CoralIntake;
 import frc.robot.subsystems.Elevator;
@@ -20,32 +22,38 @@ public class AutoReefCommand extends StormCommand {
     DrivetrainBase drivetrainBase;
     VisionSubsystem visionSubsystem;
     ReefscapeJoystick reefscapeJoystick;
+    ElevatorMoveToPosition elevatorMoveToPosition;
+    ElevatorMoveToHold elevatorMoveToHold;
     Elevator elevator;
     CoralIntake coralIntake;
 
 
+
     public AutoReefCommand(FieldConstants.Side side,
                            DrivetrainBase drivetrainBase, VisionSubsystem visionSubsystem,
-                           ReefscapeJoystick reefscapeJoystick,
                            Elevator.ElevatorLevel level,
-                           Elevator elevator,
-                           CoralIntake coralIntake) {
+                           Elevator elevator
+                           ) {
         this.side = side;
         this.drivetrainBase = drivetrainBase;
         this.visionSubsystem = visionSubsystem;
-        this.reefscapeJoystick = reefscapeJoystick;
         this.level = level;
-        this.elevator = elevator;
-        this.coralIntake = coralIntake;
+        this.elevatorMoveToPosition = new ElevatorMoveToPosition(elevator, level);
+        this.elevatorMoveToHold = new ElevatorMoveToHold(elevator);
+        this.coralIntake = new CoralIntake();
 
-        addRequirements(visionSubsystem, drivetrainBase, elevator, coralIntake);
+        this.elevator = elevator;
+
+        addRequirements(visionSubsystem, drivetrainBase, coralIntake);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        Commands.sequence(new AutoReef(drivetrainBase,
-            visionSubsystem, reefscapeJoystick, side), )
+//        Commands.sequence(new AutoReef(drivetrainBase,
+//            visionSubsystem, reefscapeJoystick, side),
+//            elevatorMoveToPosition,
+//            elevatorMoveToHold);
     }
 
     // Called every time the scheduler runs while the command is scheduled.

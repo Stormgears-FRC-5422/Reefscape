@@ -34,7 +34,7 @@ public class ElevatorManual extends StormCommand {
             : buttonBoard.elevatorDown() ? Direction.DOWN
             : Direction.HOLD;
 
-        console("direction = " + direction + ", currentPosition = " + currentPosition);
+//        console("direction = " + direction + ", currentPosition = " + currentPosition);
         if (direction == Direction.UP) {
             elevator.setTargetLevel(ElevatorLevel.LEVEL4);
         } else if (direction == Direction.DOWN) {

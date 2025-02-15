@@ -14,12 +14,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.DrivetrainBase;
+import frc.utils.StormCommand;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
 
-public class AutoCommandFactory extends Command {
-    private final Optional<Trajectory<SwerveSample>> trajectory = Choreo.loadTrajectory("test3");
+public class AutoCommandFactory extends StormCommand {
+    private final Optional<Trajectory<SwerveSample>> trajectory = Choreo.loadTrajectory("middle_one");
+//    private final Optional<Trajectory<SwerveSample>> trajectory = Choreo.loadTrajectory("left_one");
+//    private final Optional<Trajectory<SwerveSample>> trajectory = Choreo.loadTrajectory("right_one");
     static DrivetrainBase drivetrainBase;
     private static final PIDController xController = new PIDController(2.6, 0.0, 0.1);
     private static final PIDController yController = new PIDController(2.6, 0.0, 0.1);
@@ -59,8 +62,9 @@ public class AutoCommandFactory extends Command {
 
     @Override
     public void initialize() {
+        super.initialize();
         if (trajectory.isPresent()) {
-            drivetrainBase.declarePoseIsNow(trajectory.get().getInitialPose(false).get());
+            drivetrainBase.declarePoseIsNow(trajectory.get().getInitialPose(RobotState.getInstance().isAllianceRed()).get());
         }
         count = 0;
         if (trajectory.isPresent() && trajectory.get().getInitialPose(RobotState.getInstance().isAllianceRed()).isPresent()) {
@@ -79,7 +83,6 @@ public class AutoCommandFactory extends Command {
         Optional<SwerveSample> sample = trajectory.get().sampleAt(time, RobotState.getInstance().isAllianceRed());
 //        Optional<SwerveSample> sample = trajectory.get().sampleAt(0.27225, false);
         Logger.recordOutput("Auto/timer timer", time);
-
         if (sample.isPresent()) {
             followTrajectory(sample.get());
         } else {
@@ -91,6 +94,12 @@ public class AutoCommandFactory extends Command {
     }
 
     @Override
+    public boolean isFinished() {
+        return timer.get()>3;
+    }
+
+    @Override
     public void end(boolean interrupted) {
+        super.end(interrupted);
     }
 }

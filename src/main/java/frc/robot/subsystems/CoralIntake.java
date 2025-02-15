@@ -38,7 +38,7 @@ public class CoralIntake extends StormSubsystem {
     public CoralIntake() {
         wristSpark = new SparkMax(Intake.wristID, SparkLowLevel.MotorType.kBrushless);
         rollerSpark = new SparkMax(Intake.rollerID, SparkLowLevel.MotorType.kBrushless);
-        proximitySensorIntake = wristSpark.getForwardLimitSwitch();
+        proximitySensorIntake = rollerSpark.getForwardLimitSwitch();
 
         wristEncoder = wristSpark.getEncoder();
         SparkMaxConfig globalConfig = new SparkMaxConfig();
@@ -89,9 +89,9 @@ public class CoralIntake extends StormSubsystem {
 
         currentPosition = wristEncoder.getPosition();
         double ffVoltage = 0;
-        if (Constants.Debug.debug && robotState.getPeriod() != RobotState.StatePeriod.DISABLED) {
-            console("Current position: " + currentPosition, 50);
-        }
+//        if (Constants.Debug.debug && robotState.getPeriod() != RobotState.StatePeriod.DISABLED) {
+//            console("Current position: " + currentPosition, 50);
+//        }
 
         switch (currentState) {
             case HOMING:
