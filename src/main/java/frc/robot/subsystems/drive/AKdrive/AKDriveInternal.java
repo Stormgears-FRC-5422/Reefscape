@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive.AKdrive;
 
+import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
@@ -19,18 +20,21 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.RobotState;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static edu.wpi.first.units.Units.Volts;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 
 public class AKDriveInternal implements Subsystem {
+    // ReefscapeTunerConstants doesn't include these constants, so they are declared locally
+    static final double ODOMETRY_FREQUENCY =
+            new CANBus(ReefscapeTunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
+
     public static final double DRIVE_BASE_RADIUS =
             Math.max(
                     Math.max(
@@ -40,20 +44,15 @@ public class AKDriveInternal implements Subsystem {
                             Math.hypot(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
                             Math.hypot(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)));
 
-    // ReefscapeTunerConstants doesn't include these constants, so they are declared locally
-    static final double ODOMETRY_FREQUENCY =
-            new CANBus(ReefscapeTunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
-
     static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
+    private final Module[] modules = new Module[4]; // FL, FR, BL, BR
+    private final SysIdRoutine sysId;
     private final Alert gyroDisconnectedAlert =
             new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
-    private final SysIdRoutine sysId;
-    private final Module[] modules = new Module[4]; // FL, FR, BL, BR
-    ChassisSpeeds m_chassisSpeeds;
-    private Rotation2d rawGyroRotation = new Rotation2d();
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
+    private Rotation2d rawGyroRotation = new Rotation2d();
     private SwerveModulePosition[] lastModulePositions = // For delta tracking
             new SwerveModulePosition[]{
                     new SwerveModulePosition(),
@@ -64,6 +63,9 @@ public class AKDriveInternal implements Subsystem {
 
     private SwerveDrivePoseEstimator poseEstimator =
             new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+
+    ChassisSpeeds m_chassisSpeeds;
+
 
     public AKDriveInternal() {
         this.gyroIO = new GyroIOPigeon2();
@@ -105,18 +107,6 @@ public class AKDriveInternal implements Subsystem {
                                 (voltage) -> runTurnCharacterization(voltage.in(Volts)), null, this));
     }
 
-    /**
-     * Returns an array of module translations.
-     */
-    public static Translation2d[] getModuleTranslations() {
-        return new Translation2d[]{
-                new Translation2d(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
-                new Translation2d(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY),
-                new Translation2d(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
-                new Translation2d(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)
-        };
-    }
-
     public SwerveDrivePoseEstimator getPoseEstimator() {
         return poseEstimator;
     }
@@ -130,13 +120,9 @@ public class AKDriveInternal implements Subsystem {
     }
 
     public void periodic() {
-        runVelocity(m_chassisSpeeds);
-
         odometryLock.lock(); // Prevents odometry updates while reading data
         gyroIO.updateInputs(gyroInputs);
-        //setGyroMT2();
-        RobotState robotState = RobotState.getInstance();
-        robotState.setYaw(poseEstimator.getEstimatedPosition().getRotation().getDegrees());
+
         Logger.processInputs("Drive/Gyro", gyroInputs);
         for (var module : modules) {
             module.periodic();
@@ -183,6 +169,7 @@ public class AKDriveInternal implements Subsystem {
                 Twist2d twist = kinematics.toTwist2d(moduleDeltas);
                 rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
             }
+
             VisionSubsystem.setHeading(rawGyroRotation);
 
             // Apply update
@@ -222,23 +209,6 @@ public class AKDriveInternal implements Subsystem {
         Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
     }
 
-    public void stop() {
-        runVelocity(new ChassisSpeeds());
-    }
-
-    /**
-     * Stops the drive and turns the modules to an X arrangement to resist movement. The modules will
-     * return to their normal orientations the next time a nonzero velocity is requested.
-     */
-    public void stopWithX() {
-        Rotation2d[] headings = new Rotation2d[4];
-        for (int i = 0; i < 4; i++) {
-            headings[i] = getModuleTranslations()[i].getAngle();
-        }
-        kinematics.resetHeadings(headings);
-        stop();
-    }
-
     /**
      * Runs the drive in a straight line with the specified drive output.
      */
@@ -258,6 +228,23 @@ public class AKDriveInternal implements Subsystem {
         for (int i = 0; i < 4; i++) {
             modules[i].runAngularMotionCharacterization(output);
         }
+    }
+
+    public void stop() {
+        runVelocity(new ChassisSpeeds());
+    }
+
+    /**
+     * Stops the drive and turns the modules to an X arrangement to resist movement. The modules will
+     * return to their normal orientations the next time a nonzero velocity is requested.
+     */
+    public void stopWithX() {
+        Rotation2d[] headings = new Rotation2d[4];
+        for (int i = 0; i < 4; i++) {
+            headings[i] = getModuleTranslations()[i].getAngle();
+        }
+        kinematics.resetHeadings(headings);
+        stop();
     }
 
     /**
@@ -349,4 +336,17 @@ public class AKDriveInternal implements Subsystem {
         }
         return output;
     }
+
+    /**
+     * Returns an array of module translations.
+     */
+    public static Translation2d[] getModuleTranslations() {
+        return new Translation2d[]{
+                new Translation2d(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
+                new Translation2d(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY),
+                new Translation2d(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
+                new Translation2d(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)
+        };
+    }
+
 }

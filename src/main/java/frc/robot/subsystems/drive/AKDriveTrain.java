@@ -125,6 +125,7 @@ public class AKDriveTrain extends DrivetrainBase {
         }
 
         driveInternal.setChassisSpeeds(m_chassisSpeeds);
+        driveInternal.runVelocity(m_chassisSpeeds);
         driveInternal.periodic();
 
         m_state.setPose(getPose());
