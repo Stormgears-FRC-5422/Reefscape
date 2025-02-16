@@ -5,6 +5,7 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,6 +15,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -337,9 +340,38 @@ public class AKDriveInternal implements Subsystem {
         return output;
     }
 
-    /**
-     * Returns an array of module translations.
-     */
+  /** Returns the current odometry pose. */
+  @AutoLogOutput(key = "Odometry/Robot")
+  public Pose2d getPose() {
+    return poseEstimator.getEstimatedPosition();
+  }
+
+  /** Returns the current odometry rotation. */
+  public Rotation2d getRotation() {
+    return getPose().getRotation();
+  }
+
+  /** Resets the current odometry pose. */
+  public void setPose(Pose2d pose) {
+    poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+  }
+
+  /** Adds a new timestamped vision measurement. */
+  public void addVisionMeasurement(
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs) {
+    poseEstimator.addVisionMeasurement(
+        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+  }
+
+  public double getMaxLinearSpeedMetersPerSec() {
+    return ReefscapeTunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+  }
+  public double getMaxAngularSpeedRadPerSec() {
+    return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
+  }
+  /** Returns an array of module translations. */
     public static Translation2d[] getModuleTranslations() {
         return new Translation2d[]{
                 new Translation2d(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),

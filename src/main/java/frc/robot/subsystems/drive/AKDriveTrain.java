@@ -29,16 +29,15 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 public class AKDriveTrain extends DrivetrainBase {
     private AKDriveInternal driveInternal;
 
-    private double MaxSpeed = getMaxLinearSpeedMetersPerSec();
-    private double MaxAngularRate = getMaxAngularSpeedRadPerSec();
-
     private SwerveDrivePoseEstimator poseEstimator;
 
     public AKDriveTrain() {
         driveInternal = new AKDriveInternal();
         poseEstimator = driveInternal.getPoseEstimator();
+        double maxSpeed = driveInternal.getMaxLinearSpeedMetersPerSec();
+        double maxAngularRate = driveInternal.getMaxAngularSpeedRadPerSec();
 
-        setMaxVelocities(MaxSpeed, MaxAngularRate);
+        setMaxVelocities(maxSpeed, maxAngularRate);
     }
 
     /**
@@ -47,16 +46,14 @@ public class AKDriveTrain extends DrivetrainBase {
     @AutoLogOutput(key = "Odometry/Robot")
     @Override
     public Pose2d getPose() {
-        return poseEstimator.getEstimatedPosition();
+        return driveInternal.getPose();
     }
 
     /**
      * Returns the current odometry rotation.
      */
     @Override
-    public Rotation2d getRotation() {
-        return getPose().getRotation();
-    }
+    public Rotation2d getRotation() { return driveInternal.getRotation(); }
 
     @Override
     public void resetOrientation() {
@@ -91,22 +88,7 @@ public class AKDriveTrain extends DrivetrainBase {
     public void addVisionMeasurement(Pose2d visionRobotPoseMeters,
                                      double timestampSeconds,
                                      Matrix<N3, N1> visionMeasurementStdDevs) {
-        poseEstimator.addVisionMeasurement(
-            visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
-    }
-
-    /**
-     * Returns the maximum linear speed in meters per sec.
-     */
-    public double getMaxLinearSpeedMetersPerSec() {
-        return ReefscapeTunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    }
-
-    /**
-     * Returns the maximum angular speed in radians per sec.
-     */
-    public double getMaxAngularSpeedRadPerSec() {
-        return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
+        driveInternal.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
 
     @Override
@@ -118,7 +100,7 @@ public class AKDriveTrain extends DrivetrainBase {
             Pose2d tempPose = new Pose2d(m_state.getVisionMeasurments().visionRobotPoseMeters().getTranslation(),
                 new Rotation2d(tRadians));
 
-//          console(m_state.getVisionMeasurments().visionRobotPoseMeters().getRotation(),25);
+//          console(m_state.getVisionMeasurements().visionRobotPoseMeters().getRotation(),25);
             addVisionMeasurement(tempPose,
                 m_state.getVisionMeasurments().timestampSeconds(),
                 m_state.getVisionMeasurments().visionMeasurementStdDevs());
