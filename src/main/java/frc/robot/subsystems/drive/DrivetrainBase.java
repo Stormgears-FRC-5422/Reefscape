@@ -1,14 +1,11 @@
 package frc.robot.subsystems.drive;
 
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -22,24 +19,29 @@ import frc.utils.StormSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 public abstract class DrivetrainBase extends StormSubsystem {
+    public static final double DRIVE_BASE_RADIUS =
+        Math.max(
+            Math.max(
+                Math.hypot(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
+                Math.hypot(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY)),
+            Math.max(
+                Math.hypot(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
+                Math.hypot(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)));
 
-    public double m_maxVelocityMetersPerSecond = 1;
-    public double m_maxAngularVelocityRadiansPerSecond = 1;
-    protected double m_driveSpeedScale = 0;
-    private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.25);
+    public static boolean driveFlip = true;
+    public static boolean fieldRelativeOn = true;
     protected final ShuffleboardTab tab;
     protected
 
     final RobotState m_state;
+    private final SlewRateLimiter speedScaleLimiter = new SlewRateLimiter(0.25);
+    public double m_maxVelocityMetersPerSecond = 1;
+    public double m_maxAngularVelocityRadiansPerSecond = 1;
+    protected double m_driveSpeedScale = 0;
     protected boolean m_fieldRelative = false;
-    public static boolean driveFlip = true;
-    public static boolean fieldRelativeOn = true;
-
     @AutoLogOutput
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
-    //    protected final ShuffleboardTab tab;
-    //    protected final ShuffleboardTab tab;
     public DrivetrainBase() {
         setDriveSpeedScale(Drive.driveSpeedScale);
         tab = ShuffleboardConstants.getInstance().drivetrainTab;
@@ -48,13 +50,23 @@ public abstract class DrivetrainBase extends StormSubsystem {
         setFieldRelativeOn(false);
     }
 
+    protected void setDriveFlip(boolean flip) {
+        driveFlip = flip;
+    }
 
+    protected void setFieldRelativeOn(boolean flip) {
+        fieldRelativeOn = flip;
+    }
 
     protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {
         m_maxVelocityMetersPerSecond = maxVelocityMetersPerSecond;
         m_maxAngularVelocityRadiansPerSecond = maxAngularVelocityRadiansPerSecond;
         System.out.println("MaxDriveVelocity: " + m_maxVelocityMetersPerSecond);
         System.out.println("MaxAngularVelocity: " + m_maxAngularVelocityRadiansPerSecond);
+    }
+
+    public void setDriveSpeedScale(double scale) {
+        m_driveSpeedScale = MathUtil.clamp(scale, 0, Drive.driveSpeedScale);
     }
 
     // Be careful scaling ChassisSpeeds. Need to scale X and Y the same or your robot will move in the wrong direction!
@@ -87,7 +99,6 @@ public abstract class DrivetrainBase extends StormSubsystem {
             m_chassisSpeeds = speeds;
         }
 
-        // TODO - work in the slew rate limiter. Apply before scale to preserve motion details
         m_chassisSpeeds = scaleChassisSpeeds(m_chassisSpeeds, speedScale);
     }
 
@@ -106,14 +117,6 @@ public abstract class DrivetrainBase extends StormSubsystem {
             fieldRelative);
     }
 
-    public void setDriveSpeedScale(double scale) {
-        m_driveSpeedScale = MathUtil.clamp(scale, 0, Drive.driveSpeedScale);
-    }
-
-    public void stopDrive() {
-        drive(new ChassisSpeeds(0, 0, 0), false);
-    }
-
     @AutoLogOutput
     public ChassisSpeeds getCurrentChassisSpeeds() {
         return m_chassisSpeeds;
@@ -123,24 +126,19 @@ public abstract class DrivetrainBase extends StormSubsystem {
         return new Pose2d();
     }
 
-    public void runCharacterization(double output){
-
+    public Rotation2d getRotation() {
+        return new Rotation2d();
     }
 
-    /**
-     * Returns the average velocity of the modules in rotations/sec (Phoenix native units).
-     */
-    public double getFFCharacterizationVelocity() {
-      return 0.0;
-    }
-
-
-        // Teach the drive that the current orientation is facing the opposite end of the field
+    // Teach the drive that the current orientation is facing the opposite end of the field
     // this function is ideally alliance aware, and manages the pose and gyro as needed
     public void resetOrientation() {
     }
 
     public void declarePoseIsNow(Pose2d pose) {
+    }
+
+    public void setGyroMT2() {
     }
 
     public void addVisionMeasurement(Pose2d visionRobotPoseMeters,
@@ -149,14 +147,24 @@ public abstract class DrivetrainBase extends StormSubsystem {
 
     }
 
-    public Rotation2d getRotation() {
-        return new Rotation2d();
+    public void runCharacterization(double output) {
     }
 
+    /**
+     * Returns the average velocity of the modules in rotations/sec (Phoenix native units).
+     */
+    public double getFFCharacterizationVelocity() {
+        return 0.0;
+    }
+
+    public double[] getWheelRadiusCharacterizationPositions() {
+        double[] values = new double[0];
+        return values;
+    }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-       return new Command() {
-       };
+        return new Command() {
+        };
     }
 
     /**
@@ -165,32 +173,6 @@ public abstract class DrivetrainBase extends StormSubsystem {
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return new Command() {
         };
-
     }
-
-    public void setGyroMT2(){
-    }
-
-
-    protected void setDriveFlip(boolean flip) {
-        driveFlip = flip;
-    }
-
-    protected void setFieldRelativeOn(boolean flip) {
-        fieldRelativeOn = flip;
-    }
-    public double[] getWheelRadiusCharacterizationPositions() {
-        double[] values = new double[0];
-        return values;
-
-    }
-        public static final double DRIVE_BASE_RADIUS =
-        Math.max(
-            Math.max(
-                Math.hypot(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
-                Math.hypot(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY)),
-            Math.max(
-                Math.hypot(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
-                Math.hypot(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)));
 }
 

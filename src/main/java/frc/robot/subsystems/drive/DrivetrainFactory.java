@@ -1,6 +1,5 @@
 package frc.robot.subsystems.drive;
 
-import frc.robot.subsystems.drive.AKdrive.AKdrive;
 import frc.robot.subsystems.drive.ctrGenerated.*;
 
 public class DrivetrainFactory {
@@ -12,7 +11,7 @@ public class DrivetrainFactory {
             switch (driveType.toLowerCase()) {
                 case "diagnosticswerve" -> instance = new DiagnosticSwerve();
                 case "ctrdrive" -> instance = new CTRDrivetrain(getTunerConstants(driveSubtype));
-                case "akdrive" -> instance = new AKdrive();
+                case "akdrive" -> instance = new AKDriveTrain();
                 default -> throw new IllegalDriveTypeException("Illegal Drive Type: " + driveType);
             }
         }

@@ -1,26 +1,9 @@
-// Copyright 2021-2025 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
 package frc.robot.subsystems.drive.AKdrive;
 
-import static edu.wpi.first.units.Units.*;
-
 import com.ctre.phoenix6.CANBus;
-import edu.wpi.first.hal.FRCNetComm.tInstances;
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.hal.FRCNetComm;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,80 +13,75 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotState;
+import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import frc.robot.RobotState;
-import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.drive.DrivetrainBase;
-import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
-import frc.utils.vision.LimelightHelpers;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
+import static edu.wpi.first.units.Units.Volts;
 
-public class AKdrive extends DrivetrainBase {
+public class AKDriveInternal implements Subsystem {
+    public static final double DRIVE_BASE_RADIUS =
+            Math.max(
+                    Math.max(
+                            Math.hypot(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
+                            Math.hypot(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY)),
+                    Math.max(
+                            Math.hypot(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
+                            Math.hypot(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)));
+
     // ReefscapeTunerConstants doesn't include these constants, so they are declared locally
     static final double ODOMETRY_FREQUENCY =
-        new CANBus(ReefscapeTunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
-    public static final double DRIVE_BASE_RADIUS =
-        Math.max(
-            Math.max(
-                Math.hypot(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
-                Math.hypot(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY)),
-            Math.max(
-                Math.hypot(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
-                Math.hypot(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)));
-    private double MaxSpeed = ReefscapeTunerConstants.kSpeedAt12Volts.
-        in(LinearVelocityUnit.combine(Meters, Seconds));
-    private double MaxAngularRate = 1.5 * Math.PI;
+            new CANBus(ReefscapeTunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
+
     static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
-    private final Module[] modules = new Module[4]; // FL, FR, BL, BR
-    private final SysIdRoutine sysId;
     private final Alert gyroDisconnectedAlert =
-        new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
-
-    private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
+            new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
+    private final SysIdRoutine sysId;
+    private final Module[] modules = new Module[4]; // FL, FR, BL, BR
+    ChassisSpeeds m_chassisSpeeds;
     private Rotation2d rawGyroRotation = new Rotation2d();
+    private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
     private SwerveModulePosition[] lastModulePositions = // For delta tracking
-        new SwerveModulePosition[]{
-            new SwerveModulePosition(),
-            new SwerveModulePosition(),
-            new SwerveModulePosition(),
-            new SwerveModulePosition()
-        };
+            new SwerveModulePosition[]{
+                    new SwerveModulePosition(),
+                    new SwerveModulePosition(),
+                    new SwerveModulePosition(),
+                    new SwerveModulePosition()
+            };
+
     private SwerveDrivePoseEstimator poseEstimator =
-        new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+            new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-    public AKdrive() {
+    public AKDriveInternal() {
         this.gyroIO = new GyroIOPigeon2();
-        modules[0] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.FrontLeft),
-            0, ReefscapeTunerConstants.FrontLeft);
-        modules[1] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.FrontRight),
-            1, ReefscapeTunerConstants.FrontRight);
-        modules[2] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.BackLeft),
-            2, ReefscapeTunerConstants.BackLeft);
-        modules[3] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.BackRight),
-            3, ReefscapeTunerConstants.BackRight);
 
-        setMaxVelocities(MaxSpeed, MaxAngularRate);
+        modules[0] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.FrontLeft),
+                0, ReefscapeTunerConstants.FrontLeft);
+        modules[1] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.FrontRight),
+                1, ReefscapeTunerConstants.FrontRight);
+        modules[2] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.BackLeft),
+                2, ReefscapeTunerConstants.BackLeft);
+        modules[3] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.BackRight),
+                3, ReefscapeTunerConstants.BackRight);
 
         // Usage reporting for swerve template
-        HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
+        HAL.report(FRCNetComm.tResourceType.kResourceType_RobotDrive, FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit);
 
         // Start odometry thread
         PhoenixOdometryThread.getInstance().start();
-
 
         // Configure SysId
 //        sysId =
@@ -117,20 +95,41 @@ public class AKdrive extends DrivetrainBase {
 //                    (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
         // Configure SysId
         sysId =
-            new SysIdRoutine(
-                new SysIdRoutine.Config(
-                    null,
-                    null,
-                    null,
-                    (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
-                new SysIdRoutine.Mechanism(
-                    (voltage) -> runTurnCharacterization(voltage.in(Volts)), null, this));
+                new SysIdRoutine(
+                        new SysIdRoutine.Config(
+                                null,
+                                null,
+                                null,
+                                (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
+                        new SysIdRoutine.Mechanism(
+                                (voltage) -> runTurnCharacterization(voltage.in(Volts)), null, this));
     }
 
-    @Override
-    public void periodic() {
-        super.periodic();
+    /**
+     * Returns an array of module translations.
+     */
+    public static Translation2d[] getModuleTranslations() {
+        return new Translation2d[]{
+                new Translation2d(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
+                new Translation2d(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY),
+                new Translation2d(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
+                new Translation2d(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)
+        };
+    }
 
+    public SwerveDrivePoseEstimator getPoseEstimator() {
+        return poseEstimator;
+    }
+
+    public void resetPosition(Pose2d pose) {
+        poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+    }
+
+    public void resetRotation(Rotation2d rotation) {
+        poseEstimator.resetRotation(rotation);
+    }
+
+    public void periodic() {
         runVelocity(m_chassisSpeeds);
 
         odometryLock.lock(); // Prevents odometry updates while reading data
@@ -159,7 +158,7 @@ public class AKdrive extends DrivetrainBase {
 
         // Update odometry
         double[] sampleTimestamps =
-            modules[0].getOdometryTimestamps(); // All signals are sampled together
+                modules[0].getOdometryTimestamps(); // All signals are sampled together
         int sampleCount = sampleTimestamps.length;
         for (int i = 0; i < sampleCount; i++) {
             // Read wheel positions and deltas from each module
@@ -168,10 +167,10 @@ public class AKdrive extends DrivetrainBase {
             for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
                 modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
                 moduleDeltas[moduleIndex] =
-                    new SwerveModulePosition(
-                        modulePositions[moduleIndex].distanceMeters
-                            - lastModulePositions[moduleIndex].distanceMeters,
-                        modulePositions[moduleIndex].angle);
+                        new SwerveModulePosition(
+                                modulePositions[moduleIndex].distanceMeters
+                                        - lastModulePositions[moduleIndex].distanceMeters,
+                                modulePositions[moduleIndex].angle);
                 lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
             }
 
@@ -189,19 +188,6 @@ public class AKdrive extends DrivetrainBase {
             // Apply update
             poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
         }
-        if (m_state.getVisionMeasurments() != null) {
-            double tRadians = m_state.getVisionMeasurments().visionRobotPoseMeters().getRotation().getRadians();
-            Pose2d tempPose = new Pose2d(m_state.getVisionMeasurments().visionRobotPoseMeters().getTranslation(),
-                new Rotation2d(tRadians)
-                );
-
-//            System.out.println(m_state.getVisionMeasurments().visionRobotPoseMeters().getRotation());
-            addVisionMeasurement(tempPose
-                ,m_state.getVisionMeasurments().timestampSeconds(),
-                m_state.getVisionMeasurments().visionMeasurementStdDevs());
-        }
-
-        m_state.setPose(getPose());
 
         // Update gyro alert
         gyroDisconnectedAlert.set(!gyroInputs.connected && CTRConstants.currentMode != CTRConstants.Mode.SIM);
@@ -236,33 +222,6 @@ public class AKdrive extends DrivetrainBase {
         Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
     }
 
-    /**
-     * Runs the drive in a straight line with the specified drive output.
-     */
-    public void runCharacterization(double output) {
-        for (int i = 0; i < 4; i++) {
-            modules[i].runCharacterization(output);
-        }
-    }
-
-
-    public void runTurnCharacterization(double output) {
-        for (int i = 0; i < 4; i++) {
-            modules[i].runTurnCharacterization(output);
-        }
-    }
-
-    public void runAngleMotionCharacterization(double output) {
-        for (int i = 0; i < 4; i++) {
-            modules[i].runAngularMotionCharacterization(output);
-        }
-    }
-
-
-    /**
-     * Stops the drive.
-     */
-
     public void stop() {
         runVelocity(new ChassisSpeeds());
     }
@@ -280,6 +239,36 @@ public class AKdrive extends DrivetrainBase {
         stop();
     }
 
+    /**
+     * Runs the drive in a straight line with the specified drive output.
+     */
+    public void runCharacterization(double output) {
+        for (int i = 0; i < 4; i++) {
+            modules[i].runCharacterization(output);
+        }
+    }
+
+    public void runTurnCharacterization(double output) {
+        for (int i = 0; i < 4; i++) {
+            modules[i].runTurnCharacterization(output);
+        }
+    }
+
+    public void runAngleMotionCharacterization(double output) {
+        for (int i = 0; i < 4; i++) {
+            modules[i].runAngularMotionCharacterization(output);
+        }
+    }
+
+    /**
+     * Returns a command to run a quasistatic test in the specified direction.
+     */
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return run(() -> runTurnCharacterization(0.0))
+                .withTimeout(1.0)
+                .andThen(sysId.quasistatic(direction));
+    }
+
 //    /**
 //     * Returns a command to run a quasistatic test in the specified direction.
 //     */
@@ -295,15 +284,6 @@ public class AKdrive extends DrivetrainBase {
 //    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
 //        return run(() -> runCharacterization(0.0)).withTimeout(1.0).andThen(sysId.dynamic(direction));
 //    }
-
-    /**
-     * Returns a command to run a quasistatic test in the specified direction.
-     */
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return run(() -> runTurnCharacterization(0.0))
-            .withTimeout(1.0)
-            .andThen(sysId.quasistatic(direction));
-    }
 
     /**
      * Returns a command to run a dynamic test in the specified direction.
@@ -324,7 +304,6 @@ public class AKdrive extends DrivetrainBase {
         return states;
     }
 
-
     /**
      * Returns the module positions (turn angles and drive positions) for all of the modules.
      */
@@ -343,6 +322,10 @@ public class AKdrive extends DrivetrainBase {
 
     protected ChassisSpeeds getChassisSpeeds() {
         return kinematics.toChassisSpeeds(getModuleStates());
+    }
+
+    public void setChassisSpeeds(ChassisSpeeds m_chassisSpeeds) {
+        this.m_chassisSpeeds = m_chassisSpeeds;
     }
 
     /**
@@ -365,92 +348,5 @@ public class AKdrive extends DrivetrainBase {
             output += modules[i].getFFCharacterizationVelocity() / 4.0;
         }
         return output;
-    }
-
-
-    /**
-     * Returns the current odometry pose.
-     */
-    @AutoLogOutput(key = "Odometry/Robot")
-    @Override
-    public Pose2d getPose() {
-        return poseEstimator.getEstimatedPosition();
-    }
-
-    /**
-     * Returns the current odometry rotation.
-     */
-    @Override
-    public Rotation2d getRotation() {
-        return getPose().getRotation();
-    }
-
-    /**
-     * Resets the current odometry pose.
-     */
-    @Override
-    public void declarePoseIsNow(Pose2d pose) {
-        poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
-    }
-
-
-    /**
-     * Adds a new timestamped vision measurement.
-     */
-    @Override
-    public void addVisionMeasurement(Pose2d visionRobotPoseMeters,
-                                     double timestampSeconds,
-                                     Matrix<N3, N1> visionMeasurementStdDevs) {
-        poseEstimator.addVisionMeasurement(
-            visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
-    }
-
-    /**
-     * Returns the maximum linear speed in meters per sec.
-     */
-    public double getMaxLinearSpeedMetersPerSec() {
-        return ReefscapeTunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    }
-
-    /**
-     * Returns the maximum angular speed in radians per sec.
-     */
-    public double getMaxAngularSpeedRadPerSec() {
-        return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
-    }
-
-    /**
-     * Returns an array of module translations.
-     */
-    public static Translation2d[] getModuleTranslations() {
-        return new Translation2d[]{
-            new Translation2d(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
-            new Translation2d(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY),
-            new Translation2d(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
-            new Translation2d(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)
-        };
-    }
-    /*
-    Set the gyro to the MegaTag2
-     */
-    @Override
-    public void setGyroMT2() {
-        LimelightHelpers.SetRobotOrientation("", poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0);
-    }
-
-
-    @Override
-    public void resetOrientation() {
-//        // Note that this behavior defaults to blue if alliance is missing.
-//        Rotation2d newRotation = m_state.isAllianceRed() ? new Rotation2d(-1, 0) : new Rotation2d(1, 0);
-//        console("Reset orientation at degrees: " + newRotation.getDegrees());
-//        drivetrain.getPigeon2().setYaw(newRotation.getDegrees());
-
-        // Note that this behavior defaults to blue if alliance is missing.
-        Rotation2d newRotation = m_state.isAllianceRed()
-            ? new Rotation2d(-1, 0)
-            : new Rotation2d(1, 0);
-
-        poseEstimator.resetRotation(newRotation);
     }
 }

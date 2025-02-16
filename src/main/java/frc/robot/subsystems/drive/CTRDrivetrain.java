@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.ctrGenerated.CTRDriveInternal;
 import frc.robot.subsystems.drive.ctrGenerated.Telemetry;
@@ -96,12 +98,14 @@ public class CTRDrivetrain extends DrivetrainBase {
         declarePoseIsNow(newPose);
     }
 
+    @Override
     public void declarePoseIsNow(Pose2d newPose) {
         console("declaring pose is now = " + newPose);
         driveInternal.resetPose(newPose);
         m_state.setPose(newPose);
     }
 
+    @Override
     @AutoLogOutput
     public Pose2d getPose() {
         Pose2d internalPose = driveInternal.getState().Pose;
