@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,20 +31,14 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import frc.robot.subsystems.drive.ctrGenerated.TunerConstantsWrapper;
 
 public class AKDriveInternal implements Subsystem {
-    // ReefscapeTunerConstants doesn't include these constants, so they are declared locally
-    static final double ODOMETRY_FREQUENCY =
-            new CANBus(ReefscapeTunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
+    private static TunerConstantsWrapper TunerConstants;
 
-    public static final double DRIVE_BASE_RADIUS =
-            Math.max(
-                    Math.max(
-                            Math.hypot(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
-                            Math.hypot(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY)),
-                    Math.max(
-                            Math.hypot(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
-                            Math.hypot(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)));
+    // TunerConstants doesn't include these constants, so they are declared locally
+    static double ODOMETRY_FREQUENCY;
+    static public double DRIVE_BASE_RADIUS;
 
     static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;
@@ -69,18 +62,37 @@ public class AKDriveInternal implements Subsystem {
 
     ChassisSpeeds m_chassisSpeeds;
 
+    // This function MUST be called before the constructor. Ideally we'd make a factory
+    // to ensure this. We should unify with CTRDrive at that point.
+    static public void useTunerConstants(TunerConstantsWrapper tunerConstants) {
+        TunerConstants = tunerConstants;
+    }
 
     public AKDriveInternal() {
+        // These geometry variables must be assigned first
+        ODOMETRY_FREQUENCY =
+            new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
+
+        DRIVE_BASE_RADIUS =
+            Math.max(
+                Math.max(
+                    Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
+                    Math.hypot(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
+                Math.max(
+                    Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
+                    Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
+
+
         this.gyroIO = new GyroIOPigeon2();
 
-        modules[0] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.FrontLeft),
-                0, ReefscapeTunerConstants.FrontLeft);
-        modules[1] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.FrontRight),
-                1, ReefscapeTunerConstants.FrontRight);
-        modules[2] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.BackLeft),
-                2, ReefscapeTunerConstants.BackLeft);
-        modules[3] = new Module(new ModuleIOTalonFX(ReefscapeTunerConstants.BackRight),
-                3, ReefscapeTunerConstants.BackRight);
+        modules[0] = new Module(new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                0, TunerConstants.FrontLeft);
+        modules[1] = new Module(new ModuleIOTalonFX(TunerConstants.FrontRight),
+                1, TunerConstants.FrontRight);
+        modules[2] = new Module(new ModuleIOTalonFX(TunerConstants.BackLeft),
+                2, TunerConstants.BackLeft);
+        modules[3] = new Module(new ModuleIOTalonFX(TunerConstants.BackRight),
+                3, TunerConstants.BackRight);
 
         // Usage reporting for swerve template
         HAL.report(FRCNetComm.tResourceType.kResourceType_RobotDrive, FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -197,7 +209,7 @@ public class AKDriveInternal implements Subsystem {
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, ReefscapeTunerConstants.kSpeedAt12Volts);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
 
         // Log unoptimized setpoints and setpoint speeds
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -366,7 +378,7 @@ public class AKDriveInternal implements Subsystem {
   }
 
   public double getMaxLinearSpeedMetersPerSec() {
-    return ReefscapeTunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    return TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   }
   public double getMaxAngularSpeedRadPerSec() {
     return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
@@ -374,10 +386,10 @@ public class AKDriveInternal implements Subsystem {
   /** Returns an array of module translations. */
     public static Translation2d[] getModuleTranslations() {
         return new Translation2d[]{
-                new Translation2d(ReefscapeTunerConstants.FrontLeft.LocationX, ReefscapeTunerConstants.FrontLeft.LocationY),
-                new Translation2d(ReefscapeTunerConstants.FrontRight.LocationX, ReefscapeTunerConstants.FrontRight.LocationY),
-                new Translation2d(ReefscapeTunerConstants.BackLeft.LocationX, ReefscapeTunerConstants.BackLeft.LocationY),
-                new Translation2d(ReefscapeTunerConstants.BackRight.LocationX, ReefscapeTunerConstants.BackRight.LocationY)
+                new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
+                new Translation2d(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
+                new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
+                new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
         };
     }
 

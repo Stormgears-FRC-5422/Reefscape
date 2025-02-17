@@ -20,19 +20,20 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.subsystems.drive.AKdrive.AKDriveInternal;
-import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
 import frc.utils.vision.LimelightHelpers;
 import org.littletonrobotics.junction.AutoLogOutput;
-
-import static edu.wpi.first.units.Units.MetersPerSecond;
+import frc.robot.subsystems.drive.ctrGenerated.TunerConstantsWrapper;
 
 public class AKDriveTrain extends DrivetrainBase {
     private AKDriveInternal driveInternal;
 
     private SwerveDrivePoseEstimator poseEstimator;
 
-    public AKDriveTrain() {
+    public AKDriveTrain(Class<?> tunerConstantsClass) {
+        TunerConstantsWrapper tunerConstants = new TunerConstantsWrapper(tunerConstantsClass);
+        AKDriveInternal.useTunerConstants(tunerConstants);
         driveInternal = new AKDriveInternal();
+
         poseEstimator = driveInternal.getPoseEstimator();
         double maxSpeed = driveInternal.getMaxLinearSpeedMetersPerSec();
         double maxAngularRate = driveInternal.getMaxAngularSpeedRadPerSec();
