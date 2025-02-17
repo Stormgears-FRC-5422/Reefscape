@@ -167,8 +167,7 @@ public class Lights extends StormSubsystem {
 
     public void isElevatorMoving() {
         if (m_robotState.getElevatorState().equals(Elevator.ElevatorState.SIMPLE_MOTION)
-        || m_robotState.getElevatorState().equals(Elevator.ElevatorState.PID_MOTION)
-        || m_robotState.getElevatorState().equals(Elevator.ElevatorState.HOMING)) {
+        || m_robotState.getElevatorState().equals(Elevator.ElevatorState.PID_MOTION)) {
             setRainbow();
         }
     }
