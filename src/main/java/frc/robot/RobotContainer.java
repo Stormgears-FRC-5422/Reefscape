@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.cscore.HttpCamera;
 import frc.robot.commands.*;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
@@ -44,6 +45,7 @@ public class RobotContainer {
     private Lights lights;
     private Elevator elevator;
     private ColorSensor colorSensor;
+    ComputerVision computerVision;
 
     // **********
     // Commands and Control
@@ -73,6 +75,9 @@ public class RobotContainer {
     ElevatorMoveToPosition toLevel2;
     ElevatorMoveToPosition toLevel3;
     ElevatorMoveToPosition toLevel4;
+
+    // Cameras
+    HttpCamera coProcessorCamera;
 
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
@@ -159,6 +164,12 @@ public class RobotContainer {
                 manualElevator = new ElevatorManual(elevator, buttonBoard);
                 elevator.setDefaultCommand(manualElevator);
             }
+        }
+
+        if (Toggles.useHTTPCamera) {
+            computerVision = new ComputerVision();
+            coProcessorCamera = new HttpCamera("RPi5 Camera",
+                "http://raspberrypi-5.local:1183/");
         }
 
         console("constructor ended");
