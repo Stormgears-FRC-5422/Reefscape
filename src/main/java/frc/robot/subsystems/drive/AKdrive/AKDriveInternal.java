@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotState;
 import frc.robot.subsystems.VisionSubsystem;
 
 import java.util.concurrent.locks.Lock;
@@ -195,6 +196,7 @@ public class AKDriveInternal implements Subsystem {
         gyroDisconnectedAlert.set(!gyroInputs.connected && CTRConstants.currentMode != CTRConstants.Mode.SIM);
 
         Logger.recordOutput("measured angle 0", MathUtil.angleModulus(getModuleStates()[0].angle.getRadians()));
+//        System.out.println("measure angle 1 " +  MathUtil.angleModulus(getModuleStates()[1].angle.getRadians()));
         Logger.recordOutput("measured angle 1", MathUtil.angleModulus(getModuleStates()[1].angle.getRadians()));
         Logger.recordOutput("measured angle 2", MathUtil.angleModulus(getModuleStates()[2].angle.getRadians()));
         Logger.recordOutput("measured angle 3", MathUtil.angleModulus(getModuleStates()[3].angle.getRadians()));
@@ -215,9 +217,15 @@ public class AKDriveInternal implements Subsystem {
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
         Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
 
+
         // Send setpoints to modules
         for (int i = 0; i < 4; i++) {
-            modules[i].runSetpoint(setpointStates[i]);
+//            if(setpointStates[i].angle.getDegrees()<1.5 && setpointStates[i].angle.getDegrees()>-1.5 && RobotState.a){
+//                SwerveModuleState tempState = new SwerveModuleState(setpointStates[i].speedMetersPerSecond, new Rotation2d());
+//                modules[i].runSetpoint(tempState);
+//            } else {
+                modules[i].runSetpoint(setpointStates[i]);
+//            }
         }
 
         // Log optimized setpoints (runSetpoint mutates each state)

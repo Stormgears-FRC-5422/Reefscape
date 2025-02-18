@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.autos.AutoCommandFactory;
@@ -181,10 +182,15 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        if (Constants.Toggles.useCoralIntake) {
-            new Trigger(() -> joystick.coralIntake()).onTrue(coralIntakeCommand);
-            new Trigger(() -> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
-        }
+//        if (Constants.Toggles.useCoralIntake) {
+//            new Trigger(() -> joystick.coralIntake()).onTrue(coralIntakeCommand);
+//            new Trigger(() -> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
+            new Trigger(() -> joystick.coralIntake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        new Trigger(() -> joystick.coralOuttake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+            new Trigger(() -> joystick.zeroWheels()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+            new Trigger(() -> joystick.autoReef()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+//        }
         if (Toggles.useDrive && Toggles.useVision) {
 //            temporarily left side
 //            new Trigger(() -> joystick.autoReef())
@@ -241,22 +247,23 @@ public class RobotContainer {
 //        return Commands.print("hi");
 
 
-
     }
-    public void configJoysticks() throws IllegalJoystickTypeException {if (Toggles.useController) {
-        console("Making drive joystick!");
-        joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick,
-            Constants.ButtonBoard.driveJoystickPort);
 
-        configureBindings();
+    public void configJoysticks() throws IllegalJoystickTypeException {
+        if (Toggles.useController) {
+            console("Making drive joystick!");
+            joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick,
+                Constants.ButtonBoard.driveJoystickPort);
 
-        // Note that this might pass a NULL drive if that is disabled. The JoyStick drive
-        // will still work in this case, just not move the robot.
-        JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
-        if (!isNull(drivetrain)) {
-            drivetrain.setDefaultCommand(driveWithJoystick);
+            configureBindings();
+
+            // Note that this might pass a NULL drive if that is disabled. The JoyStick drive
+            // will still work in this case, just not move the robot.
+            JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
+            if (!isNull(drivetrain)) {
+                drivetrain.setDefaultCommand(driveWithJoystick);
+            }
         }
-    }
 
 
         if (Toggles.useButtonBoard) {
@@ -269,7 +276,8 @@ public class RobotContainer {
                 manualElevator = new ElevatorManual(elevator, buttonBoard);
                 elevator.setDefaultCommand(manualElevator);
             }
-        }}
+        }
+    }
 
     private void configureButtonBoardBindings() {
         console("configure button board bindings");
