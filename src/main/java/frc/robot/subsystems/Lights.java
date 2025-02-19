@@ -155,7 +155,6 @@ public class Lights extends StormSubsystem {
         // Modify top view of strip based on elevator status
         isElevatorHomed();
         isElevatorMoving();
-        isElevatorOnHoldAtPosition();
     }
 
     public void isElevatorHomed() {
