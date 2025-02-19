@@ -22,6 +22,7 @@ public class Robot extends LoggedRobot {
     private RobotContainer robotContainer;
     private RobotState state;
     private int iteration = 0;
+    private boolean joystickWorking = false;;
 
     public Robot() {
         // Most people want to call getInstance(). This is only created once, here.
@@ -138,6 +139,16 @@ public class Robot extends LoggedRobot {
                 robotContainer.updateAlliance();
             }
         }
+        if (!joystickWorking) {
+            if (robotContainer != null) {
+                try {
+                    robotContainer.configJoysticks();
+                    joystickWorking = true;
+                } catch (IllegalJoystickTypeException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 
     @Override
@@ -150,12 +161,6 @@ public class Robot extends LoggedRobot {
         console("AutoInit");
         state.setPeriod(StatePeriod.AUTONOMOUS);
         if (robotContainer != null) {
-            robotContainer.updateAlliance();
-            try {
-                robotContainer.configJoysticks();
-            } catch (IllegalJoystickTypeException e) {
-                throw new RuntimeException(e);
-            }
             autonomousCommand = robotContainer.getAutonomousCommand();
 
 
