@@ -11,6 +11,7 @@ import frc.robot.Constants.TalonConstants;
 import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 
 public class DiagnosticSwerve extends DrivetrainBase {
     TalonFX m_frontLeftDrive, m_frontRightDrive, m_backLeftDrive, m_backRightDrive;
@@ -48,6 +49,11 @@ public class DiagnosticSwerve extends DrivetrainBase {
         m_backRightDrive = new TalonFX(Drive.backRightDriveID, CANBus);
         m_backRightSteer = new TalonFX(Drive.backRightSteerID, CANBus);
         m_backRightEncoder = new CANcoder(Drive.backRightEncoderID, CANBus);
+
+        m_frontLeftSteer.setPosition(0);
+        m_frontRightSteer.setPosition(0);
+        m_backLeftSteer.setPosition(0);
+        m_backRightSteer.setPosition(0);
 
         m_driveArray = new TalonFX[]{m_frontLeftDrive, m_frontRightDrive,
             m_backLeftDrive, m_backRightDrive};
@@ -98,6 +104,12 @@ public class DiagnosticSwerve extends DrivetrainBase {
 //        Logger.recordOutput("Module Number 2 " , powerDistribution.getCurrent(8));
 //        Logger.recordOutput("Module Number 3 " , powerDistribution.getCurrent(1));
 //        Logger.recordOutput("Module Number 4 " , powerDistribution.getCurrent(18));
+
+        double temp = m_frontLeftSteer.getPosition().getValue().in(Degrees);
+        Logger.recordOutput("fr", temp-m_frontRightSteer.getPosition().getValue().in(Degrees));
+        Logger.recordOutput("bl", temp-m_backLeftSteer.getPosition().getValue().in(Degrees));
+        Logger.recordOutput("br", temp-m_backRightSteer.getPosition().getValue().in(Degrees));
+
 
         for (TalonFX m : m_driveArray) {
             Logger.recordOutput("Position drive module " + m.getDeviceID(), m.getPosition().getValue());

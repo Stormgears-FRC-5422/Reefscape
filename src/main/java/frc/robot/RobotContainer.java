@@ -230,21 +230,21 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return new SequentialCommandGroup(new SequentialCommandGroup(
-            new ConditionalCommand(new ElevatorHome(elevator),
-                new PrintCommand("Elevator disabled"),
-                () -> Toggles.useElevator),
-            new ConditionalCommand(new CoralIntakeHome(coralIntake),
-                new PrintCommand("CoralIntake disabled"),
-                () -> Toggles.useCoralIntake)
-        ), new AutoCommandFactory(drivetrain),//,
-            new AutoReef(drivetrain, visionSubsystem,
-                joystick, () -> FieldConstants.Side.RIGHT),
-            new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
-            Commands.race(new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
-                new CoralIntakeCommand(coralIntake, false)));
+//        return new SequentialCommandGroup(new SequentialCommandGroup(
+//            new ConditionalCommand(new ElevatorHome(elevator),
+//                new PrintCommand("Elevator disabled"),
+//                () -> Toggles.useElevator),
+//            new ConditionalCommand(new CoralIntakeHome(coralIntake),
+//                new PrintCommand("CoralIntake disabled"),
+//                () -> Toggles.useCoralIntake)
+//        ), new AutoCommandFactory(drivetrain),//,
+//            new AutoReef(drivetrain, visionSubsystem,
+//                joystick, () -> FieldConstants.Side.RIGHT),
+//            new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
+//            Commands.race(new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
+//                new CoralIntakeCommand(coralIntake, false)));
 //
-//        return Commands.print("hi");
+        return Commands.print("hi");
 
 
     }
