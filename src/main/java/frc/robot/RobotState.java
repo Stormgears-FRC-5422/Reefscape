@@ -43,6 +43,7 @@ public class RobotState extends SubsystemBase {
     private boolean elevatorHasBeenHomed = false;
     private boolean m_intakeWristHasBeenHomed = false;
     private ElevatorState elevatorState = ElevatorState.UNKNOWN;
+    private boolean isAligned = false;
 
     // Call createInstance from robotInit()
     public static RobotState createInstance() {
@@ -190,7 +191,7 @@ public class RobotState extends SubsystemBase {
                                     double timestampSeconds,
                                     Matrix<N3, N1> visionMeasurementStdDevs) {
     }
-    public boolean isTagDetected() {
+    public boolean isAprilTagDetected() {
         return LimelightHelpers.getTV(Constants.Vision.limelightID);
     }
     public void setYaw(double yaw) {
@@ -216,13 +217,12 @@ public class RobotState extends SubsystemBase {
         return m_isCoralSensorTriggered;
     }
 
-    // TODO: code this (Raghav)
-    public boolean isAprilTagDetected() {
-        return false;
-    }
 
     public boolean isAutonomousAligned(){
-        return false;
+        return isAligned;
+    }
+    public void setAligned (boolean aligned){
+        isAligned = aligned;
     }
 }
 
