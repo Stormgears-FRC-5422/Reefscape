@@ -22,7 +22,6 @@ import static edu.wpi.first.math.util.Units.degreesToRadians;
 
 public class VisionSubsystem extends StormSubsystem {
     private final RobotState robotState;
-    private final String limelightId;
     private LimelightHelpers.LimelightResults latestLimelightResults = null;
     private int count;
     private Pose2d poseTag;
@@ -34,23 +33,95 @@ public class VisionSubsystem extends StormSubsystem {
     public static double angularStdDevBaseline = 0.06; // Radians
     private static Rotation2d heading;
     StormLimelight limelightReef;
+    StormLimelight[] limelights;
 
-    public VisionSubsystem(String limelightId) {
-        this.limelightId = limelightId;
+    public VisionSubsystem(StormLimelight... stormLimelights) {
         LimelightHelpers.setLEDMode_PipelineControl("");
         LimelightHelpers.setLEDMode_ForceBlink("");
         robotState = RobotState.getInstance();
         count = 0;
         poseTag = new Pose2d(12.64, 4.75, new Rotation2d(120));
-        limelightReef = new StormLimelight(limelightId);
+        limelightReef = stormLimelights[0];
+        limelights = stormLimelights;
 
+    }
+
+    public Optional<LimelightHelpers.PoseEstimate> getMT2() {
+        if (getClosestLimelight().seesTag()) {
+            return getClosestLimelight().getMT2Pose();
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public StormLimelight getClosestLimelight() {
+        StormLimelight closestLimelight = null;
+        double minAvgDist = Double.MAX_VALUE;
+
+        for (StormLimelight limelight : limelights) {
+            if (limelight.seesTag()) {
+                double avgDist = limelight.getAvgDist();
+                if (avgDist < minAvgDist) {
+                    minAvgDist = avgDist;
+                    closestLimelight = limelight;
+                }
+            }
+        }
+
+        return closestLimelight;
+    }
+
+    public boolean seesTag() {
+        if (getClosestLimelight() != null) {
+            return getClosestLimelight().seesTag();
+        } else {
+            return false;
+        }
+    }
+
+    public double getAverageDistance() {
+        if (getClosestLimelight().seesTag()) {
+            return getClosestLimelight().getAvgDist();
+        } else {
+            return 0;
+        }
+
+    }
+
+    public void setGyro(double headingDegrees){
+        for (StormLimelight limelight : limelights) {
+            limelight.setGyroMeasurement(headingDegrees);
+        }
+    }
+
+    public int numOfTags() {
+        if (getClosestLimelight().seesTag()) {
+            return getClosestLimelight().tagsSeen();
+        } else {
+            return 0;
+        }
+    }
+
+    public int getBestTag() {
+        if (getClosestLimelight().seesTag()) {
+            return getClosestLimelight().getClosestTag();
+        } else {
+            return -1;
+        }
     }
 
 
     @Override
     public void periodic() {
         super.periodic();
-        limelightReef.setGyroMeasurement(heading.getDegrees());
+        setGyro(heading.getDegrees());
+        robotState.setTV(seesTag());
+        robotState.setIsVisionPoseValid(getMT2().isPresent());
+        robotState.setVisionPose(
+            getMT2().isPresent()
+                ? getMT2().get().pose
+                : null
+        );
         //LimelightHelpers.SetRobotOrientation("", robotState.getYaw(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
 //        System.out.println(LimelightHelpers.getRawFiducials(limelightId)[0].id);
@@ -69,12 +140,12 @@ public class VisionSubsystem extends StormSubsystem {
 //            LimelightHelpers.getTV("limelight"));
 
         boolean rejectPose = false;
-        if (limelightReef.getMT2Pose().isPresent()) {
+        if (getMT2().isPresent()) {
             rejectPose =
-                !LimelightHelpers.getTV(limelightId)
+                !seesTag()
 
-                    || limelightReef.getMT2Pose().get().pose.getX() < 0.0
-                    || limelightReef.getMT2Pose().get().pose.getY() < 0.0;
+                    || getMT2().get().pose.getX() < 0.0
+                    || getMT2().get().pose.getY() < 0.0;
 
 //            System.out.println("Empty? " + !LimelightHelpers.getTV(limelightId));
 
@@ -84,9 +155,9 @@ public class VisionSubsystem extends StormSubsystem {
 
             // uncertainty grows quadratically as robot is farther away
             // more tags seen uncertainty is less
-            if (limelightReef.seesTag()) {
-                stdDevFactor = Math.pow(limelightReef.getAvgDist(), 2.0) /
-                    limelightReef.tagsSeen();
+            if (seesTag()) {
+                stdDevFactor = Math.pow(getAverageDistance(), 2.0) /
+                    numOfTags();
             }
 //        linearStdDevBaseline and angularStdDevBaseline:
 //        base value for uncertainty then multiplied by factor above.
@@ -97,11 +168,11 @@ public class VisionSubsystem extends StormSubsystem {
             linearStdDev *= linearStdDevMegatag2Factor;
 //        MegaTag2 does not give rotation data (comes from gyro)
             angularStdDev *= angularStdDevMegatag2Factor;
-            if (limelightReef.getMT2Pose().isPresent()) {
-                robotState.addVisionMeasurments(limelightReef.getMT2Pose().get().pose,
-                    limelightReef.getMT2Pose().get().timestampSeconds,
+            if (getMT2().isPresent()) {
+                robotState.addVisionMeasurments(getMT2().get().pose,
+                    getMT2().get().timestampSeconds,
                     VecBuilder.fill(linearStdDev, linearStdDev, 1));
-                Logger.recordOutput("Vision/VisionPose", limelightReef.getMT2Pose().get().pose);
+                Logger.recordOutput("Vision/VisionPose", getMT2().get().pose);
             }
 
         } else {
@@ -109,23 +180,8 @@ public class VisionSubsystem extends StormSubsystem {
         }
     }
 
-    public double[] getCameraPose_TargetSpace() {
-        return LimelightHelpers.getCameraPose_TargetSpace(limelightId);
-    }
     public static void setHeading(Rotation2d rotation2d){
         heading = rotation2d;
-    }
-
-    public double getTX() {
-        return LimelightExtra.getTX(limelightId);
-    }
-
-    public double getTY() {
-        return LimelightExtra.getTY(limelightId);
-    }
-
-    public boolean getValid() {
-        return LimelightExtra.hasValidTarget(limelightId);
     }
 
 }

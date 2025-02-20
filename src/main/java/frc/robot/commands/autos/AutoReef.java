@@ -46,8 +46,8 @@ public class AutoReef extends StormCommand {
         if(side==null){
             System.out.println("side null?");
         }
-        if (LimelightHelpers.getTV(Constants.Vision.limelightID)) {
-            tagID = LimelightHelpers.getRawFiducials(Constants.Vision.limelightID)[0].id;
+        if (visionSubsystem.seesTag()) {
+            tagID = visionSubsystem.getBestTag();
         }
         if (tagID != -1) {
             System.out.println("AutoReef: April Tag Seen!");

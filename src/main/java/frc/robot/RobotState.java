@@ -44,6 +44,9 @@ public class RobotState extends SubsystemBase {
     private boolean m_intakeWristHasBeenHomed = false;
     private ElevatorState elevatorState = ElevatorState.UNKNOWN;
     private boolean isAligned = false;
+    private boolean isVisionPoseValid = false;
+    private Pose2d MT2Pose;
+    private boolean isAprilTagDetected;
 
     // Call createInstance from robotInit()
     public static RobotState createInstance() {
@@ -154,13 +157,18 @@ public class RobotState extends SubsystemBase {
     }
 
     public boolean isVisionPoseValid() {
-        return LimelightHelpers.getTV(Constants.Vision.limelightID);
+        return isVisionPoseValid;
+    }
+
+    public void setIsVisionPoseValid(boolean valid) {
+        isVisionPoseValid = valid;
     }
 
     public Pose2d getVisionPose() {
-//        Optional<LimelightHelpers.LimelightTarget_Fiducial> visionResult = vision.getLatestFiducialsTarget();
-//        return toPose2D(visionResult.map(limelightTarget_fiducial -> limelightTarget_fiducial.botpose_wpiblue).orElse(null));
-        return LimelightHelpers.getBotPose2d_wpiBlue(Constants.Vision.limelightID);
+        return MT2Pose;
+    }
+    public void setVisionPose(Pose2d pose){
+        MT2Pose = pose;
     }
 
     public void addVisionMeasurments(Pose2d visionRobotPoseMeters,
@@ -192,7 +200,10 @@ public class RobotState extends SubsystemBase {
                                     Matrix<N3, N1> visionMeasurementStdDevs) {
     }
     public boolean isAprilTagDetected() {
-        return LimelightHelpers.getTV(Constants.Vision.limelightID);
+        return isAprilTagDetected;
+    }
+    public void setTV(boolean tv) {
+        isAprilTagDetected = tv;
     }
     public void setYaw(double yaw) {
         yawDouble = yaw;

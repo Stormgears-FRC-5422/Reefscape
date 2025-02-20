@@ -28,7 +28,7 @@ public class StormLimelight {
         return Optional.empty();
     }
 
-    public double getDistance(int id) {
+    private double getDistance(int id) {
         Pose2d tagPose = FieldConstants.getPoseTag(id);
 
         Pose2d robotPose = robotState.getPose();
@@ -61,6 +61,14 @@ public class StormLimelight {
             return getRawFiducials().length;
         } else {
             return 0;
+        }
+    }
+
+    public int getClosestTag() {
+        if (seesTag()) {
+            return LimelightHelpers.getRawFiducials(limelightID)[0].id;
+        } else {
+            return -1;
         }
     }
 

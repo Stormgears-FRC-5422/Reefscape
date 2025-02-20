@@ -14,10 +14,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.JoyStickDrive;
-import frc.robot.commands.autos.AutoCommandFactory;
 import frc.robot.commands.autos.AutoReef;
 import frc.robot.commands.autos.AutoReefCommand;
-import frc.robot.commands.vision.CameraPose;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.*;
 import frc.robot.joysticks.IllegalJoystickTypeException;
@@ -32,9 +30,9 @@ import frc.robot.commands.ElevatorMoveToPosition;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.robot.Constants.Toggles;
+import frc.robot.subsystems.vision.StormLimelight;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import static java.util.Objects.isNull;
 
@@ -45,7 +43,6 @@ public class RobotContainer {
     private DrivetrainBase drivetrain;
     private VisionSubsystem visionSubsystem;
     private NavX navX;
-    private CameraPose cameraPose;
     private Lights lights;
     private Pigeon pigeon;
     // **********
@@ -87,6 +84,10 @@ public class RobotContainer {
     ElevatorMoveToPosition toLevel3;
     ElevatorMoveToPosition toLevel4;
 
+    //Limelights
+    StormLimelight[] limelights;
+    StormLimelight limelightReef;
+
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         console("constructor started");
@@ -114,7 +115,10 @@ public class RobotContainer {
         }
 
         if (Constants.Toggles.useVision) {
-            visionSubsystem = new VisionSubsystem(Constants.Vision.limelightID);
+            limelightReef = new StormLimelight(Constants.Vision.limelightID);
+            limelights = new StormLimelight[1];
+            limelights[0] = limelightReef;
+            visionSubsystem = new VisionSubsystem(limelights);
             //cameraPose = new CameraPose(visionSubsystem);
             //visionSubsystem.setDefaultCommand(cameraPose);
         }
