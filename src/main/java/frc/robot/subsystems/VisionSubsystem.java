@@ -46,46 +46,10 @@ public class VisionSubsystem extends StormSubsystem {
 
     }
 
-    private static Pose2d toPose2D(double[] inData) {
-        if (inData.length < 6) {
-            //System.err.println("Bad LL 2D Pose Data!");
-            return new Pose2d();
-        }
-        Translation2d tran2d = new Translation2d(inData[0], inData[1]);
-        Rotation2d r2d = new Rotation2d(degreesToRadians(inData[5]));
-//        AprilTagPoseEstimator estimator = new AprilTagPoseEstimator();
-        return new Pose2d(tran2d, r2d);
-    }
-
-    public LimelightHelpers.LimelightResults getLatestResults() {
-        if (latestLimelightResults == null) {
-            latestLimelightResults = LimelightHelpers.getLatestResults(limelightId);
-            count += 1;
-            if (count % 50 == 0) {
-                //    System.out.println("info : " + latestLimelightResults.);
-            }
-        }
-        return latestLimelightResults;
-    }
-
-
-    public Optional<LimelightHelpers.LimelightTarget_Fiducial[]> getLatestFiducialsTargets() {
-        var results = getLatestResults();
-        if (results == null) {
-            return Optional.empty();
-        }
-        var targetResult = results;
-        if (targetResult != null && targetResult.valid && targetResult.targets_Fiducials.length > 0) {
-            return Optional.of(targetResult.targets_Fiducials);
-        }
-        return Optional.empty();
-    }
-
 
     @Override
     public void periodic() {
         super.periodic();
-        getLatestResults();
         limelightReef.setGyroMeasurement(heading.getDegrees());
         //LimelightHelpers.SetRobotOrientation("", robotState.getYaw(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -120,7 +84,6 @@ public class VisionSubsystem extends StormSubsystem {
 
             // uncertainty grows quadratically as robot is farther away
             // more tags seen uncertainty is less
-            Optional<LimelightHelpers.LimelightTarget_Fiducial[]> fiducialTargetsOpt = getLatestFiducialsTargets();
             if (limelightReef.seesTag()) {
                 stdDevFactor = Math.pow(limelightReef.getAvgDist(), 2.0) /
                     limelightReef.tagsSeen();

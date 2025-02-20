@@ -18,7 +18,7 @@ public class StormLimelight {
     }
 
     public void setGyroMeasurement(double yaw) {
-        LimelightHelpers.SetRobotOrientation(limelightID, robotState.getYaw(), 0.0, 0.0, 0.0, 0.0, 0.0);
+        LimelightHelpers.SetRobotOrientation(limelightID, yaw, 0.0, 0.0, 0.0, 0.0, 0.0);
     }
 
     public Optional<LimelightHelpers.PoseEstimate> getMT2Pose() {
