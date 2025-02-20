@@ -20,6 +20,8 @@ import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
 
 import frc.robot.Constants.Toggles;
+import frc.robot.subsystems.stormnet.StormNet;
+
 import java.util.Optional;
 
 import static java.util.Objects.isNull;
@@ -31,6 +33,9 @@ public class RobotContainer {
     private CoralIntake coralIntake;
     private DrivetrainBase drivetrain;
     private VisionSubsystem visionSubsystem;
+
+    // Stormnet isn't quite a subsystem
+    private StormNet stormNet;
 
     // **********
     // Fields
@@ -61,6 +66,16 @@ public class RobotContainer {
 
         if (Toggles.useVision){
             visionSubsystem = new VisionSubsystem("limelight");
+        }
+
+        if (Toggles.useStormNet) {
+            console("Creating StormNet");
+            StormNet.init();
+            stormNet = StormNet.getInstance();
+            // TODO only in debug
+            stormNet.test();
+        } else {
+            console("NOT using StormNet");
         }
 
         // Note that this might pass a NULL drive if that is disabled. The JoyStick drive
