@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
+import frc.robot.subsystems.vision.StormLimelight;
 import frc.utils.StormSubsystem;
 import frc.utils.vision.LimelightExtra;
 import frc.utils.vision.LimelightHelpers;
@@ -32,6 +33,7 @@ public class VisionSubsystem extends StormSubsystem {
     public static double linearStdDevBaseline = 0.02; // Meters
     public static double angularStdDevBaseline = 0.06; // Radians
     private static Rotation2d heading;
+    StormLimelight limelightReef;
 
     public VisionSubsystem(String limelightId) {
         this.limelightId = limelightId;
@@ -40,6 +42,8 @@ public class VisionSubsystem extends StormSubsystem {
         robotState = RobotState.getInstance();
         count = 0;
         poseTag = new Pose2d(12.64, 4.75, new Rotation2d(120));
+        limelightReef = new StormLimelight(limelightId);
+
     }
 
     private static Pose2d toPose2D(double[] inData) {
@@ -64,67 +68,6 @@ public class VisionSubsystem extends StormSubsystem {
         return latestLimelightResults;
     }
 
-    public void addDetectorDashboardWidgets(ShuffleboardTab layout) {
-        layout.addBoolean("Target", () -> getLatestDetectorTarget().isPresent()).withPosition(0, 0);
-        layout.addDouble("Tx", () -> {
-            var optResults = getLatestDetectorTarget();
-            if (optResults.isPresent()) {
-                return optResults.get().tx;
-            }
-            return 0;
-        }).withPosition(0, 1);
-        layout.addDouble("Ty", () -> {
-            var optResults = getLatestDetectorTarget();
-            if (optResults.isPresent()) {
-                return optResults.get().ty;
-            }
-            return 0;
-        }).withPosition(0, 2);
-        layout.addString("Class", () -> {
-            var optResults = getLatestDetectorTarget();
-            if (optResults.isPresent()) {
-                return optResults.get().className;
-            }
-            return "";
-        }).withPosition(0, 3);
-    }
-
-    public Optional<LimelightHelpers.LimelightTarget_Detector> getLatestDetectorTarget() {
-        var results = getLatestResults();
-        var targetResult = results;
-//        System.out.println(results.valid);
-//        System.out.println(Arrays.toString(results.targets_Detector));
-//        System.out.println(results.targets_Detector.length);
-
-        if (targetResult != null && targetResult.valid && targetResult.targets_Detector.length > 0) {
-            return Optional.of(targetResult.targets_Detector[0]);
-        }
-        return Optional.empty();
-    }
-
-    public Optional<LimelightHelpers.LimelightTarget_Retro> getLatestRetroTarget() {
-        var results = getLatestResults();
-        if (results == null) {
-            return Optional.empty();
-        }
-        var targetResult = results;
-        if (targetResult != null && targetResult.valid && targetResult.targets_Retro.length > 0) {
-            return Optional.of(targetResult.targets_Retro[0]);
-        }
-        return Optional.empty();
-    }
-
-    public Optional<LimelightHelpers.LimelightTarget_Fiducial> getLatestFiducialsTarget() {
-        var results = getLatestResults();
-        if (results == null) {
-            return Optional.empty();
-        }
-        var targetResult = results;
-        if (targetResult != null && targetResult.valid && targetResult.targets_Fiducials.length > 0) {
-            return Optional.of(targetResult.targets_Fiducials[0]);
-        }
-        return Optional.empty();
-    }
 
     public Optional<LimelightHelpers.LimelightTarget_Fiducial[]> getLatestFiducialsTargets() {
         var results = getLatestResults();
@@ -138,41 +81,13 @@ public class VisionSubsystem extends StormSubsystem {
         return Optional.empty();
     }
 
-    public Optional<LimelightHelpers.PoseEstimate> getMT2PoseEstimate() {
-        var results = getLatestResults();
-        if (results == null) {
-            return Optional.empty();
-        }
-        var targetResult = results;
-        if (LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId) != null) {
-            return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId));
-        }
-        return Optional.empty();
-    }
-
-    public double getDistance(int id) {
-        Pose2d tagPose = FieldConstants.getPoseTag(id);
-
-        Pose2d robotPose = robotState.getPose();
-        return robotPose.minus(tagPose).getTranslation().getNorm();
-    }
-
-    public double getAvgDist() {
-        LimelightHelpers.RawFiducial[] rawFiducials = LimelightHelpers.getRawFiducials(limelightId);
-        double[] a = Arrays.stream(rawFiducials).mapToDouble(f -> f.id).toArray();
-        double[] distances = new double[a.length];
-        for (int index = 0; index < a.length; index++) {
-            distances[index] = getDistance((int) a[index]);
-        }
-        return Arrays.stream(distances).sum() / distances.length;
-    }
-
 
     @Override
     public void periodic() {
         super.periodic();
         getLatestResults();
-        LimelightHelpers.SetRobotOrientation("", robotState.getYaw(), 0.0, 0.0, 0.0, 0.0, 0.0);
+        limelightReef.setGyroMeasurement(heading.getDegrees());
+        //LimelightHelpers.SetRobotOrientation("", robotState.getYaw(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
 //        System.out.println(LimelightHelpers.getRawFiducials(limelightId)[0].id);
 //        System.out.println(getAvgDist());
@@ -190,12 +105,12 @@ public class VisionSubsystem extends StormSubsystem {
 //            LimelightHelpers.getTV("limelight"));
 
         boolean rejectPose = false;
-        if (getMT2PoseEstimate().isPresent()) {
+        if (limelightReef.getMT2Pose().isPresent()) {
             rejectPose =
                 !LimelightHelpers.getTV(limelightId)
 
-                    || getMT2PoseEstimate().get().pose.getX() < 0.0
-                    || getMT2PoseEstimate().get().pose.getY() < 0.0;
+                    || limelightReef.getMT2Pose().get().pose.getX() < 0.0
+                    || limelightReef.getMT2Pose().get().pose.getY() < 0.0;
 
 //            System.out.println("Empty? " + !LimelightHelpers.getTV(limelightId));
 
@@ -206,9 +121,9 @@ public class VisionSubsystem extends StormSubsystem {
             // uncertainty grows quadratically as robot is farther away
             // more tags seen uncertainty is less
             Optional<LimelightHelpers.LimelightTarget_Fiducial[]> fiducialTargetsOpt = getLatestFiducialsTargets();
-            if (fiducialTargetsOpt.isPresent()) {
-                stdDevFactor = Math.pow(getAvgDist(), 2.0) /
-                    fiducialTargetsOpt.get().length;
+            if (limelightReef.seesTag()) {
+                stdDevFactor = Math.pow(limelightReef.getAvgDist(), 2.0) /
+                    limelightReef.tagsSeen();
             }
 //        linearStdDevBaseline and angularStdDevBaseline:
 //        base value for uncertainty then multiplied by factor above.
@@ -219,11 +134,11 @@ public class VisionSubsystem extends StormSubsystem {
             linearStdDev *= linearStdDevMegatag2Factor;
 //        MegaTag2 does not give rotation data (comes from gyro)
             angularStdDev *= angularStdDevMegatag2Factor;
-            if (getMT2PoseEstimate().isPresent()) {
-                robotState.addVisionMeasurments(getMT2PoseEstimate().get().pose,
-                    getMT2PoseEstimate().get().timestampSeconds,
+            if (limelightReef.getMT2Pose().isPresent()) {
+                robotState.addVisionMeasurments(limelightReef.getMT2Pose().get().pose,
+                    limelightReef.getMT2Pose().get().timestampSeconds,
                     VecBuilder.fill(linearStdDev, linearStdDev, 1));
-                Logger.recordOutput("Vision/VisionPose", getMT2PoseEstimate().get().pose);
+                Logger.recordOutput("Vision/VisionPose", limelightReef.getMT2Pose().get().pose);
             }
 
         } else {

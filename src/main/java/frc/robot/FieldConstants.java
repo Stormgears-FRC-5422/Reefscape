@@ -20,6 +20,7 @@ public class FieldConstants {
 
     /**
      * Method should NOT be used directly in commands
+     * @param id the id of the tag
      */
     public static Pose2d getPoseTag(int id) {
         return switch (id) {
@@ -70,6 +71,11 @@ public class FieldConstants {
             default -> null;
         };
     }
+    /**
+     * Method should NOT be used directly in commands
+     * @param side the side of the reef
+     * @param id the id of the tag
+     */
     public static Pose2d getReefTargetPose(Side side, int id) {
         if ((id <= 11 && id >=6) || (id >= 17 && id <=22)) {
             if (side == Side.LEFT) {
@@ -81,11 +87,16 @@ public class FieldConstants {
             } else {
                 return null;
             }
-        } else if (id == 12 || id == 13 || id == 1 || id == 2) {
-            return getPoseTag(id).transformBy(new Transform2d(new Translation2d(0.5,0), new Rotation2d(Math.PI)));
         } else {
             return null;
         }
 
+    }
+    public Pose2d getStationTargetPose(int id){
+        if (id == 12 || id == 13 || id == 1 || id == 2) {
+            return getPoseTag(id).transformBy(new Transform2d(new Translation2d(0.5,0), new Rotation2d(Math.PI)));
+        } else {
+            return null;
+        }
     }
 }
