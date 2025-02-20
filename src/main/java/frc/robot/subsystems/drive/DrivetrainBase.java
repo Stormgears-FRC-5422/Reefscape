@@ -49,8 +49,8 @@ public abstract class DrivetrainBase extends StormSubsystem {
     protected void setMaxVelocities(double maxVelocityMetersPerSecond, double maxAngularVelocityRadiansPerSecond) {
         m_maxVelocityMetersPerSecond = maxVelocityMetersPerSecond;
         m_maxAngularVelocityRadiansPerSecond = maxAngularVelocityRadiansPerSecond;
-        System.out.println("MaxDRIVEVal: " + m_maxVelocityMetersPerSecond);
-        System.out.println("MaxANgleVal: " + m_maxAngularVelocityRadiansPerSecond);
+        System.out.println("MaxDriveVelocity: " + m_maxVelocityMetersPerSecond);
+        System.out.println("MaxAngularVelocity: " + m_maxAngularVelocityRadiansPerSecond);
     }
 
     // Be careful scaling ChassisSpeeds. Need to scale X and Y the same or your robot will move in the wrong direction!

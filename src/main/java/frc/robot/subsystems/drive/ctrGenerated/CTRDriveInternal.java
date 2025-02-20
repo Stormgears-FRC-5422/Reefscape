@@ -16,8 +16,11 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.subsystems.drive.ctrGenerated.CTRDriveTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.Constants;
+import frc.robot.RobotState;
+import frc.robot.subsystems.drive.ctrGenerated.CrescendoTunerConstants.TunerSwerveDrivetrain;
 
+import java.sql.Driver;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Second;
@@ -27,7 +30,8 @@ import static edu.wpi.first.units.Units.Volts;
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
  * Subsystem so it can easily be used in command-based projects.
  */
-public class CTRDriveCommand extends TunerSwerveDrivetrain implements Subsystem {
+public class CTRDriveInternal extends TunerSwerveDrivetrain implements Subsystem {
+    private RobotState robotState;
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
@@ -116,11 +120,13 @@ public class CTRDriveCommand extends TunerSwerveDrivetrain implements Subsystem 
      * @param drivetrainConstants   Drivetrain-wide constants for the swerve drive
      * @param modules               Constants for each specific module
      */
-    public CTRDriveCommand(
+    public CTRDriveInternal(
         SwerveDrivetrainConstants drivetrainConstants,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
         super(drivetrainConstants, modules);
+
+        robotState = RobotState.getInstance();
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -139,7 +145,7 @@ public class CTRDriveCommand extends TunerSwerveDrivetrain implements Subsystem 
      *                                CAN FD, and 100 Hz on CAN 2.0.
      * @param modules                 Constants for each specific module
      */
-    public CTRDriveCommand(
+    public CTRDriveInternal(
         SwerveDrivetrainConstants drivetrainConstants,
         double odometryUpdateFrequency,
         SwerveModuleConstants<?, ?, ?>... modules
@@ -169,7 +175,7 @@ public class CTRDriveCommand extends TunerSwerveDrivetrain implements Subsystem 
      *                                  and radians
      * @param modules                   Constants for each specific module
      */
-    public CTRDriveCommand(
+    public CTRDriveInternal(
         SwerveDrivetrainConstants drivetrainConstants,
         double odometryUpdateFrequency,
         Matrix<N3, N1> odometryStandardDeviation,
@@ -224,14 +230,25 @@ public class CTRDriveCommand extends TunerSwerveDrivetrain implements Subsystem 
          * This ensures driving behavior doesn't change until an explicit disable event occurs during testing.
          */
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
-            DriverStation.getAlliance().ifPresent(allianceColor -> {
-                setOperatorPerspectiveForward(
-                    allianceColor == Alliance.Red
+            if (!Constants.Debug.debug || Constants.Debug.defaultAlliance.toLowerCase().equals("auto")) {
+                // Use DriverStation-provided alliance unless debug is forcing an override
+                DriverStation.getAlliance().ifPresent(allianceColor -> {
+                    Rotation2d perspective = allianceColor == Alliance.Red
                         ? kRedAlliancePerspectiveRotation
-                        : kBlueAlliancePerspectiveRotation
-                );
+                        : kBlueAlliancePerspectiveRotation;
+                    setOperatorPerspectiveForward(perspective);
+                    m_hasAppliedOperatorPerspective = true;
+//                    System.out.println("CTRDriveInternal: auto setting alliance perspective to " + perspective);
+                });
+            } else {
+                // Debug override: Set perspective based on the configured robot state
+                Rotation2d perspective = robotState.isAllianceBlue()
+                    ? kBlueAlliancePerspectiveRotation
+                    : kRedAlliancePerspectiveRotation;
+                setOperatorPerspectiveForward(perspective);
                 m_hasAppliedOperatorPerspective = true;
-            });
+//                System.out.println("CTRDriveInternal: forcing alliance perspective to " + perspective);
+            }
         }
     }
 

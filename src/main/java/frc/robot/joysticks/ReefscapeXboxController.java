@@ -48,4 +48,30 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
     public boolean coralOuttake(){
         return XboxController.getBButtonIsHeld();
     }
+
+    // TODO: Uncomment after week 0, uses same buttons as diagnostic elevator
+    /*
+    @Override
+    public boolean algaeIntake(){
+        return XboxController.getYButtonIsHeld();
+    }
+
+    @Override
+    public boolean algaeOuttake(){
+        return XboxController.getAButtonIsHeld();
+    }
+     */
+
+    @Override
+    public boolean elevatorDown(){
+        return XboxController.getAButtonIsHeld();
+    }
+
+    @Override
+    public boolean elevatorUp(){
+        return XboxController.getYButtonIsHeld();
+    }
+
+    @Override
+    public boolean elevatorTestPid() { return XboxController.getRightLittleButtonIsHeld(); }
 }
