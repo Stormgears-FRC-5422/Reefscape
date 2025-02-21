@@ -66,6 +66,7 @@ public class AutoAlign extends StormCommand {
 
     @Override
     public void initialize() {
+        robotState.setAligned(false);
         timer.restart();
         goalPose = () -> {
             double linearMagnitude = MathUtil.applyDeadband(Math.hypot(joystick.getWpiX(),
@@ -173,6 +174,10 @@ public class AutoAlign extends StormCommand {
     public boolean isFinished() {
         return (translationPID.atGoal() && thetaController.atGoal()) ||
             (timer.get()>4);
+    }
+
+    public void end() {
+        robotState.setAligned(translationPID.atGoal() && thetaController.atGoal());
     }
 
 

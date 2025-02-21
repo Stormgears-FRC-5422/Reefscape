@@ -19,6 +19,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.drive.AKdrive.AKDriveInternal;
 import frc.utils.vision.LimelightHelpers;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -112,5 +114,15 @@ public class AKDriveTrain extends DrivetrainBase {
         driveInternal.periodic();
 
         m_state.setPose(getPose());
+    }
+
+    @Override
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return driveInternal.sysIdQuasistatic(direction);
+    }
+
+    @Override
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return driveInternal.sysIdDynamic(direction);
     }
 }

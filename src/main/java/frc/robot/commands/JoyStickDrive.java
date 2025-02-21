@@ -55,8 +55,8 @@ public class JoyStickDrive extends StormCommand {
         robotRelativeSupplier = joystick::getRobotRelative;
         turboSupplier = joystick::getTurbo;
 
-        ShuffleboardConstants.getInstance().drivetrainTab.add("Drive direction",
-            robotRelativeSupplier.getAsBoolean() ? "Robot Orientation" : "Field Orientation");
+//        ShuffleboardConstants.getInstance().drivetrainTab.add("Drive direction",
+//            robotRelativeSupplier.getAsBoolean() ? "Robot Orientation" : "Field Orientation");
     }
 
     @Override
@@ -116,7 +116,7 @@ public class JoyStickDrive extends StormCommand {
         } else {
             speeds = new ChassisSpeeds(x, y, omega);
         }
-
+        Logger.recordOutput("joy stick speeds", speeds);
         drivetrain.percentOutputDrive(speeds, fieldRelative);
     }
 }

@@ -42,13 +42,14 @@ public class Lights extends StormSubsystem {
     Color DARKGREEN_COLOR = scaleColor(Color.kDarkGreen, Constants.Lights.brightness);
     Color YELLOW_COLOR = scaleColor(Color.kYellow, Constants.Lights.brightness);
     Color LIGHTYELLOW_COLOR = scaleColor(Color.kLightYellow, Constants.Lights.brightness);
+    Color PINK_COLOR = scaleColor(Color.kHotPink, Constants.Lights.brightness);
 
     Color NO_ALLIANCE_COLOR = WHITE_COLOR;
     Color TAG_DETECTED_COLOR = YELLOW_COLOR;
     Color SENSOR_TRIGGERED_COLOR = DARKGREEN_COLOR;
     Color AUTONOMOUS_ALIGNED_COLOR = GREEN_COLOR;
     Color ELEVATOR_HOMED_COLOR = LIGHTYELLOW_COLOR;
-    Color ELEVATOR_HOLD_COLOR = GREEN_COLOR;
+    Color ELEVATOR_HOLD_COLOR = PINK_COLOR;
 
     public Lights() {
         m_led = new AddressableLED(Constants.Lights.ledPort);
@@ -154,7 +155,6 @@ public class Lights extends StormSubsystem {
         // Modify top view of strip based on elevator status
         isElevatorHomed();
         isElevatorMoving();
-        isElevatorOnHoldAtPosition();
     }
 
     public void isElevatorHomed() {
@@ -167,8 +167,7 @@ public class Lights extends StormSubsystem {
 
     public void isElevatorMoving() {
         if (m_robotState.getElevatorState().equals(Elevator.ElevatorState.SIMPLE_MOTION)
-        || m_robotState.getElevatorState().equals(Elevator.ElevatorState.PID_MOTION)
-        || m_robotState.getElevatorState().equals(Elevator.ElevatorState.HOMING)) {
+        || m_robotState.getElevatorState().equals(Elevator.ElevatorState.PID_MOTION)) {
             setRainbow();
         }
     }

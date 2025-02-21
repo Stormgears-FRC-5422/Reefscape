@@ -133,4 +133,14 @@ public class CTRDrivetrain extends DrivetrainBase {
             driveInternal.setControl(driveRobotCentric.withVelocityX(m_chassisSpeeds.vxMetersPerSecond).withVelocityY(m_chassisSpeeds.vyMetersPerSecond).withRotationalRate(m_chassisSpeeds.omegaRadiansPerSecond));
         }
     }
+
+    @Override
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return driveInternal.sysIdQuasistatic(direction);
+    }
+
+    @Override
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return driveInternal.sysIdDynamic(direction);
+    }
 }
