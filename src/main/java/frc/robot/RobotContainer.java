@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.JoyStickDrive;
+import frc.robot.commands.autos.AutoCommandFactory;
 import frc.robot.commands.autos.AutoReef;
 import frc.robot.commands.autos.AutoReefCommand;
 import edu.wpi.first.wpilibj2.command.*;
@@ -234,23 +235,29 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-//        return new SequentialCommandGroup(new SequentialCommandGroup(
-//            new ConditionalCommand(new ElevatorHome(elevator),
-//                new PrintCommand("Elevator disabled"),
-//                () -> Toggles.useElevator),
-//            new ConditionalCommand(new CoralIntakeHome(coralIntake),
-//                new PrintCommand("CoralIntake disabled"),
-//                () -> Toggles.useCoralIntake)
-//        ), new AutoCommandFactory(drivetrain),//,
-//            new AutoReef(drivetrain, visionSubsystem,
-//                joystick, () -> FieldConstants.Side.RIGHT),
-//            new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
-//            Commands.race(new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
-//                new CoralIntakeCommand(coralIntake, false)));
-//
-        return Commands.print("hi");
-
-
+        return new SequentialCommandGroup(
+            new PrintCommand("Homing and drive started"),
+            new ParallelCommandGroup(
+                new ConditionalCommand(
+                    new ElevatorHome(elevator),
+                    new PrintCommand("Elevator disabled"),
+                    () -> Toggles.useElevator
+                ),
+                new ConditionalCommand(
+                    new CoralIntakeHome(coralIntake),
+                    new PrintCommand("CoralIntake disabled"),
+                    () -> Toggles.useCoralIntake
+                ),
+                new AutoCommandFactory(drivetrain)
+            ),
+            new PrintCommand("Homing and drive ended"),
+            new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT),
+            new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
+            Commands.race(
+                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
+                new CoralIntakeCommand(coralIntake, false)
+            )
+        );
     }
 
     public void configJoysticks() throws IllegalJoystickTypeException {
