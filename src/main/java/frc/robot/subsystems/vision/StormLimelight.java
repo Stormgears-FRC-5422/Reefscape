@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class StormLimelight {
-    String limelightID;
+    public String limelightID;
     RobotState robotState;
 
     public StormLimelight(String limelightID) {
@@ -70,6 +70,10 @@ public class StormLimelight {
         } else {
             return -1;
         }
+    }
+
+    public String getLimelightID(){
+        return limelightID;
     }
 
 }

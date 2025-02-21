@@ -31,6 +31,7 @@ import frc.robot.commands.ElevatorMoveToPosition;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorLevel;
 import frc.robot.Constants.Toggles;
+import frc.robot.subsystems.vision.CameraConstants;
 import frc.robot.subsystems.vision.StormLimelight;
 
 import java.util.Optional;
@@ -89,6 +90,7 @@ public class RobotContainer {
     //Limelights
     StormLimelight[] limelights;
     StormLimelight limelightReef;
+    StormLimelight limelightStation;
 
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
@@ -117,12 +119,11 @@ public class RobotContainer {
         }
 
         if (Constants.Toggles.useVision) {
-            limelightReef = new StormLimelight(Constants.Vision.limelightID);
-            limelights = new StormLimelight[1];
-            limelights[0] = limelightReef;
+//            limelightReef = new StormLimelight(Constants.Vision.limelightID);
+//            limelightStation = new StormLimelight("limelight-station");
+            limelights = CameraConstants.getReefscapeLimelights();
             visionSubsystem = new VisionSubsystem(limelights);
-            //cameraPose = new CameraPose(visionSubsystem);
-            //visionSubsystem.setDefaultCommand(cameraPose);
+//            visionSubsystem = new VisionSubsystem(limelightReef, limelightStation)
         }
         if (Constants.Toggles.useColorSensor) {
             colorSensor = new ColorSensor();
@@ -196,7 +197,7 @@ public class RobotContainer {
 //            new Trigger(() -> joystick.coralIntake()).onTrue(coralIntakeCommand);
 //            new Trigger(() -> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
         if (Toggles.useDrive) {
-        
+
             new Trigger(() -> joystick.coralIntake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
             new Trigger(() -> joystick.coralOuttake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
             new Trigger(() -> joystick.zeroWheels()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));

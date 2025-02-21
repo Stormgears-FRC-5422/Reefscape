@@ -32,7 +32,12 @@ public class Climber extends StormSubsystem {
             setSpeed(-0.5);
         }
     }
-    //Fix later
+
+    public void setState(ClimberState state) {
+        currentState = state;
+    }
+    
+    // Fix later
     @Override
     public void periodic() {
         super.periodic();

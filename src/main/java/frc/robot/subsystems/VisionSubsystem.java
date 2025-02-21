@@ -110,6 +110,25 @@ public class VisionSubsystem extends StormSubsystem {
         }
     }
 
+    public StormLimelight getLimelightFromID(String id) {
+        StormLimelight targetLL = null;
+        for (StormLimelight limelight : limelights) {
+            if (limelight.limelightID.equals(id)) {
+                targetLL = limelight;
+            }
+        }
+        return targetLL;
+    }
+
+    public StormLimelight getLimelightFromIndex(int index) {
+        try {
+            return limelights[index];
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+
 
     @Override
     public void periodic() {
