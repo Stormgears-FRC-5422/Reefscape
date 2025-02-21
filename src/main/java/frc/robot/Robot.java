@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -138,11 +139,35 @@ public class Robot extends LoggedRobot {
                 robotContainer.updateAlliance();
             }
         }
+        if(!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
+            try {
+                robotContainer.configJoysticks();
+            } catch (IllegalJoystickTypeException e) {
+                console("disabledPeriodic: Error configuring Joystick and button board" + e.getMessage());
+            }
+        }
     }
 
     @Override
     public void disabledExit() {
         console("DisabledExit");
+    }
+
+    private boolean isAllJoyStickAndButtonBoardConnected() {
+        return DriverStation.isJoystickConnected(Constants.ButtonBoard.driveJoystickPort) &&
+               DriverStation.isJoystickConnected(Constants.ButtonBoard.buttonBoardPort1);
+    }
+
+    @Override
+    public void driverStationConnected() {
+        super.driverStationConnected();
+        if(!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
+            try {
+                robotContainer.configJoysticks();
+            } catch (IllegalJoystickTypeException e) {
+                console("driverStationConnected: Error configuring Joystick and button board" + e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -151,14 +176,7 @@ public class Robot extends LoggedRobot {
         state.setPeriod(StatePeriod.AUTONOMOUS);
         if (robotContainer != null) {
             robotContainer.updateAlliance();
-            try {
-                robotContainer.configJoysticks();
-            } catch (IllegalJoystickTypeException e) {
-                throw new RuntimeException(e);
-            }
             autonomousCommand = robotContainer.getAutonomousCommand();
-
-
         }
 
         if (autonomousCommand != null) {

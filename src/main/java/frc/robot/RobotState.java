@@ -44,6 +44,8 @@ public class RobotState extends SubsystemBase {
     private boolean m_intakeWristHasBeenHomed = false;
     private ElevatorState elevatorState = ElevatorState.UNKNOWN;
 
+    private boolean m_joystickAndButtonBoardConfigured = false;
+
     // Call createInstance from robotInit()
     public static RobotState createInstance() {
         if (m_instance != null) return m_instance;
@@ -68,6 +70,14 @@ public class RobotState extends SubsystemBase {
         } else { // basic simulation
             m_simMode = StateSimMode.SIMULATION;            ;
         }
+    }
+
+    public boolean isJoystickAndButtonBoardConfigured() {
+        return m_joystickAndButtonBoardConfigured;
+    }
+
+    public void setJoystickAndButtonBoardConfigured(boolean state) {
+        m_joystickAndButtonBoardConfigured=state;
     }
 
     public StateSimMode getSimMode() {

@@ -243,20 +243,22 @@ public class RobotContainer {
 
 
     }
-    public void configJoysticks() throws IllegalJoystickTypeException {if (Toggles.useController) {
-        console("Making drive joystick!");
-        joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick,
-            Constants.ButtonBoard.driveJoystickPort);
 
-        configureBindings();
+    public void configJoysticks() throws IllegalJoystickTypeException {
+        if (Toggles.useController) {
+            console("Making drive joystick!");
+            joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick,
+                Constants.ButtonBoard.driveJoystickPort);
 
-        // Note that this might pass a NULL drive if that is disabled. The JoyStick drive
-        // will still work in this case, just not move the robot.
-        JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
-        if (!isNull(drivetrain)) {
-            drivetrain.setDefaultCommand(driveWithJoystick);
+            configureBindings();
+
+            // Note that this might pass a NULL drive if that is disabled. The JoyStick drive
+            // will still work in this case, just not move the robot.
+            JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
+            if (!isNull(drivetrain)) {
+                drivetrain.setDefaultCommand(driveWithJoystick);
+            }
         }
-    }
 
 
         if (Toggles.useButtonBoard) {
@@ -269,7 +271,9 @@ public class RobotContainer {
                 manualElevator = new ElevatorManual(elevator, buttonBoard);
                 elevator.setDefaultCommand(manualElevator);
             }
-        }}
+        }
+        robotState.setJoystickAndButtonBoardConfigured(true);
+    }
 
     private void configureButtonBoardBindings() {
         console("configure button board bindings");
