@@ -1,11 +1,15 @@
 package frc.robot.subsystems.drive;
 
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,6 +18,7 @@ import frc.robot.RobotState;
 import frc.robot.subsystems.drive.ctrGenerated.CTRDriveInternal;
 import frc.robot.subsystems.drive.ctrGenerated.Telemetry;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -123,6 +128,17 @@ public class CTRDrivetrain extends DrivetrainBase {
         super.periodic();
         driveInternal.periodic();
 
+        SwerveModule[] swerveModules = driveInternal.getModules();
+        for (int i =0; i<swerveModules.length; i++){
+            Logger.recordOutput("steer current " + i, swerveModules[i].getSteerMotor().getTorqueCurrent().getValue());
+//            Logger.recordOutput("steer current " + i, swerveModules[i].getSteerMotor().getStatorCurrent().getValue());
+//            Logger.recordOutput("steer current supply " + i, swerveModules[i].getSteerMotor().getSupplyCurrent().getValue());
+
+//            swerveModules[i].getSteerMotor().setControl(new TorqueCurrentFOC(8));
+//            swerveModules[i].getSteerMotor().setControl(new VoltageOut(5));
+        }
+
+
         if (m_state.getPeriod() == RobotState.StatePeriod.AUTONOMOUS) {
             console("in CTRDrive chassisSpeeds: " + m_chassisSpeeds, 100);
         }
@@ -132,6 +148,15 @@ public class CTRDrivetrain extends DrivetrainBase {
         } else {
             driveInternal.setControl(driveRobotCentric.withVelocityX(m_chassisSpeeds.vxMetersPerSecond).withVelocityY(m_chassisSpeeds.vyMetersPerSecond).withRotationalRate(m_chassisSpeeds.omegaRadiansPerSecond));
         }
+
+        SwerveModuleState[] moduleTargetStates = driveInternal.getState().ModuleTargets;
+        SwerveModuleState[] moduleStates = driveInternal.getState().ModuleStates;
+        for (int i = 0; i< moduleTargetStates.length; i++){
+            Logger.recordOutput("Drive/Module States " + i, moduleStates[i]);
+            Logger.recordOutput("Drive/Module Target " + i, moduleTargetStates[i]);
+            Logger.recordOutput("Drive/measuredAngle " + i, MathUtil.angleModulus(moduleStates[i].angle.getRadians()));
+        }
+
     }
 
     @Override

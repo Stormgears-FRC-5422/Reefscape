@@ -28,6 +28,7 @@ public class DrivetrainFactory {
             case "ctrreefscape" -> ReefscapeTunerConstants.class;
             case "ctrreeftorque" -> ReefscapeTorqueTunerConstants.class;
             case "ctrnovak" -> NovakTunerConstants.class;
+            case "ctrreeftorqueak" -> ReefscapeTorqueAKTunerConstants.class;
             default -> throw new IllegalDriveTypeException("Illegal Drive subtype: " + subtype);
         };
     }

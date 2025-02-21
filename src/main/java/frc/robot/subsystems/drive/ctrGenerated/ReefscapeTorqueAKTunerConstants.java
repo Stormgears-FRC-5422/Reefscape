@@ -29,7 +29,7 @@ public class ReefscapeTorqueAKTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     private static final Slot0Configs FLsteerGains = new Slot0Configs()
-        .withKP(0.0).withKI(0.0).withKD(0.0)
+        .withKP(94).withKI(0.0).withKD(6.15)
         .withKS(0.1).withKV(2.66).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     //    kv 2.66 ks 0.1
@@ -41,7 +41,7 @@ public class ReefscapeTorqueAKTunerConstants {
         .withKS(0.18868).withKV(0.88504);
 
     private static final Slot0Configs FRsteerGains = new Slot0Configs()
-        .withKP(93.5).withKI(0.0).withKD(6.5)
+        .withKP(97).withKI(0.0).withKD(4.5)
         .withKS(0.1).withKV(2.66).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     //    kv 2.66 ks 0.1
@@ -276,7 +276,7 @@ public class ReefscapeTorqueAKTunerConstants {
     private static final int kBackRightDriveMotorId = 31;
     private static final int kBackRightSteerMotorId = 30;
     private static final int kBackRightEncoderId = 3;
-    private static final Angle kBackRightEncoderOffset = Rotations.of(0.083740234375);
+    private static final Angle kBackRightEncoderOffset = Rotations.of(-0.2900390625);
     private static final boolean kBackRightSteerMotorInverted = true;
     private static final boolean kBackRightEncoderInverted = false;
 
