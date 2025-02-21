@@ -46,6 +46,7 @@ public class RobotContainer {
     private NavX navX;
     private Lights lights;
     private Pigeon pigeon;
+    private Climber climber;
     // **********
     // Fields
     // **********
@@ -155,6 +156,10 @@ public class RobotContainer {
             autoProcessorCommand = new AutoProcessorCommand();
         }
 
+        if (Toggles.useClimber) {
+            climber = new Climber();
+        }
+
 //        if (Toggles.useController) {
 //            console("Making drive joystick!");
 //            joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick,
@@ -190,10 +195,13 @@ public class RobotContainer {
 //        if (Constants.Toggles.useCoralIntake) {
 //            new Trigger(() -> joystick.coralIntake()).onTrue(coralIntakeCommand);
 //            new Trigger(() -> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
+        if (Toggles.useDrive) {
+        
             new Trigger(() -> joystick.coralIntake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        new Trigger(() -> joystick.coralOuttake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+            new Trigger(() -> joystick.coralOuttake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
             new Trigger(() -> joystick.zeroWheels()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
             new Trigger(() -> joystick.autoReef()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        }
 
 //        }
         if (Toggles.useDrive && Toggles.useVision) {
