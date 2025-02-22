@@ -193,6 +193,8 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        console("Configuring Joystick bindings");
+
 //        if (Constants.Toggles.useCoralIntake) {
 //            new Trigger(() -> joystick.coralIntake()).onTrue(coralIntakeCommand);
 //            new Trigger(() -> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
@@ -287,7 +289,7 @@ public class RobotContainer {
 
 
         if (Toggles.useButtonBoard) {
-            console("Making button board!");
+            console("Making Button Board!");
             buttonBoard = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.buttonBoard,
                 Constants.ButtonBoard.buttonBoardPort1);
             configureButtonBoardBindings();
@@ -300,7 +302,7 @@ public class RobotContainer {
     }
 
     private void configureButtonBoardBindings() {
-        console("configure button board bindings");
+        console("Configuring button board bindings");
 
         if (Toggles.useCoralIntake) {
             new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand);
