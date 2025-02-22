@@ -22,6 +22,7 @@ public class Lights extends StormSubsystem {
     private AddressableLEDBufferView m_left_bottom;
     private AddressableLEDBufferView m_right_top;
     private AddressableLEDBufferView m_right_bottom;
+    private AddressableLEDBufferView m_middle;
 
     // Patterns
     private LEDPattern defaultPattern;
@@ -106,6 +107,7 @@ public class Lights extends StormSubsystem {
         m_left_bottom = m_ledBuffer.createView(Constants.Lights.leftBottomViewStart, Constants.Lights.leftBottomViewEnd);
         m_right_top = m_ledBuffer.createView(Constants.Lights.rightTopViewStart, Constants.Lights.rightTopViewEnd);
         m_right_bottom = m_ledBuffer.createView(Constants.Lights.rightBottomViewStart, Constants.Lights.rightBottomViewEnd);
+        m_middle = m_ledBuffer.createView(Constants.Lights.middleViewStart, Constants.Lights.middleViewEnd);
     }
 
     public void setRainbow() {
@@ -140,20 +142,18 @@ public class Lights extends StormSubsystem {
         // Modify bottom view of strip based on alignment status
         if (m_robotState.isAprilTagDetected()) {
             LEDPattern pattern = LEDPattern.solid(TAG_DETECTED_COLOR);
-            pattern.applyTo(m_left_bottom);
-            pattern.applyTo(m_right_bottom);
+            pattern.applyTo(m_middle);
         }
 
         if (m_robotState.isAutonomousAligned()) {
             LEDPattern pattern = LEDPattern.solid(AUTONOMOUS_ALIGNED_COLOR);
-            pattern.applyTo(m_left_bottom);
-            pattern.applyTo(m_right_bottom);
+            pattern.applyTo(m_middle);
         }
     }
 
     public void setElevatorStatus() {
         // Modify top view of strip based on elevator status
-        isElevatorHomed();
+        // isElevatorHomed();
         isElevatorMoving();
     }
 
