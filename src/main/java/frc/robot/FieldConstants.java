@@ -11,7 +11,7 @@ import org.littletonrobotics.junction.Logger;
 import static frc.utils.Conversions.inchesToMeters;
 
 public class FieldConstants {
-    public static boolean isAndyMark = false;
+    public static boolean isAndyMark = true;
 
     public enum Side {
         LEFT, RIGHT
@@ -80,10 +80,10 @@ public class FieldConstants {
         if ((id <= 11 && id >=6) || (id >= 17 && id <=22)) {
             if (side == Side.LEFT) {
                 Logger.recordOutput("apriTagPose", getPoseTag(id));
-                return getPoseTag(id).transformBy(new Transform2d(new Translation2d(0.5, -0.1978), new Rotation2d(Math.PI)));
+                return getPoseTag(id).transformBy(new Transform2d(new Translation2d(0.5, -inchesToMeters(5.5)), new Rotation2d(Math.PI)));
             } else if (side == Side.RIGHT) {
                 Logger.recordOutput("apriTagPose", getPoseTag(id));
-                return getPoseTag(id).transformBy(new Transform2d(new Translation2d(0.5, 0.1978), new Rotation2d(Math.PI)));
+                return getPoseTag(id).transformBy(new Transform2d(new Translation2d(0.5, inchesToMeters(5.5)), new Rotation2d(Math.PI)));
             } else {
                 return null;
             }

@@ -98,22 +98,24 @@ public class AKDriveTrain extends DrivetrainBase {
     public void periodic() {
         super.periodic();
 
-        if (m_state.getVisionMeasurments() != null) {
-            double tRadians = m_state.getVisionMeasurments().visionRobotPoseMeters().getRotation().getRadians();
-            Pose2d tempPose = new Pose2d(m_state.getVisionMeasurments().visionRobotPoseMeters().getTranslation(),
-                new Rotation2d(tRadians));
-
-//          console(m_state.getVisionMeasurements().visionRobotPoseMeters().getRotation(),25);
-            addVisionMeasurement(tempPose,
-                m_state.getVisionMeasurments().timestampSeconds(),
-                m_state.getVisionMeasurments().visionMeasurementStdDevs());
-        }
 
         driveInternal.setChassisSpeeds(m_chassisSpeeds);
         driveInternal.runVelocity(m_chassisSpeeds);
         driveInternal.periodic();
 
         m_state.setPose(getPose());
+
+        if (m_state.getVisionMeasurments() != null) {
+            double tRadians = driveInternal.getRotation().getRadians();
+            Pose2d tempPose = new Pose2d(m_state.getVisionMeasurments().visionRobotPoseMeters().getTranslation(),
+                m_state.getVisionMeasurments().visionRobotPoseMeters().getRotation());
+//            System.out.println( m_state.getVisionMeasurments().visionMeasurementStdDevs());
+
+//          console(m_state.getVisionMeasurements().visionRobotPoseMeters().getRotation(),25);
+            addVisionMeasurement(tempPose,
+                m_state.getVisionMeasurments().timestampSeconds(),
+                m_state.getVisionMeasurments().visionMeasurementStdDevs());
+        }
     }
 
     @Override

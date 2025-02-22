@@ -183,11 +183,11 @@ public class Robot extends LoggedRobot {
         state.setPeriod(StatePeriod.AUTONOMOUS);
         if (robotContainer != null) {
             autonomousCommand = robotContainer.getAutonomousCommand();
-            try {
-                robotContainer.configJoysticks();
-            } catch (IllegalJoystickTypeException e) {
-                throw new RuntimeException(e);
-            }
+//            try {
+//                robotContainer.configJoysticks();
+//            } catch (IllegalJoystickTypeException e) {
+//                throw new RuntimeException(e);
+//            }
 
         }
 

@@ -35,6 +35,7 @@ public class VisionSubsystem extends StormSubsystem {
     private static Rotation2d heading;
     StormLimelight limelightReef;
     StormLimelight[] limelights;
+    static Pose2d estimatorPose;
 
     public VisionSubsystem(StormLimelight... stormLimelights) {
         LimelightHelpers.setLEDMode_PipelineControl("");
@@ -88,7 +89,7 @@ public class VisionSubsystem extends StormSubsystem {
     private double getDistance(int id) {
         Pose2d tagPose = FieldConstants.getPoseTag(id);
 
-        Pose2d robotPose = robotState.getPose();
+        Pose2d robotPose = estimatorPose;
         return robotPose.minus(tagPose).getTranslation().getNorm();
     }
 
@@ -98,16 +99,21 @@ public class VisionSubsystem extends StormSubsystem {
 //        } else {
 //            return 0;
 //        }
-        LimelightHelpers.RawFiducial[] rawFiducials = LimelightHelpers.getRawFiducials(limelightID);
-        double[] a = Arrays.stream(rawFiducials).mapToDouble(f -> f.id).toArray();
-        double[] distances = new double[a.length];
-        if (a.length == 0) {
+        if (estimatorPose != null && LimelightHelpers.getRawFiducials(limelightID) !=null) {
+            LimelightHelpers.RawFiducial[] rawFiducials = LimelightHelpers.getRawFiducials(limelightID);
+            double[] a = Arrays.stream(rawFiducials).mapToDouble(f -> f.id).toArray();
+            double[] distances = new double[a.length];
+            if (a.length == 0) {
+                return 0;
+            }
+            for (int index = 0; index < a.length; index++) {
+                distances[index] = getDistance((int) a[index]);
+            }
+            return Arrays.stream(distances).sum() / distances.length;
+        } else {
             return 0;
         }
-        for (int index = 0; index < a.length; index++) {
-            distances[index] = getDistance((int) a[index]);
-        }
-        return Arrays.stream(distances).sum() / distances.length;
+
 
     }
 
@@ -152,6 +158,10 @@ public class VisionSubsystem extends StormSubsystem {
         } catch (IndexOutOfBoundsException e) {
             return null;
         }
+    }
+
+    public static void setPoseestimatorPose(Pose2d poseestimatorPose) {
+        estimatorPose = poseestimatorPose;
     }
 
 
@@ -200,7 +210,7 @@ public class VisionSubsystem extends StormSubsystem {
 
             // uncertainty grows quadratically as robot is farther away
             // more tags seen uncertainty is less
-            if (seesTag()) {
+            if (LimelightHelpers.getRawFiducials(limelightID).length>0) {
                 stdDevFactor = Math.pow(getAverageDistance(), 2.0) /
                     LimelightHelpers.getRawFiducials(limelightID).length;
             }
@@ -216,7 +226,7 @@ public class VisionSubsystem extends StormSubsystem {
             if (getMT2().isPresent()) {
                 robotState.addVisionMeasurments(getMT2().get().pose,
                     getMT2().get().timestampSeconds,
-                    VecBuilder.fill(linearStdDev, linearStdDev, 1));
+                    VecBuilder.fill(linearStdDev, linearStdDev, linearStdDev));
                 Logger.recordOutput("Vision/VisionPose", getMT2().get().pose);
             }
 

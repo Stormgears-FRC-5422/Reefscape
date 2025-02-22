@@ -49,7 +49,7 @@ public class AKDriveInternal implements Subsystem {
     private final Alert gyroDisconnectedAlert =
             new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
-    private Rotation2d rawGyroRotation = new Rotation2d();
+    public Rotation2d rawGyroRotation = new Rotation2d();
     private SwerveModulePosition[] lastModulePositions = // For delta tracking
             new SwerveModulePosition[]{
                     new SwerveModulePosition(),
@@ -189,6 +189,7 @@ public class AKDriveInternal implements Subsystem {
             }
 
             VisionSubsystem.setHeading(rawGyroRotation);
+            VisionSubsystem.setPoseestimatorPose(getPose());
 
             // Apply update
             poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
