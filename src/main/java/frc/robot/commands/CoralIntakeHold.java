@@ -15,10 +15,11 @@ public class CoralIntakeHold extends StormCommand {
      * Creates a new Intake.
      */
     private final CoralIntake coralIntake;
-    private int finished_counter;
+    private final Timer timer;
 
     public CoralIntakeHold(CoralIntake coralIntake) {
         this.coralIntake = coralIntake;
+        timer = new Timer();
         addRequirements(coralIntake);
     }
 
@@ -26,7 +27,8 @@ public class CoralIntakeHold extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
-        coralIntake.setState(CoralIntakeState.READY);
+        timer.reset();
+        coralIntake.setState(CoralIntakeState.GO_HOME);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -37,7 +39,7 @@ public class CoralIntakeHold extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return timer.get() > 1.0;
     }
 
     // Called once the command ends or is interrupted.

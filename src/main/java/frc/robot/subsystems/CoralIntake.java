@@ -101,6 +101,7 @@ public class CoralIntake extends StormSubsystem {
 
             case INTAKE:
             case OUTTAKE:
+            case GO_HOME:
             case READY:
                 if (hasBeenHomed) {
                     rollerSpark.set(rollerSpeed);
@@ -149,6 +150,11 @@ public class CoralIntake extends StormSubsystem {
             case OUTTAKE -> {
                 console("***** OUTTAKE state *****");
                 rollerSpeed = -Intake.rollerSpeed;
+                wristSpeed = -Intake.wristSpeed;
+            }
+            case GO_HOME -> {
+                console("***** GO_HOME state *****");
+                rollerSpeed = 0;
                 wristSpeed = -Intake.wristSpeed;
             }
             case READY -> {
@@ -204,7 +210,7 @@ public class CoralIntake extends StormSubsystem {
     }
 
     public enum CoralIntakeState {
-        UNKNOWN, IDLE, HOMING, HOME, INTAKE, OUTTAKE, READY;
+        UNKNOWN, IDLE, HOMING, HOME, GO_HOME, INTAKE, OUTTAKE, READY;
     }
 }
 
