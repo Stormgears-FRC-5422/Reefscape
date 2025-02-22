@@ -14,9 +14,11 @@ import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
+import frc.robot.subsystems.drive.ctrGenerated.NovakTunerConstants;
 import frc.robot.commands.ElevatorMoveToPosition;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorLevel;
@@ -39,7 +41,7 @@ public class RobotContainer {
     // **********
     private CoralIntake coralIntake;
     private AlgaeIntake algaeIntake;
-    private DrivetrainBase drivetrain;
+    private CommandSwerveDrivetrain drivetrain;
     private VisionSubsystem visionSubsystem;
     private Lights lights;
     private Elevator elevator;
@@ -81,7 +83,7 @@ public class RobotContainer {
 
         if (Constants.Toggles.useDrive) {
             console("Create drive type " + Constants.Drive.driveType);
-            drivetrain = DrivetrainFactory.getInstance(Constants.Drive.driveType, Constants.Drive.driveSubtype);
+            drivetrain = NovakTunerConstants.createPHOENIXDrivetrain();
         }
 
         if (Constants.Toggles.useCoralIntake) {
@@ -169,7 +171,7 @@ public class RobotContainer {
 
         if (Toggles.useDrive) {
             new Trigger(() -> joystick.zeroGyro())
-                .onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
+                .onTrue(new InstantCommand(() -> drivetrain.resetGyro()));
         }
 
         if (Toggles.useCoralIntake){
@@ -299,7 +301,7 @@ public class RobotContainer {
             initialPose = new Pose2d();
         }
         if (Toggles.useDrive)
-            drivetrain.declarePoseIsNow(initialPose);
+            drivetrain.resetPose(initialPose);
     }
 
     // Sequence called from teleopInit

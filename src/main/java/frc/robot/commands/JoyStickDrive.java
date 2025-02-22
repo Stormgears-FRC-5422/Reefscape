@@ -8,17 +8,14 @@ import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
 import frc.robot.joysticks.ReefscapeJoystick;
-import frc.robot.subsystems.drive.DrivetrainBase;
-
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
+import frc.utils.StormCommand;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-import frc.utils.StormCommand;
-
-import static frc.robot.subsystems.drive.DrivetrainBase.driveFlip;
-import static java.util.Objects.isNull;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 public class JoyStickDrive extends StormCommand {
-    private final DrivetrainBase drivetrain;
+    private final CommandSwerveDrivetrain drivetrain;
     private final BooleanSupplier robotRelativeSupplier;
     private final BooleanSupplier turboSupplier;
     private final DoubleSupplier txSupplier;
@@ -28,25 +25,18 @@ public class JoyStickDrive extends StormCommand {
     private RobotState m_state;
     private boolean m_finish = true;
     private boolean m_flipJoystick = false;
-    private final SlewRateLimiter xScaleLimiter = new SlewRateLimiter(Drive.linearRateLimiter); //make it into a constant
+    private final SlewRateLimiter xScaleLimiter = new SlewRateLimiter(Drive.linearRateLimiter);
     private final SlewRateLimiter yScaleLimiter = new SlewRateLimiter(Drive.linearRateLimiter);
     private final SlewRateLimiter omegaScaleLimiter = new SlewRateLimiter(Drive.turnRateLimiter);
 
-    // Note that we want the joystick to mostly work even if there is no drive.
-    // So this won't really do anything if the drivetrain is NULL, but it will log.
-    public JoyStickDrive(DrivetrainBase drivetrain,
-                         ReefscapeJoystick joystick) {
-        if (!isNull(drivetrain)) {
-            console("adding drivetrain requirements");
+    public JoyStickDrive(CommandSwerveDrivetrain drivetrain, ReefscapeJoystick joystick) {
+        if (drivetrain != null) {
             addRequirements(drivetrain);
         } else {
-            console("supplied drivetrain is NULL");
+            System.out.println("Supplied drivetrain is NULL");
         }
-
         this.drivetrain = drivetrain;
-
         m_state = RobotState.getInstance();
-
         txSupplier = joystick::getWpiX;
         tySupplier = joystick::getWpiY;
         omegaSupplier = joystick::getOmegaSpeed;
@@ -60,13 +50,13 @@ public class JoyStickDrive extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
-
         if (!m_state.isAllianceMissing()) {
+            // Flip joystick inputs on red alliance if the constant is set
             m_flipJoystick = m_state.isAllianceRed() && ButtonBoard.flipJoystickForRed;
-            console("Joystick is " + (m_flipJoystick ? "" : "NOT ") + "flipped for alliance");
             m_finish = false;
+            System.out.println("Joystick is " + (m_flipJoystick ? "" : "NOT ") + "flipped for alliance");
         } else {
-            console("Alliance is not set. Exiting command");
+            System.out.println("Alliance is not set. Exiting command");
             m_finish = true;
         }
     }
@@ -77,50 +67,44 @@ public class JoyStickDrive extends StormCommand {
     }
 
     @Override
-    public void end(boolean interrupted) {
-        super.end(interrupted);
-    }
-
-    @Override
     public void execute() {
-        super.execute();
-
-        if (turboSupplier.getAsBoolean()) {
-            drivetrain.setDriveSpeedScale(Drive.precisionSpeedScale);
-        } else {
-            drivetrain.setDriveSpeedScale(Drive.driveSpeedScale);
-        }
-
+        // Determine if we are driving field-relative (default) or robot-relative
         boolean fieldRelative = !robotRelativeSupplier.getAsBoolean();
         double x = txSupplier.getAsDouble();
         double y = tySupplier.getAsDouble();
         double omega = omegaSupplier.getAsDouble();
 
+        // Apply square path scaling if enabled
         if (Constants.ButtonBoard.squarePath) {
-            x = xScaleLimiter.calculate(x*Math.abs(x));
-            y = yScaleLimiter.calculate(y*Math.abs(y));
-            omega = omegaScaleLimiter.calculate(omega*Math.abs(omega));
+            x = xScaleLimiter.calculate(x * Math.abs(x));
+            y = yScaleLimiter.calculate(y * Math.abs(y));
+            omega = omegaScaleLimiter.calculate(omega * Math.abs(omega));
         } else {
             x = xScaleLimiter.calculate(x);
             y = yScaleLimiter.calculate(y);
             omega = omegaScaleLimiter.calculate(omega);
         }
 
-        // When on the red alliance, we want to have "forward" mean "move in the -X direction" and so on.
-        // But only for field relative driving. Robot relative driving is always the same
-        ChassisSpeeds speeds;
-        if (m_flipJoystick && fieldRelative && !driveFlip) {
-            speeds = new ChassisSpeeds(-x, -y, -omega);
-        } else {
-            speeds = new ChassisSpeeds(x, y, omega);
+        // Optionally flip joystick inputs when in field-relative mode
+        if (m_flipJoystick && fieldRelative) {
+            x = -x;
+            y = -y;
+            omega = -omega;
         }
 
-        if (speeds.vxMetersPerSecond != 0 && speeds.vyMetersPerSecond != 0 && speeds.omegaRadiansPerSecond != 0) {
-            console("joystick speeds: " + speeds, 25);
-        } else {
-            console("joystick speeds: " + speeds, 500);
-        }
+        // Create chassis speeds from the processed inputs
+        ChassisSpeeds speeds = new ChassisSpeeds(x, y, omega);
 
-        drivetrain.percentOutputDrive(speeds, fieldRelative);
+        // Build the SwerveRequest. In this example we use the field-centric helper;
+        // if you require robot-relative control, you may need a separate request type.
+        SwerveRequest request = new SwerveRequest.ApplyFieldSpeeds().withSpeeds(speeds);
+        
+        // Use the drivetrain's applyRequest method to send the command
+        drivetrain.applyRequest(() -> request);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        super.end(interrupted);
     }
 }
