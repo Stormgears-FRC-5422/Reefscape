@@ -157,6 +157,14 @@ public abstract class DrivetrainBase extends StormSubsystem {
         return 0.0;
     }
 
+    public void goToZero(){
+
+    }
+
+    public void goToNinety(){
+
+    }
+
     public double[] getWheelRadiusCharacterizationPositions() {
         double[] values = new double[0];
         return values;

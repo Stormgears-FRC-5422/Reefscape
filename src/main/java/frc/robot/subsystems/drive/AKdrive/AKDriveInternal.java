@@ -101,6 +101,8 @@ public class AKDriveInternal implements Subsystem {
         // Start odometry thread
         PhoenixOdometryThread.getInstance().start();
 
+
+
         // Configure SysId
 //        sysId =
 //            new SysIdRoutine(
@@ -370,6 +372,18 @@ public class AKDriveInternal implements Subsystem {
   public Rotation2d getRotation() {
     return getPose().getRotation();
   }
+
+  public void goToZero(){
+      for(Module module: modules){
+          module.setAngle(new Rotation2d());
+      }
+  }
+    public void goToNinety(){
+        for(Module module: modules){
+            module.setAngle(new Rotation2d(Math.PI/2));
+        }
+    }
+
 
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {

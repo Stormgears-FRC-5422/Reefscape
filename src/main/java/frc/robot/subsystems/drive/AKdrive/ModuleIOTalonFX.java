@@ -103,7 +103,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveTalon = new TalonFX(constants.DriveMotorId, ReefscapeTunerConstants.DrivetrainConstants.CANBusName);
     turnTalon = new TalonFX(constants.SteerMotorId, ReefscapeTunerConstants.DrivetrainConstants.CANBusName);
     cancoder = new CANcoder(constants.EncoderId, ReefscapeTunerConstants.DrivetrainConstants.CANBusName);
-
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -192,6 +191,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnAppliedVolts,
         turnCurrent);
     ParentDevice.optimizeBusUtilizationForAll(driveTalon, turnTalon);
+
   }
 
   @Override
@@ -272,4 +272,6 @@ public class ModuleIOTalonFX implements ModuleIO {
               rotation.getRotations());
         });
   }
+
+
 }

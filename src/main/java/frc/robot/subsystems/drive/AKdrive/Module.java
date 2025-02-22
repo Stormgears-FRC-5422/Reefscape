@@ -89,6 +89,10 @@ public class Module {
     io.setTurnPosition(state.angle);
   }
 
+  public void setAngle(Rotation2d angle){
+      io.setTurnPosition(angle);
+  }
+
   /** Runs the module with the specified output while controlling to zero degrees. */
   public void runCharacterization(double output) {
     io.setDriveOpenLoop(output);
@@ -154,4 +158,6 @@ public class Module {
   public double getFFCharacterizationVelocity() {
     return Units.radiansToRotations(inputs.driveVelocityRadPerSec);
   }
+
 }
+

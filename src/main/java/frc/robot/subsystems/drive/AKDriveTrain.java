@@ -125,4 +125,25 @@ public class AKDriveTrain extends DrivetrainBase {
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return driveInternal.sysIdDynamic(direction);
     }
+
+
+    @Override
+    public double getFFCharacterizationVelocity() {
+        return super.getFFCharacterizationVelocity();
+    }
+
+    @Override
+    public void goToZero() {
+        driveInternal.goToZero();
+    }
+
+    @Override
+    public void goToNinety() {
+        driveInternal.goToNinety();
+    }
+
+    @Override
+    public void runCharacterization(double output) {
+        super.runCharacterization(output);
+    }
 }

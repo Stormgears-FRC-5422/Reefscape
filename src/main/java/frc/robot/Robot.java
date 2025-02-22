@@ -140,13 +140,13 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        if(!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
-            try {
-                robotContainer.configJoysticks();
-            } catch (IllegalJoystickTypeException e) {
-                console("disabledPeriodic: Error configuring Joystick and button board" + e.getMessage());
-            }
-        }
+//        if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
+//            try {
+//                robotContainer.configJoysticks();
+//            } catch (IllegalJoystickTypeException e) {
+//                console("disabledPeriodic: Error configuring Joystick and button board" + e.getMessage());
+//            }
+//        }
     }
 
     @Override
@@ -155,16 +155,20 @@ public class Robot extends LoggedRobot {
     }
 
     private boolean isAllJoyStickAndButtonBoardConnected() {
-        return DriverStation.isJoystickConnected(Constants.ButtonBoard.driveJoystickPort) &&
-            DriverStation.isJoystickConnected(Constants.ButtonBoard.buttonBoardPort1);
+        if (Toggles.useButtonBoard) {
+            return DriverStation.isJoystickConnected(Constants.ButtonBoard.driveJoystickPort) &&
+                DriverStation.isJoystickConnected(Constants.ButtonBoard.buttonBoardPort1);
+        }
+        return DriverStation.isJoystickConnected(Constants.ButtonBoard.driveJoystickPort);
     }
 
     @Override
     public void driverStationConnected() {
         super.driverStationConnected();
-        if(!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
+        if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
             try {
                 robotContainer.configJoysticks();
+                state.setJoystickAndButtonBoardConfigured(true);
             } catch (IllegalJoystickTypeException e) {
                 console("driverStationConnected: Error configuring Joystick and button board" + e.getMessage());
             }
@@ -177,6 +181,12 @@ public class Robot extends LoggedRobot {
         state.setPeriod(StatePeriod.AUTONOMOUS);
         if (robotContainer != null) {
             autonomousCommand = robotContainer.getAutonomousCommand();
+            try {
+                robotContainer.configJoysticks();
+            } catch (IllegalJoystickTypeException e) {
+                throw new RuntimeException(e);
+            }
+
         }
 
         if (autonomousCommand != null) {

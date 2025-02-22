@@ -29,51 +29,51 @@ public class ReefscapeTorqueAKTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     private static final Slot0Configs FLsteerGains = new Slot0Configs()
-        .withKP(94).withKI(0.0).withKD(6.15)
-        .withKS(0.1).withKV(2.66).withKA(0)
+        .withKP(87).withKI(0.0).withKD(8.75)
+        .withKS(4.8).withKV(2.66).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     //    kv 2.66 ks 0.1
 
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs FLdriveGains = new Slot0Configs()
-        .withKP(6).withKI(0).withKD(0)
+        .withKP(61).withKI(0).withKD(0.05)
         .withKS(0.18868).withKV(0.88504);
 
     private static final Slot0Configs FRsteerGains = new Slot0Configs()
-        .withKP(97).withKI(0.0).withKD(4.5)
-        .withKS(0.1).withKV(2.66).withKA(0)
+        .withKP(87).withKI(0.0).withKD(11)
+        .withKS(3.3).withKV(2.66).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     //    kv 2.66 ks 0.1
 
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs FRdriveGains = new Slot0Configs()
-        .withKP(6).withKI(0).withKD(0)
+        .withKP(61).withKI(0).withKD(0.05)
         .withKS(0.18868).withKV(0.88504);
 
     private static final Slot0Configs BRsteerGains = new Slot0Configs()
-        .withKP(93.5).withKI(0.0).withKD(6.5)
-        .withKS(0.1).withKV(2.66).withKA(0)
+        .withKP(87).withKI(0.0).withKD(8.75)
+        .withKS(5.1).withKV(2.66).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     //    kv 2.66 ks 0.1
 
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs BRdriveGains = new Slot0Configs()
-        .withKP(6).withKI(0).withKD(0)
+        .withKP(57).withKI(0).withKD(0.05)
         .withKS(0.18868).withKV(0.88504);
 
     private static final Slot0Configs BLsteerGains = new Slot0Configs()
-        .withKP(93.5).withKI(0.0).withKD(6.5)
-        .withKS(0.1).withKV(2.66).withKA(0)
+        .withKP(87).withKI(0.0).withKD(11)
+        .withKS(3.6).withKV(2.66).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     //    kv 2.66 ks 0.1
 
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs BLdriveGains = new Slot0Configs()
-        .withKP(6).withKI(0).withKD(0)
+        .withKP(59).withKI(0).withKD(0.05)
         .withKS(0.18868).withKV(0.88504);
 
 
@@ -243,7 +243,7 @@ public class ReefscapeTorqueAKTunerConstants {
     private static final int kFrontLeftDriveMotorId = 11;
     private static final int kFrontLeftSteerMotorId = 10;
     private static final int kFrontLeftEncoderId = 1;
-    private static final Angle kFrontLeftEncoderOffset = Rotations.of(-0.130859375);
+    private static final Angle kFrontLeftEncoderOffset = Rotations.of(-0.144287109375);
     private static final boolean kFrontLeftSteerMotorInverted = true;
     private static final boolean kFrontLeftEncoderInverted = false;
 
