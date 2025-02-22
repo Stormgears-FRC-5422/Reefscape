@@ -46,7 +46,7 @@ public class Lights extends StormSubsystem {
 
     Color NO_ALLIANCE_COLOR = WHITE_COLOR;
     Color TAG_DETECTED_COLOR = YELLOW_COLOR;
-    Color SENSOR_TRIGGERED_COLOR = DARKGREEN_COLOR;
+    Color CORAL_STORED_COLOR = DARKGREEN_COLOR;
     Color AUTONOMOUS_ALIGNED_COLOR = GREEN_COLOR;
     Color ELEVATOR_HOMED_COLOR = LIGHTYELLOW_COLOR;
     Color ELEVATOR_HOLD_COLOR = PINK_COLOR;
@@ -75,7 +75,7 @@ public class Lights extends StormSubsystem {
         // if holding coral, change full strip to green
         // if aligned to shoot coral, change top half to purple
         if (m_robotState.isCoralSensorTriggered()){
-            setSolid(SENSOR_TRIGGERED_COLOR);
+            setSolid(CORAL_STORED_COLOR);
         }
         else{
             if (m_robotState.getAlliance() != m_alliance){
