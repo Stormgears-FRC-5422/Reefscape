@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
+import static frc.robot.Constants.Vision.limelightID;
 
 public class VisionSubsystem extends StormSubsystem {
     private final RobotState robotState;
@@ -47,11 +48,15 @@ public class VisionSubsystem extends StormSubsystem {
     }
 
     public Optional<LimelightHelpers.PoseEstimate> getMT2() {
-        if (getClosestLimelight().seesTag()) {
-            return getClosestLimelight().getMT2Pose();
-        } else {
-            return Optional.empty();
+//        if (getClosestLimelight().seesTag()) {
+//            return getClosestLimelight().getMT2Pose();
+//        } else {
+//            return Optional.empty();
+//        }
+        if (LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightID) != null) {
+            return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightID));
         }
+        return Optional.empty();
     }
 
     public StormLimelight getClosestLimelight() {
@@ -72,42 +77,63 @@ public class VisionSubsystem extends StormSubsystem {
     }
 
     public boolean seesTag() {
-        if (getClosestLimelight() != null) {
-            return getClosestLimelight().seesTag();
-        } else {
-            return false;
-        }
+//        if (getClosestLimelight() != null) {
+//            return getClosestLimelight().seesTag();
+//        } else {
+//            return false;
+//        }
+        return LimelightHelpers.getTV(limelightID);
+    }
+
+    private double getDistance(int id) {
+        Pose2d tagPose = FieldConstants.getPoseTag(id);
+
+        Pose2d robotPose = robotState.getPose();
+        return robotPose.minus(tagPose).getTranslation().getNorm();
     }
 
     public double getAverageDistance() {
-        if (getClosestLimelight().seesTag()) {
-            return getClosestLimelight().getAvgDist();
-        } else {
+//        if (getClosestLimelight().seesTag()) {
+//            return getClosestLimelight().getAvgDist();
+//        } else {
+//            return 0;
+//        }
+        LimelightHelpers.RawFiducial[] rawFiducials = LimelightHelpers.getRawFiducials(limelightID);
+        double[] a = Arrays.stream(rawFiducials).mapToDouble(f -> f.id).toArray();
+        double[] distances = new double[a.length];
+        if (a.length == 0) {
             return 0;
         }
+        for (int index = 0; index < a.length; index++) {
+            distances[index] = getDistance((int) a[index]);
+        }
+        return Arrays.stream(distances).sum() / distances.length;
 
     }
 
     public void setGyro(double headingDegrees){
-        for (StormLimelight limelight : limelights) {
-            limelight.setGyroMeasurement(headingDegrees);
-        }
+//        for (StormLimelight limelight : limelights) {
+//            limelight.setGyroMeasurement(headingDegrees);
+//        }
+        LimelightHelpers.SetRobotOrientation(limelightID, headingDegrees, 0.0, 0.0, 0.0, 0.0, 0.0);
     }
 
     public int numOfTags() {
-        if (getClosestLimelight().seesTag()) {
-            return getClosestLimelight().tagsSeen();
-        } else {
-            return 0;
-        }
+//        if (getClosestLimelight().seesTag()) {
+//            return getClosestLimelight().tagsSeen();
+//        } else {
+//            return 0;
+//        }
+        return LimelightHelpers.getRawFiducials(limelightID).length;
     }
 
     public int getBestTag() {
-        if (getClosestLimelight().seesTag()) {
-            return getClosestLimelight().getClosestTag();
-        } else {
-            return -1;
-        }
+//        if (getClosestLimelight().seesTag()) {
+//            return getClosestLimelight().getClosestTag();
+//        } else {
+//            return -1;
+//        }
+        return (int) LimelightExtra.getTID(limelightID);
     }
 
     public StormLimelight getLimelightFromID(String id) {
@@ -134,13 +160,13 @@ public class VisionSubsystem extends StormSubsystem {
     public void periodic() {
         super.periodic();
         setGyro(heading.getDegrees());
-        robotState.setTV(seesTag());
-        robotState.setIsVisionPoseValid(getMT2().isPresent());
-        robotState.setVisionPose(
-            getMT2().isPresent()
-                ? getMT2().get().pose
-                : null
-        );
+//        robotState.setTV(seesTag());
+//        robotState.setIsVisionPoseValid(getMT2().isPresent());
+//        robotState.setVisionPose(
+//            getMT2().isPresent()
+//                ? getMT2().get().pose
+//                : null
+//        );
         //LimelightHelpers.SetRobotOrientation("", robotState.getYaw(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
 //        System.out.println(LimelightHelpers.getRawFiducials(limelightId)[0].id);
@@ -176,7 +202,7 @@ public class VisionSubsystem extends StormSubsystem {
             // more tags seen uncertainty is less
             if (seesTag()) {
                 stdDevFactor = Math.pow(getAverageDistance(), 2.0) /
-                    numOfTags();
+                    LimelightHelpers.getRawFiducials(limelightID).length;
             }
 //        linearStdDevBaseline and angularStdDevBaseline:
 //        base value for uncertainty then multiplied by factor above.

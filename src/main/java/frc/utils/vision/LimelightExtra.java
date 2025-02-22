@@ -82,7 +82,10 @@ public class LimelightExtra {
         NetworkTable table = NetworkTableInstance.getDefault().getTable(limelight);
         double[] rawFiducials = table.getEntry("getRawFiducials").getDoubleArray(new double[0]);
         return rawFiducials;
-
+    }
+    public static int getTID(String limelight) {
+        NetworkTable table = NetworkTableInstance.getDefault().getTable(limelight);
+        return (int) table.getEntry("tid").getDouble(0);
     }
 
 
