@@ -27,7 +27,7 @@ public class CoralIntakeHold extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
-        timer.reset();
+        timer.restart();
         coralIntake.setState(CoralIntakeState.GO_HOME);
     }
 
@@ -39,7 +39,7 @@ public class CoralIntakeHold extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return timer.get() > 1.0;
+        return timer.get() > 0.5;
     }
 
     // Called once the command ends or is interrupted.

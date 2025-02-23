@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
+import frc.robot.RobotState;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
@@ -23,6 +24,7 @@ public class AutoReef extends StormCommand {
     int tagID = -1;
     Supplier<FieldConstants.Side> sideSupplier;
     Timer timer = new Timer();
+    boolean flag = false;
 
     public AutoReef(DrivetrainBase drivetrainBase,
                     VisionSubsystem visionSubsystem,
@@ -57,6 +59,7 @@ public class AutoReef extends StormCommand {
             AutoAlign autoAlign = new AutoAlign(drivetrainBase, targetPose, joystick);
             autoAlign.schedule();
         } else {
+            flag=true;
             System.out.println("No tag seen :(");
         }
     }
@@ -67,6 +70,8 @@ public class AutoReef extends StormCommand {
     }
         @Override
     public boolean isFinished() {
-        return timer.get()>3.5;
+
+//        return RobotState.getInstance().isAutonomousAligned() || flag;
+        return timer.get()>5.0 || flag;
     }
 }

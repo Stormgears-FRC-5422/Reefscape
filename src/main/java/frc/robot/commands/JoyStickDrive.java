@@ -112,7 +112,7 @@ public class JoyStickDrive extends StormCommand {
         // But only for field relative driving. Robot relative driving is always the same
         ChassisSpeeds speeds;
         if (m_flipJoystick && fieldRelative && !driveFlip) {
-            speeds = new ChassisSpeeds(-x, -y, -omega);
+            speeds = new ChassisSpeeds(-x, -y, omega);
         } else {
             speeds = new ChassisSpeeds(x, y, omega);
         }

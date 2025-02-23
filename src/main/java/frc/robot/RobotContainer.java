@@ -68,6 +68,7 @@ public class RobotContainer {
 
     // Intake  Outtake
     CoralIntakeCommand coralIntakeCommand;
+    CoralIntakeHold coralIntakeHold;
     CoralIntakeCommand coralOuttakeCommand;
     AlgaeIntakeCommand algaeIntakeCommand;
     AlgaeIntakeCommand algaeOuttakeCommand;
@@ -105,6 +106,7 @@ public class RobotContainer {
         if (Constants.Toggles.useCoralIntake) {
             coralIntake = new CoralIntake();
             coralIntakeCommand = new CoralIntakeCommand(coralIntake, true);
+            coralIntakeHold = new CoralIntakeHold(coralIntake);
             coralOuttakeCommand = new CoralIntakeCommand(coralIntake, false);
         }
 
@@ -305,7 +307,7 @@ public class RobotContainer {
         console("Configuring button board bindings");
 
         if (Toggles.useCoralIntake) {
-            new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand);
+            new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand.andThen(coralIntakeHold));
             new Trigger(() -> buttonBoard.coralOuttake()).onTrue(coralOuttakeCommand);
         }
 
@@ -348,7 +350,7 @@ public class RobotContainer {
 
                 new Trigger(() -> buttonBoard.autoReef()).onTrue(
                     new AutoReef(drivetrain, visionSubsystem, joystick,
-                        () -> (joystick.isRightReef() ? FieldConstants.Side.RIGHT : FieldConstants.Side.LEFT)
+                        () -> (buttonBoard.isRightReef() ? FieldConstants.Side.RIGHT : FieldConstants.Side.LEFT)
                     )
                 );
 

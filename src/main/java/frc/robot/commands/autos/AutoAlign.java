@@ -14,6 +14,7 @@ import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.utils.StormCommand;
 
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 public class AutoAlign extends StormCommand {
 
@@ -31,8 +32,8 @@ public class AutoAlign extends StormCommand {
     private Translation2d lastSetpointTranslation;
     private final double loopTimeSec = 0.02;
     private Translation2d feedForward;
-    private final double linearTolerance = 0.08;
-    private final double thetaTolerance = Units.degreesToRadians(2.5);
+    private final double linearTolerance = 0.015;
+    private final double thetaTolerance = Units.degreesToRadians(1.5);
     private Timer timer;
     private boolean flag = false;
 
@@ -49,12 +50,12 @@ public class AutoAlign extends StormCommand {
 
         this.drivetrainBase = drivetrainBase;
         this.targetPose = targetPose;
-        translationPID = new ProfiledPIDController(3.5, 0.0, 0.1,
+        translationPID = new ProfiledPIDController(3, 0.0, 0.1,
             new TrapezoidProfile.Constraints(1.5, 1.5));
         translationPID.setTolerance(linearTolerance);
 
 
-        thetaController = new ProfiledPIDController(3.2, 0.0, 0.1,
+        thetaController = new ProfiledPIDController(3.25, 0.0, 0.1,
             new TrapezoidProfile.Constraints(1.5, 1.5));
         thetaController.setTolerance(thetaTolerance);
 
@@ -172,12 +173,14 @@ public class AutoAlign extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return (translationPID.atGoal() && thetaController.atGoal()) ||
+
+        return (translationPID.atGoal() && thetaController.atGoal())||
             (timer.get()>4);
     }
 
     public void end() {
-        robotState.setAligned(translationPID.atGoal() && thetaController.atGoal());
+        System.out.println("auto align done");
+        robotState.setAligned(true);
     }
 
 
