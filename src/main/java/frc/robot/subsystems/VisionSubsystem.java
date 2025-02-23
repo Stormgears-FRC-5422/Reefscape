@@ -1,12 +1,9 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.vision.StormLimelight;
@@ -18,7 +15,6 @@ import org.littletonrobotics.junction.Logger;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static edu.wpi.first.math.util.Units.degreesToRadians;
 import static frc.robot.Constants.Vision.limelightID;
 
 public class VisionSubsystem extends StormSubsystem {
@@ -32,12 +28,13 @@ public class VisionSubsystem extends StormSubsystem {
     // (Adjusted automatically based on distance and # of tags)
     public static double linearStdDevBaseline = 0.02; // Meters
     public static double angularStdDevBaseline = 0.06; // Radians
-    private static Rotation2d heading;
+    private static double heading;
     StormLimelight limelightReef;
     StormLimelight[] limelights;
     static Pose2d estimatorPose;
+    SwerveDrivePoseEstimator poseEstimator;
 
-    public VisionSubsystem(StormLimelight... stormLimelights) {
+    public VisionSubsystem(SwerveDrivePoseEstimator swerveDrivePoseEstimator, StormLimelight... stormLimelights) {
         LimelightHelpers.setLEDMode_PipelineControl("");
         LimelightHelpers.setLEDMode_ForceBlink("");
         robotState = RobotState.getInstance();
@@ -45,6 +42,7 @@ public class VisionSubsystem extends StormSubsystem {
         poseTag = new Pose2d(12.64, 4.75, new Rotation2d(120));
         limelightReef = stormLimelights[0];
         limelights = stormLimelights;
+        poseEstimator = swerveDrivePoseEstimator;
 
     }
 
@@ -122,7 +120,7 @@ public class VisionSubsystem extends StormSubsystem {
 
     }
 
-    public void setGyro(double headingDegrees) {
+    private void setGyro(double headingDegrees) {
 //        for (StormLimelight limelight : limelights) {
 //            limelight.setGyroMeasurement(headingDegrees);
 //        }
@@ -165,48 +163,34 @@ public class VisionSubsystem extends StormSubsystem {
         }
     }
 
-    public static void setPoseestimatorPose(Pose2d poseestimatorPose) {
-        estimatorPose = poseestimatorPose;
-    }
-
 
     @Override
     public void periodic() {
         super.periodic();
-        setGyro(heading.getDegrees());
-//        robotState.setTV(seesTag());
-//        robotState.setIsVisionPoseValid(getMT2().isPresent());
-//        robotState.setVisionPose(
-//            getMT2().isPresent()
-//                ? getMT2().get().pose
-//                : null
-//        );
-        //LimelightHelpers.SetRobotOrientation("", robotState.getYaw(), 0.0, 0.0, 0.0, 0.0, 0.0);
 
-//        System.out.println(LimelightHelpers.getRawFiducials(limelightId)[0].id);
-//        System.out.println(getAvgDist());
-//        System.out.println(robotState.getYaw());
-//            console(getMT2PoseEstimate().get().pose.toString());
-//        Pose2d botPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightId).pose;
-//        if (botPose != null) {
-//             Transform2d difference = poseTag.minus(botPose);
-//           console(difference.toString());
-//        }
-//
-//        Transform2d sigma = new Transform2d(poseTag, LimelightHelpers.getBotPose2d_wpiBlue(limelightId));
-//        console("botPose in target space" + Arrays.toString(LimelightHelpers.getBotPose_TargetSpace(limelightId)));
-//        RobotState.getInstance().setVisionPose(LimelightHelpers.getBotPose2d_wpiBlue("limelight"),
-//            LimelightHelpers.getTV("limelight"));
+        estimatorPose = poseEstimator.getEstimatedPosition();
+        heading = estimatorPose.getRotation().getDegrees();
+        setGyro(heading);
+
 
         boolean rejectPose = false;
-        if (getMT2().isPresent()) {
-            rejectPose =
-                !seesTag()
+        Pose2d visionPose = null;
+        double timeStamp = 0.0;
+        LimelightHelpers.PoseEstimate poseEstimate = getMT2().orElse(null);
+        if (poseEstimate != null) {
 
-                    || getMT2().get().pose.getX() < 0.0
-                    || getMT2().get().pose.getY() < 0.0;
+            rejectPose = !seesTag()
+                || poseEstimate.pose.getX() <= 0.0
+                || poseEstimate.pose.getY() <= 0.0;
 
-//            System.out.println("Empty? " + !LimelightHelpers.getTV(limelightId));
+            visionPose = poseEstimate.pose;
+            timeStamp = poseEstimate.timestampSeconds;
+
+            Logger.recordOutput("Reject Pose?", rejectPose);
+            Logger.recordOutput("Vision/VisionPose", poseEstimate.pose);
+        } else {
+            Logger.recordOutput("Reject Pose?", rejectPose);
+            Logger.recordOutput("Vision/VisionPose", new Pose2d());
 
         }
         if (!rejectPose) {
@@ -215,8 +199,7 @@ public class VisionSubsystem extends StormSubsystem {
             // uncertainty grows quadratically as robot is farther away
             // more tags seen uncertainty is less
             if (LimelightHelpers.getRawFiducials(limelightID).length > 0) {
-                stdDevFactor = Math.pow(getAverageDistance(), 2.0) /
-                    LimelightHelpers.getRawFiducials(limelightID).length;
+                stdDevFactor = Math.pow(getAverageDistance(), 2.0) / LimelightHelpers.getRawFiducials(limelightID).length;
             }
 //        linearStdDevBaseline and angularStdDevBaseline:
 //        base value for uncertainty then multiplied by factor above.
@@ -227,20 +210,12 @@ public class VisionSubsystem extends StormSubsystem {
             linearStdDev *= linearStdDevMegatag2Factor;
 //        MegaTag2 does not give rotation data (comes from gyro)
             angularStdDev *= angularStdDevMegatag2Factor;
-            if (getMT2().isPresent()) {
-                robotState.addVisionMeasurments(getMT2().get().pose,
-                    getMT2().get().timestampSeconds,
-                    VecBuilder.fill(linearStdDev, linearStdDev, 0));
-                Logger.recordOutput("Vision/VisionPose", getMT2().get().pose);
+            if (visionPose != null && robotState.getVisionEnabled()) {
+
+                poseEstimator.addVisionMeasurement(visionPose, timeStamp,
+                    VecBuilder.fill(linearStdDev, linearStdDev, 1e6));
             }
-
-        } else {
-//            System.out.println("reject");
         }
-    }
 
-    public static void setHeading(Rotation2d rotation2d) {
-        heading = rotation2d;
     }
-
 }

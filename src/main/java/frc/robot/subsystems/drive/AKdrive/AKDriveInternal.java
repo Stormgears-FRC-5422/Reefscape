@@ -134,7 +134,9 @@ public class AKDriveInternal implements Subsystem {
     }
 
     public void resetRotation(Rotation2d rotation) {
-        poseEstimator.resetRotation(rotation);
+        poseEstimator.resetPose(new Pose2d(poseEstimator.getEstimatedPosition().getTranslation(),
+            rotation));
+
     }
 
     public void periodic() {
@@ -188,8 +190,6 @@ public class AKDriveInternal implements Subsystem {
                 rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
             }
 
-            VisionSubsystem.setHeading(rawGyroRotation);
-            VisionSubsystem.setPoseestimatorPose(getPose());
 
             // Apply update
             poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
@@ -243,6 +243,7 @@ public class AKDriveInternal implements Subsystem {
             modules[i].runCharacterization(output);
         }
     }
+
 
     public void runTurnCharacterization(double output) {
         for (int i = 0; i < 4; i++) {

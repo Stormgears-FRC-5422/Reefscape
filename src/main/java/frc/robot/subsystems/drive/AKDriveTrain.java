@@ -14,6 +14,7 @@
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -56,7 +57,9 @@ public class AKDriveTrain extends DrivetrainBase {
      * Returns the current odometry rotation.
      */
     @Override
-    public Rotation2d getRotation() { return driveInternal.getRotation(); }
+    public Rotation2d getRotation() {
+        return driveInternal.getRotation();
+    }
 
     @Override
     public void resetOrientation() {
@@ -66,6 +69,7 @@ public class AKDriveTrain extends DrivetrainBase {
             : new Rotation2d(1, 0);
 
         driveInternal.resetRotation(newRotation);
+//        System.out.println("wow");
     }
 
     /**
@@ -147,5 +151,10 @@ public class AKDriveTrain extends DrivetrainBase {
     @Override
     public void runCharacterization(double output) {
         super.runCharacterization(output);
+    }
+
+    @Override
+    public SwerveDrivePoseEstimator getPoseEstimator() {
+        return poseEstimator;
     }
 }

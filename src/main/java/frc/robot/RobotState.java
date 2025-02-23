@@ -47,6 +47,7 @@ public class RobotState extends SubsystemBase {
     private boolean isVisionPoseValid = false;
     private Pose2d MT2Pose;
     private boolean isAprilTagDetected;
+    private boolean visionEnabled = true;
 
     private boolean m_joystickAndButtonBoardConfigured = false;
 
@@ -244,6 +245,14 @@ public class RobotState extends SubsystemBase {
     }
     public void setAligned (boolean aligned){
         isAligned = aligned;
+    }
+
+    public void setVisionEnabled(boolean visionEnabled){
+        this.visionEnabled = visionEnabled;
+    }
+
+    public boolean getVisionEnabled(){
+        return visionEnabled;
     }
 }
 

@@ -1,7 +1,11 @@
 package frc.robot.subsystems.drive;
 
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.PoseEstimator;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,6 +21,7 @@ import frc.robot.ShuffleboardConstants;
 import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
 import frc.utils.StormSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public abstract class DrivetrainBase extends StormSubsystem {
     public static final double DRIVE_BASE_RADIUS =
@@ -39,6 +44,9 @@ public abstract class DrivetrainBase extends StormSubsystem {
     public double m_maxAngularVelocityRadiansPerSecond = 1;
     protected double m_driveSpeedScale = 0;
     protected boolean m_fieldRelative = false;
+    private static final PIDController xController = new PIDController(2.6, 0.0, 0.1);
+    private static final PIDController yController = new PIDController(2.6, 0.0, 0.1);
+    private static final PIDController headingController = new PIDController(3.1, 0.0, 0.1);
     @AutoLogOutput
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
@@ -48,6 +56,7 @@ public abstract class DrivetrainBase extends StormSubsystem {
         m_state = RobotState.getInstance();
         setDriveFlip(false);
         setFieldRelativeOn(false);
+        headingController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     protected void setDriveFlip(boolean flip) {
@@ -181,6 +190,29 @@ public abstract class DrivetrainBase extends StormSubsystem {
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return new Command() {
         };
+    }
+
+    public SwerveDrivePoseEstimator getPoseEstimator(){
+        return null;
+    }
+
+    public void followTrajectory(SwerveSample sample) {
+
+        // Get the current pose of the robot
+        Pose2d pose = getPose();
+//        Logger.recordOutput("Auto/pose trj x", sample.x);
+        Logger.recordOutput("Auto/pose chass speeds", sample.getChassisSpeeds());
+
+        // Generate the next speeds for the robot
+        ChassisSpeeds speeds = new ChassisSpeeds(
+            sample.vx + xController.calculate(pose.getX(), sample.x),
+            sample.vy + yController.calculate(pose.getY(), sample.y),
+            sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
+        );
+        Logger.recordOutput("Auto/header", sample.heading);
+        Logger.recordOutput("Auto/omega", sample.omega);
+        Logger.recordOutput("Auto/speed", speeds);
+        drive(speeds, true);
     }
 }
 

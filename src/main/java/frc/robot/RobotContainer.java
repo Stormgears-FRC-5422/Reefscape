@@ -120,11 +120,11 @@ public class RobotContainer {
             lights = new Lights();
         }
 
-        if (Constants.Toggles.useVision) {
+        if (Constants.Toggles.useVision && Toggles.useDrive) {
 //            limelightReef = new StormLimelight(Constants.Vision.limelightID);
 //            limelightStation = new StormLimelight("limelight-station");
             limelights = CameraConstants.getReefscapeLimelights();
-            visionSubsystem = new VisionSubsystem(limelights);
+            visionSubsystem = new VisionSubsystem(drivetrain.getPoseEstimator(), limelights);
 //            visionSubsystem = new VisionSubsystem(limelightReef, limelightStation)
         }
         if (Constants.Toggles.useColorSensor) {
@@ -209,7 +209,7 @@ public class RobotContainer {
         }
 
 //        }
-        if (Toggles.useDrive && Toggles.useVision) {
+        if (Toggles.useDrive) {
 //            temporarily left side
 //            new Trigger(() -> joystick.autoReef())
 //                .onTrue(new AutoReef(drivetrain, visionSubsystem,
@@ -248,6 +248,30 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
+//        return new SequentialCommandGroup(
+//            new PrintCommand("Homing and drive started"),
+//            new ParallelCommandGroup(
+//                new ConditionalCommand(
+//                    new ElevatorHome(elevator),
+//                    new PrintCommand("Elevator disabled"),
+//                    () -> Toggles.useElevator
+//                ),
+//                new ConditionalCommand(
+//                    new CoralIntakeHome(coralIntake),
+//                    new PrintCommand("CoralIntake disabled"),
+//                    () -> Toggles.useCoralIntake
+//                ),
+//                new AutoCommandFactory(drivetrain,autoReefCommand)
+//            ),
+//            new PrintCommand("Homing and drive ended"),
+//            new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT),
+//            new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
+//            Commands.race(
+//                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
+//                new CoralIntakeCommand(coralIntake, false)
+//            )
+//        );
+
         return new SequentialCommandGroup(
             new PrintCommand("Homing and drive started"),
             new ParallelCommandGroup(
@@ -260,17 +284,16 @@ public class RobotContainer {
                     new CoralIntakeHome(coralIntake),
                     new PrintCommand("CoralIntake disabled"),
                     () -> Toggles.useCoralIntake
-                ),
-                new AutoCommandFactory(drivetrain)
-            ),
-            new PrintCommand("Homing and drive ended"),
-            new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT),
-            new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
-            Commands.race(
+                )),
+            new AutoCommandFactory(drivetrain,
+                new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT)
+                , new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
+                new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1),
                 new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
-                new CoralIntakeCommand(coralIntake, false)
-            )
-        );
+                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL1),
+                coralIntakeCommand,
+                coralOuttakeCommand
+            ).farLeft());
     }
 
     public void configJoysticks() throws IllegalJoystickTypeException {
