@@ -20,7 +20,7 @@ public class AlgaeIntakeCommand extends StormCommand {
 
     public AlgaeIntakeCommand(AlgaeIntake algaeIntake, boolean intake) {
         this.algaeIntake = algaeIntake;
-        this.direction = intake ? AlgaeIntakeState.INTAKE : AlgaeIntakeState.OUTTAKE;
+        this.direction = intake ? AlgaeIntakeState.UP : AlgaeIntakeState.TRAPPED;
         addRequirements(algaeIntake);
     }
 
@@ -28,7 +28,7 @@ public class AlgaeIntakeCommand extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
-        console("direction = " + (direction == AlgaeIntakeState.INTAKE ? "Intake" : "Outtake"));
+        console("direction = " + (direction == AlgaeIntakeState.UP ? "Intake" : "Outtake"));
 
         counter = 0;
         algaeIntake.setAlgaeIntakeState(direction);
@@ -43,7 +43,6 @@ public class AlgaeIntakeCommand extends StormCommand {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        algaeIntake.setAlgaeIntakeState(AlgaeIntakeState.OFF);
         super.end(interrupted);
     }
 

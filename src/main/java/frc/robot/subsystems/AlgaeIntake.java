@@ -15,9 +15,6 @@ import frc.robot.Constants.SparkConstants;
 
 public class AlgaeIntake extends SubsystemBase {
     //different intake states
-    public enum AlgaeIntakeState {
-        OFF, INTAKE, OUTTAKE;
-    }
 
     private final SparkMax intakeLeader;
 
@@ -37,7 +34,7 @@ public class AlgaeIntake extends SubsystemBase {
         intakeLeader.configure(intakeLeaderConfig,
             SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-        setAlgaeIntakeState(AlgaeIntakeState.OFF);
+        setAlgaeIntakeState(AlgaeIntakeState.TRAPPED);
     }
 
     @Override
@@ -48,19 +45,35 @@ public class AlgaeIntake extends SubsystemBase {
 
     public void setAlgaeIntakeState(AlgaeIntakeState state) {
         switch (state) {
-            case OFF -> {
+            case UP -> {
+                setSpeed(Constants.AlgaeIntake.speed);
+            }
+            case TRAPPED -> {
                 setSpeed(0.0);
-            }
-            case INTAKE -> {
-                setSpeed(Constants.AlgaeIntake.speed);
-            }
-            case OUTTAKE -> {
-                setSpeed(Constants.AlgaeIntake.speed);
             }
         }
     }
-
     private void setSpeed(double speed) {
         intakeMotorSpeed = speed;
+    }
+
+    public enum AlgaePosition {
+        MIN(Double.NEGATIVE_INFINITY),
+        MAX(Double.POSITIVE_INFINITY);
+
+        private double position;
+
+        AlgaePosition(double position) {
+            this.position = position;
+        }
+
+        public double getValue() {
+            return position;
+        }
+    }
+    
+    public enum AlgaeIntakeState {
+        UP,
+        TRAPPED //spring?
     }
 }
