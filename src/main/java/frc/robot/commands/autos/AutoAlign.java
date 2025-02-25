@@ -174,8 +174,8 @@ public class AutoAlign extends StormCommand {
     @Override
     public boolean isFinished() {
 
-        return (translationPID.atGoal() && thetaController.atGoal())//||
-//            (timer.get()>4);
+        return (translationPID.atGoal() && thetaController.atGoal()) ||
+            (timer.get()>4);
     }
 
     public void end() {
