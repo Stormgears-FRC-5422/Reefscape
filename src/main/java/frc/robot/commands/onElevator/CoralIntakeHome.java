@@ -1,9 +1,7 @@
-package frc.robot.commands;
+package frc.robot.commands.onElevator;
 
 import frc.robot.RobotState;
-import frc.robot.subsystems.CoralIntake;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Elevator.ElevatorState;
+import frc.robot.subsystems.onElevator.CoralIntake;
 import frc.utils.StormCommand;
 
 import static java.util.Objects.isNull;

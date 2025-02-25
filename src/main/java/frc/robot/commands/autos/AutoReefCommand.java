@@ -1,14 +1,12 @@
 package frc.robot.commands.autos;
 
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.FieldConstants;
-import frc.robot.commands.ElevatorMoveToHold;
-import frc.robot.commands.ElevatorMoveToPosition;
+import frc.robot.commands.onElevator.ElevatorMoveToHold;
+import frc.robot.commands.onElevator.ElevatorMoveToPosition;
 import frc.robot.joysticks.ReefscapeJoystick;
-import frc.robot.subsystems.CoralIntake;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Elevator.ElevatorLevel;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.onElevator.Elevator;
+import frc.robot.subsystems.onElevator.Elevator.ElevatorLevel;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.utils.StormCommand;
 

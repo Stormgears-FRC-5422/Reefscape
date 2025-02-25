@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.misc;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Constants;
 import frc.robot.RobotState;
+import frc.robot.subsystems.onElevator.Elevator;
 import frc.utils.StormSubsystem;
 import edu.wpi.first.units.measure.Distance;
 import static edu.wpi.first.units.Units.Meters;

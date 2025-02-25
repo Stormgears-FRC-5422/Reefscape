@@ -1,10 +1,8 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.misc;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotState;
-import frc.utils.vision.LimelightHelpers;
 
 public class Pigeon extends SubsystemBase {
     Pigeon2 pigeon;

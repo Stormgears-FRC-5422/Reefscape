@@ -1,18 +1,12 @@
 package frc.robot.commands.autos;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants;
 import frc.robot.FieldConstants;
-import frc.robot.RobotState;
 import frc.robot.joysticks.ReefscapeJoystick;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.utils.StormCommand;
-import frc.utils.vision.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Supplier;

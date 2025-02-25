@@ -1,6 +1,6 @@
-package frc.robot.commands;
+package frc.robot.commands.onElevator;
 
-import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.onElevator.Elevator;
 
 // This is a specialization of the MoveToPosition command that
 // has a constructor allowing it to hold at the current position when created

@@ -8,8 +8,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.utils.vision.LimelightHelpers;
-import frc.robot.subsystems.Elevator.ElevatorState;
+import frc.robot.subsystems.onElevator.Elevator.ElevatorState;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 
@@ -41,7 +40,8 @@ public class RobotState extends SubsystemBase {
 
     boolean m_isCoralSensorTriggered = false;
     private boolean elevatorHasBeenHomed = false;
-    private boolean m_intakeWristHasBeenHomed = false;
+    private boolean intakeWristHasBeenHomed = false;
+    private boolean algaeIntakeHasBeenHomed = false;
     private ElevatorState elevatorState = ElevatorState.UNKNOWN;
     private boolean isAligned = false;
     private boolean isVisionPoseValid = false;
@@ -228,11 +228,19 @@ public class RobotState extends SubsystemBase {
     }
 
     public void setIntakeWristHasBeenHomed(boolean homed) {
-        m_intakeWristHasBeenHomed = homed;
+        intakeWristHasBeenHomed = homed;
     }
 
     public boolean getIntakeWristHasBeenHomed() {
-        return m_intakeWristHasBeenHomed;
+        return intakeWristHasBeenHomed;
+    }
+
+    public void setAlgaeIntakeHasBeenHomed(boolean homed) {
+        algaeIntakeHasBeenHomed = homed;
+    }
+
+    public boolean getAlgaeIntakeHasBeenHomed() {
+        return algaeIntakeHasBeenHomed;
     }
 
     public boolean isCoralSensorTriggered() {

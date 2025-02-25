@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.CoralIntakeCommand;
+import frc.robot.commands.onElevator.*;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.autos.AutoCommandFactory;
 import frc.robot.commands.autos.AutoReef;
@@ -23,13 +23,17 @@ import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.misc.ColorSensor;
+import frc.robot.subsystems.misc.Lights;
+import frc.robot.subsystems.misc.Pigeon;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
 import frc.robot.subsystems.drive.IllegalDriveTypeException;
-import frc.robot.commands.ElevatorMoveToPosition;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Elevator.ElevatorLevel;
+import frc.robot.subsystems.onElevator.AlgaeIntake;
+import frc.robot.subsystems.onElevator.CoralIntake;
+import frc.robot.subsystems.onElevator.Elevator;
+import frc.robot.subsystems.onElevator.Elevator.ElevatorLevel;
 import frc.robot.Constants.Toggles;
 import frc.robot.subsystems.vision.CameraConstants;
 import frc.robot.subsystems.vision.StormLimelight;
@@ -44,7 +48,6 @@ public class RobotContainer {
     // **********
     private DrivetrainBase drivetrain;
     private VisionSubsystem visionSubsystem;
-    private NavX navX;
     private Lights lights;
     private Pigeon pigeon;
     private Climber climber;
@@ -281,6 +284,11 @@ public class RobotContainer {
                     () -> Toggles.useElevator
                 ),
                 new ConditionalCommand(
+                    new AlgaeIntakeHome(algaeIntake),
+                    new PrintCommand("AlgaeIntake disabled"),
+                    () -> Toggles.useAlgaeIntake
+                ),
+                new ConditionalCommand(
                     new CoralIntakeHome(coralIntake),
                     new PrintCommand("CoralIntake disabled"),
                     () -> Toggles.useCoralIntake
@@ -439,6 +447,9 @@ public class RobotContainer {
             new ConditionalCommand(new ElevatorHome(elevator),
                 new PrintCommand("Elevator disabled"),
                 () -> Toggles.useElevator),
+            new ConditionalCommand(new AlgaeIntakeHome(algaeIntake),
+                new PrintCommand("AlgaeIntake` disabled"),
+                () -> Toggles.useAlgaeIntake),
             new ConditionalCommand(new CoralIntakeHome(coralIntake),
                 new PrintCommand("CoralIntake disabled"),
                 () -> Toggles.useCoralIntake)

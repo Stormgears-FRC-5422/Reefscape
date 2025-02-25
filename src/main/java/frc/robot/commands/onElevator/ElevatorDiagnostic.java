@@ -1,7 +1,7 @@
-package frc.robot.commands;
+package frc.robot.commands.onElevator;
 
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Elevator.ElevatorLevel;
+import frc.robot.subsystems.onElevator.Elevator;
+import frc.robot.subsystems.onElevator.Elevator.ElevatorLevel;
 import frc.utils.StormCommand;
 
 public class ElevatorDiagnostic extends StormCommand {
