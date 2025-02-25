@@ -5,14 +5,18 @@ import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotState;
-import frc.robot.commands.onElevator.CoralIntakeCommand;
-import frc.robot.commands.onElevator.ElevatorMoveToHold;
-import frc.robot.commands.onElevator.ElevatorMoveToPosition;
+import frc.robot.ShuffleboardConstants;
+import frc.robot.commands.CoralIntakeCommand;
+import frc.robot.commands.ElevatorMoveToHold;
+import frc.robot.commands.ElevatorMoveToPosition;
 import frc.robot.subsystems.drive.DrivetrainBase;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class AutoCommandFactory {
@@ -61,6 +65,19 @@ public class AutoCommandFactory {
         );
     }
 
+    public Command middleOne(){
+        return Commands.sequence(
+            autoFactory.resetOdometry("middle_one"),
+            autoFactory.trajectoryCmd("middle_left"),
+            autoReef,
+            elevatorMoveToPositionL4,
+            Commands.race(
+                elevatorL4Hold,
+                outake),
+            elevatorMoveToPositionL1
+        );
+    }
+
 
     public Command farLeft(){
         return
@@ -84,4 +101,28 @@ public class AutoCommandFactory {
                 , elevatorMoveToPositionL1);
     }
 
+}
+class AutoSelector {
+    private SendableChooser<String> PositionChooser = new SendableChooser<>();
+    private final AutoCommandFactory autoCommandFactory;
+    public AutoSelector(AutoCommandFactory autoCommandFactory) {
+        this.autoCommandFactory = autoCommandFactory;
+        PositionChooser.addOption("Middle", "middle_one");
+        PositionChooser.addOption("Far Left", "far_left");
+        PositionChooser.addOption("Right", "right_one");
+        ShuffleboardConstants.getInstance().autoSelectionLayout
+            .add("Starting Position?", PositionChooser)
+            .withPosition(0, 0);
+    }
+    public Command buildAuto() {
+        ArrayList<Command> fullRoutine = new ArrayList<>();
+        String selectedPosition = PositionChooser.getSelected();
+
+        if (selectedPosition.equals("far_left")){
+            return autoCommandFactory.farLeft();
+        } else if (selectedPosition.equals("middle_one")){
+            return autoCommandFactory.middleOne();
+        }
+        return null;
+    }
 }
