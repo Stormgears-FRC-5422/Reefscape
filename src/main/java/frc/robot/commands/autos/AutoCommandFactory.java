@@ -11,9 +11,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
-import frc.robot.commands.CoralIntakeCommand;
-import frc.robot.commands.ElevatorMoveToHold;
-import frc.robot.commands.ElevatorMoveToPosition;
+import frc.robot.commands.onElevator.CoralIntakeCommand;
+import frc.robot.commands.onElevator.ElevatorMoveToHold;
+import frc.robot.commands.onElevator.ElevatorMoveToPosition;
 import frc.robot.subsystems.drive.DrivetrainBase;
 
 import java.util.ArrayList;

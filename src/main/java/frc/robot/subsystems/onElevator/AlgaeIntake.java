@@ -42,7 +42,7 @@ public class AlgaeIntake extends StormSubsystem {
         algaeSpark.configure(algaeConfig,
             SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-        setState(AlgaeIntakeState.TRAPPED);
+        setState(AlgaeIntakeState.UNKNOWN);
         robotState = RobotState.getInstance();
     }
 
