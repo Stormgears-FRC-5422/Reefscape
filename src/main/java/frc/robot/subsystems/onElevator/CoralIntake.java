@@ -79,6 +79,9 @@ public class CoralIntake extends StormSubsystem {
         wristSpark.configure(wristConfig,
             SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
+        wristConfig.openLoopRampRate(Constants.Intake.wristOpenLoopRampRate);
+        rollerConfig.openLoopRampRate(Constants.Intake.rollerOpenLoopRampRate);
+
         setState(CoralIntakeState.UNKNOWN);
         robotState = RobotState.getInstance();
     }

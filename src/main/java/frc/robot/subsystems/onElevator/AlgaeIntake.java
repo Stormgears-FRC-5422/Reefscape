@@ -38,6 +38,7 @@ public class AlgaeIntake extends StormSubsystem {
 
         // Apply the global config and invert (maybe) according to the config setting
         algaeConfig.apply(algaeConfig).inverted(Constants.AlgaeIntake.invert);
+        algaeConfig.closedLoopRampRate(Constants.AlgaeIntake.closedLoopRampRate);
 
         algaeSpark.configure(algaeConfig,
             SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);

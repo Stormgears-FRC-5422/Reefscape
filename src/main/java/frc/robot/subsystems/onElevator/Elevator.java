@@ -76,7 +76,7 @@ public class Elevator extends StormSubsystem {
             .d(kD)
             .outputRange(-maxVPct, maxVPct);
 
-        elevatorLeaderConfig.closedLoopRampRate(0.1);
+        elevatorLeaderConfig.closedLoopRampRate(Constants.Elevator.closedLoopRampRate);
 
         double kS = Constants.Elevator.kS;  // volts
         double kG = Constants.Elevator.kG;  // volts
