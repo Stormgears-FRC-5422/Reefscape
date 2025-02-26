@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -12,6 +13,7 @@ import frc.robot.joysticks.IllegalJoystickTypeException;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggedPowerDistribution;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
@@ -45,7 +47,7 @@ public class Robot extends LoggedRobot {
                 // I think /home/lvuser/logs?
                 Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
                 Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-                //new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+                LoggedPowerDistribution.getInstance(Constants.Power.moduleID, Constants.Power.isRevPdh ? PowerDistribution.ModuleType.kRev : PowerDistribution.ModuleType.kCTRE);
                 break;
             case AKIT_REPLAY:
                 console("This is an ADVANTAGE KIT REPLAY robot");

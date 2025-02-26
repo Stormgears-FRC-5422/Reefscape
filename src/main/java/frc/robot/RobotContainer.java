@@ -73,8 +73,8 @@ public class RobotContainer {
     CoralIntakeCommand coralIntakeCommand;
     CoralIntakeHold coralIntakeHold;
     CoralIntakeCommand coralOuttakeCommand;
-    AlgaeIntakeCommand algaeIntakeCommand;
-    AlgaeIntakeCommand algaeOuttakeCommand;
+    AlgaeIntakeMoveToPosition algaeIntakeCommand;
+    AlgaeIntakeMoveToPosition algaeOuttakeCommand;
 
     // Auto
     AutoStationCommand autoStationCommand;
@@ -115,8 +115,8 @@ public class RobotContainer {
 
         if (Constants.Toggles.useAlgaeIntake) {
             algaeIntake = new AlgaeIntake();
-            algaeIntakeCommand = new AlgaeIntakeCommand(algaeIntake, true);
-            algaeOuttakeCommand = new AlgaeIntakeCommand(algaeIntake, false);
+            algaeIntakeCommand = new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD);
+            algaeOuttakeCommand = new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.REEF_PICKUP);
         }
 
         if (Constants.Toggles.useLights) {
@@ -140,7 +140,6 @@ public class RobotContainer {
             moveDownElevator = new ElevatorDiagnostic(elevator, false);
             moveUpElevator = new ElevatorDiagnostic(elevator, true);
             toLevel1 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1);
-//            toLevel1 = new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL1);
             toLevel2 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL2);
             toLevel3 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL3);
             toLevel4 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4);
@@ -166,45 +165,13 @@ public class RobotContainer {
             climber = new Climber();
         }
 
-//        if (Toggles.useController) {
-//            console("Making drive joystick!");
-//            joystick = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.driveJoystick,
-//                Constants.ButtonBoard.driveJoystickPort);
-//
-//            configureBindings();
-//
-//            // Note that this might pass a NULL drive if that is disabled. The JoyStick drive
-//            // will still work in this case, just not move the robot.
-//            JoyStickDrive driveWithJoystick = new JoyStickDrive(drivetrain, joystick);
-//            if (!isNull(drivetrain)) {
-//                drivetrain.setDefaultCommand(driveWithJoystick);
-//            }
-//        }
-//
-//
-//        if (Toggles.useButtonBoard) {
-//            console("Making button board!");
-//            buttonBoard = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.buttonBoard,
-//                Constants.ButtonBoard.buttonBoardPort1);
-//            configureButtonBoardBindings();
-//
-//            if (!isNull(elevator) && !Constants.Elevator.useDiagnosticElevator) {
-//                manualElevator = new ElevatorManual(elevator, buttonBoard);
-//                elevator.setDefaultCommand(manualElevator);
-//            }
-//        }
-
         console("constructor ended");
     }
 
     private void configureBindings() {
         console("Configuring Joystick bindings");
 
-//        if (Constants.Toggles.useCoralIntake) {
-//            new Trigger(() -> joystick.coralIntake()).onTrue(coralIntakeCommand);
-//            new Trigger(() -> joystick.coralOuttake()).onTrue(coralOuttakeCommand);
         if (Toggles.useDrive) {
-
             new Trigger(() -> joystick.coralIntake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
             new Trigger(() -> joystick.coralOuttake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
             new Trigger(() -> joystick.zeroWheels()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
@@ -213,18 +180,13 @@ public class RobotContainer {
 
         }
 
-//        }
         if (Toggles.useDrive) {
-//            temporarily left side
-//            new Trigger(() -> joystick.autoReef())
-//                .onTrue(new AutoReef(drivetrain, visionSubsystem,
-//                    joystick, FieldConstants.Side.LEFT)); //B
             console("configure button bindings");
 
             new Trigger(() -> joystick.zeroGyro())
                 .onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
-
         }
+
         // TODO: uncomment after week zero and change the buttons for diagnostic elevator to avoid conflict
         /*
         if (Toggles.useAlgaeIntake){

@@ -4,40 +4,32 @@
 
 package frc.robot.commands.onElevator;
 
-import frc.robot.Constants;
 import frc.robot.subsystems.onElevator.AlgaeIntake;
-import frc.robot.subsystems.onElevator.AlgaeIntake.AlgaeIntakeState;
 import frc.utils.StormCommand;
 
-
-public class AlgaeIntakeCommand extends StormCommand {
-    /**
-     * Creates a new Intake.
-     */
+public class AlgaeIntakeMoveToPosition extends StormCommand {
     private final AlgaeIntake algaeIntake;
-    private final AlgaeIntakeState direction;
-    private int counter;
+    protected final double targetPosition;
 
-    public AlgaeIntakeCommand(AlgaeIntake algaeIntake, boolean intake) {
+    public AlgaeIntakeMoveToPosition(AlgaeIntake algaeIntake, double position) {
         this.algaeIntake = algaeIntake;
-        this.direction = intake ? AlgaeIntakeState.UP : AlgaeIntakeState.TRAPPED;
+        this.targetPosition = position;
+
         addRequirements(algaeIntake);
+    }
+
+    public AlgaeIntakeMoveToPosition(AlgaeIntake algaeIntake, AlgaeIntake.IntakeTarget target) {
+        this(algaeIntake, target.getValue());
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         super.initialize();
-        console("direction = " + (direction == AlgaeIntakeState.UP ? "Intake" : "Outtake"));
+        console("targetPosition = " + targetPosition);
 
-        counter = 0;
-        algaeIntake.setState(direction);
-    }
-
-    // Called every time the scheduler runs while the command is scheduled.
-    @Override
-    public void execute() {
-        counter++;
+        algaeIntake.setTargetPosition(targetPosition);
+        algaeIntake.setState(AlgaeIntake.IntakeState.PID_MOTION);
     }
 
     // Called once the command ends or is interrupted.
@@ -48,6 +40,6 @@ public class AlgaeIntakeCommand extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return counter >= Constants.AlgaeIntake.intakeIterationCount;
+        return algaeIntake.isAtTarget();
     }
 }

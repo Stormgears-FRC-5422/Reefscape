@@ -78,32 +78,20 @@ public class Elevator extends StormSubsystem {
 
         elevatorLeaderConfig.closedLoopRampRate(Constants.Elevator.closedLoopRampRate);
 
-        double kS = Constants.Elevator.kS;  // volts
-        double kG = Constants.Elevator.kG;  // volts
-        double kV = Constants.Elevator.kV;  // volts / rot/s
-        double kA = Constants.Elevator.kA;  // negligible - ignore - 0.032 volts / rot/s
-
-        feedForward = new ElevatorFeedforward(kS, kG, kV, kA);
-
-//        double maxVel = 1200;
-//        double maxAccel = 1200;
-//        double allowedError = 0.1;
-//
-//        elevatorLeaderConfig.closedLoop.maxMotion
-//            .maxVelocity(maxVel)
-//            .maxAcceleration(maxAccel)
-//            .allowedClosedLoopError(allowedError);
-
         elevatorLeader.configure(elevatorLeaderConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
         elevatorFollowerConfig.apply(globalConfig)
             .follow(elevatorLeader, true);
         elevatorFollower.configure(elevatorFollowerConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-        controller = elevatorLeader.getClosedLoopController();
+        double kS = Constants.Elevator.kS;  // volts
+        double kG = Constants.Elevator.kG;  // volts
+        double kV = Constants.Elevator.kV;  // volts / rot/s
+        double kA = Constants.Elevator.kA;  // negligible - ignore - 0.032 volts / rot/s
+        feedForward = new ElevatorFeedforward(kS, kG, kV, kA);
 
-        targetPosition = Double.NaN;
-        currentState = ElevatorState.UNKNOWN;
+        controller = elevatorLeader.getClosedLoopController();
+        setState(ElevatorState.UNKNOWN);
     }
 
     @Override
@@ -201,7 +189,7 @@ public class Elevator extends StormSubsystem {
             return elevatorLeader.getOutputCurrent() > Constants.Elevator.stallCurrentLimit;
         } else {
             console("isAtHome current position: " + currentPosition);
-            return Math.abs(currentPosition) < 1.0;
+            return Math.abs(currentPosition) < Constants.Elevator.homePositionThreshold;
         }
     }
 

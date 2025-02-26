@@ -119,7 +119,7 @@ public class CoralIntake extends StormSubsystem {
                 wristSpark.set(0);
         }
 
-        robotState.setCoralSensorTriggered(isIntakeSensorTriggered());
+        robotState.setCoralSensorTriggered(isLoaded());
     }
 
     public void setState(CoralIntakeState state) {
@@ -196,7 +196,7 @@ public class CoralIntake extends StormSubsystem {
         }
     }
 
-    public boolean isIntakeSensorTriggered() {
+    public boolean isLoaded() {
         return proximitySensorIntake.isPressed();
     }
 
