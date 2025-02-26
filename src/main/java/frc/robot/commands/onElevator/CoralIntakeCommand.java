@@ -6,7 +6,7 @@ package frc.robot.commands.onElevator;
 
 import frc.robot.Constants.Intake;
 import frc.robot.subsystems.onElevator.CoralIntake;
-import frc.robot.subsystems.onElevator.CoralIntake.CoralIntakeState;
+import frc.robot.subsystems.onElevator.CoralIntake.IntakeState;
 import frc.utils.StormCommand;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -15,13 +15,13 @@ public class CoralIntakeCommand extends StormCommand {
      * Creates a new Intake.
      */
     private final CoralIntake coralIntake;
-    private final CoralIntake.CoralIntakeState operation;
+    private final IntakeState operation;
     private int finished_counter;
     private final Timer timer;
 
     public CoralIntakeCommand(CoralIntake coralIntake, boolean intake) {
         this.coralIntake = coralIntake;
-        this.operation = intake ? CoralIntakeState.INTAKE : CoralIntakeState.OUTTAKE;
+        this.operation = intake ? IntakeState.INTAKE : IntakeState.OUTTAKE;
         timer = new Timer();
         addRequirements(coralIntake);
     }
@@ -30,7 +30,7 @@ public class CoralIntakeCommand extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
-        console("operation = " + (operation == CoralIntakeState.INTAKE ? "Intake" : "Outtake"));
+        console("operation = " + (operation == IntakeState.INTAKE ? "Intake" : "Outtake"));
 
         timer.restart();
         finished_counter = 0;
@@ -45,7 +45,7 @@ public class CoralIntakeCommand extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        if (operation == CoralIntakeState.INTAKE) {
+        if (operation == IntakeState.INTAKE) {
             // let the motor run for a few iterations after sensor is triggered to fully align Coral with the base
             if (coralIntake.isLoaded()) {
                 finished_counter++;
@@ -61,7 +61,7 @@ public class CoralIntakeCommand extends StormCommand {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        coralIntake.setState(CoralIntake.CoralIntakeState.IDLE);
+        coralIntake.setState(IntakeState.IDLE);
         super.end(interrupted);
     }
 

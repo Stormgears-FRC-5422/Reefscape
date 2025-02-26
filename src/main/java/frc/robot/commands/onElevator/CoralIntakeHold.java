@@ -5,8 +5,9 @@
 package frc.robot.commands.onElevator;
 
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
 import frc.robot.subsystems.onElevator.CoralIntake;
-import frc.robot.subsystems.onElevator.CoralIntake.CoralIntakeState;
+import frc.robot.subsystems.onElevator.CoralIntake.IntakeState;
 import frc.utils.StormCommand;
 
 public class CoralIntakeHold extends StormCommand {
@@ -14,10 +15,14 @@ public class CoralIntakeHold extends StormCommand {
      * Creates a new Intake.
      */
     private final CoralIntake coralIntake;
+    private final CoralIntake.IntakePosition targetPosition;
     private final Timer timer;
+    private double duration;
 
-    public CoralIntakeHold(CoralIntake coralIntake) {
+    public CoralIntakeHold(CoralIntake coralIntake, CoralIntake.IntakePosition targetPosition) {
         this.coralIntake = coralIntake;
+        this.targetPosition = targetPosition;
+
         timer = new Timer();
         addRequirements(coralIntake);
     }
@@ -26,8 +31,22 @@ public class CoralIntakeHold extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
+        switch (targetPosition) {
+            case OUTTAKE -> {
+                coralIntake.setState(IntakeState.GO_HOME);
+                duration = Constants.Intake.goHomeDuration;
+            }
+            case INTAKE -> {
+                coralIntake.setState(IntakeState.HOLD_UP);
+                duration = Constants.Intake.holdUpDuration;
+            }
+            default->{
+                coralIntake.setState(IntakeState.IDLE);
+                duration = 0;
+            }
+        }
+
         timer.restart();
-        coralIntake.setState(CoralIntakeState.GO_HOME);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -38,14 +57,14 @@ public class CoralIntakeHold extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return timer.get() > 0.5;
+        return timer.get() > duration;
+
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        coralIntake.setState(CoralIntakeState.IDLE);
+        coralIntake.setState(IntakeState.IDLE);
         super.end(interrupted);
     }
-
 }

@@ -29,7 +29,7 @@ public class CoralIntakeHome extends StormCommand {
         super.initialize();
         skip = robotState.getIntakeWristHasBeenHomed();
         if (!skip) {
-            coralIntake.setState(CoralIntake.CoralIntakeState.HOMING);
+            coralIntake.setState(CoralIntake.IntakeState.HOMING);
         } else {
             console("skipping coralIntake home - already homed");
         }
@@ -49,9 +49,9 @@ public class CoralIntakeHome extends StormCommand {
     public void end(boolean interrupted) {
         if (!skip) {
             if (!interrupted) {
-                coralIntake.setState(CoralIntake.CoralIntakeState.HOME);
+                coralIntake.setState(CoralIntake.IntakeState.HOME);
             } else {
-                coralIntake.setState(CoralIntake.CoralIntakeState.UNKNOWN);
+                coralIntake.setState(CoralIntake.IntakeState.UNKNOWN);
             }
         }
 

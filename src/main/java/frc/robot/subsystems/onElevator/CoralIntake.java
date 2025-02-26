@@ -31,7 +31,7 @@ public class CoralIntake extends StormSubsystem {
     private double rollerSpeed;
 
     int homeCounter;
-    CoralIntakeState currentState;
+    IntakeState currentState;
     private double currentPosition;
     private boolean hasBeenHomed = false;
 
@@ -82,7 +82,7 @@ public class CoralIntake extends StormSubsystem {
         wristConfig.openLoopRampRate(Constants.Intake.wristOpenLoopRampRate);
         rollerConfig.openLoopRampRate(Constants.Intake.rollerOpenLoopRampRate);
 
-        setState(CoralIntakeState.UNKNOWN);
+        setState(IntakeState.UNKNOWN);
         robotState = RobotState.getInstance();
     }
 
@@ -105,6 +105,7 @@ public class CoralIntake extends StormSubsystem {
             case INTAKE:
             case OUTTAKE:
             case GO_HOME:
+            case HOLD_UP:
             case READY:
                 if (hasBeenHomed) {
                     rollerSpark.set(rollerSpeed);
@@ -122,7 +123,7 @@ public class CoralIntake extends StormSubsystem {
         robotState.setCoralSensorTriggered(isLoaded());
     }
 
-    public void setState(CoralIntakeState state) {
+    public void setState(IntakeState state) {
         currentState = state;
 
         switch (state) {
@@ -159,6 +160,11 @@ public class CoralIntake extends StormSubsystem {
                 rollerSpeed = 0;
                 wristSpeed = -Intake.wristSpeed;
             }
+            case HOLD_UP -> {
+                console("***** HOLD_UP state *****");
+                rollerSpeed = 0;
+                wristSpeed = Intake.wristSpeed;
+            }
             case READY -> {
                 console("***** READY state *****");
                 rollerSpeed = 0;
@@ -183,7 +189,7 @@ public class CoralIntake extends StormSubsystem {
             return homeCounter > 5;
         } else {
             console("isAtHome current position: " + currentPosition);
-            return Math.abs(currentPosition) < 1.0;
+            return Math.abs(currentPosition) < Constants.Intake.homePositionThreshold;
         }
     }
 
@@ -202,17 +208,34 @@ public class CoralIntake extends StormSubsystem {
 
     public void enableSoftLimits(boolean enable) {
         wristConfig.softLimit
-            .forwardSoftLimit(Intake.wristForwardLimit)
+            .forwardSoftLimit(IntakePosition.INTAKE.getValue())
             .forwardSoftLimitEnabled(enable)
-            .reverseSoftLimit(Intake.wristReverseLimit)
+            .reverseSoftLimit(IntakePosition.OUTTAKE.getValue())
             .reverseSoftLimitEnabled(enable);
 
         wristSpark.configure(wristConfig, SparkBase.ResetMode.kNoResetSafeParameters,
             SparkBase.PersistMode.kNoPersistParameters);
     }
 
-    public enum CoralIntakeState {
-        UNKNOWN, IDLE, HOMING, HOME, GO_HOME, INTAKE, OUTTAKE, READY;
+    public enum IntakeState {
+        UNKNOWN, IDLE, HOMING, HOME, GO_HOME, HOLD_UP, INTAKE, OUTTAKE, READY;
+    }
+
+    public enum IntakePosition {
+        UNKNOWN(Double.NaN),
+        HOME(Intake.wristHomePosition),
+        OUTTAKE(Intake.wristReverseLimit),
+        INTAKE(Intake.wristForwardLimit);
+
+        private double position;
+
+        IntakePosition(double position) {
+            this.position = position;
+        }
+
+        public double getValue() {
+            return position;
+        }
     }
 }
 
