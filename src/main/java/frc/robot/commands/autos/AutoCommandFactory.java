@@ -9,12 +9,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.ShuffleboardConstants;
 import frc.robot.commands.onElevator.CoralIntakeCommand;
 import frc.robot.commands.onElevator.ElevatorMoveToHold;
 import frc.robot.commands.onElevator.ElevatorMoveToPosition;
+import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.subsystems.drive.DrivetrainBase;
+import frc.robot.subsystems.onElevator.CoralIntake;
+import frc.robot.subsystems.onElevator.Elevator;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -29,32 +36,25 @@ public class AutoCommandFactory {
     private Timer timer;
     private int count = 0;
     private final AutoFactory autoFactory;
-    private  AutoReef autoReef;
-    private ElevatorMoveToPosition elevatorMoveToPositionL1;
-    private ElevatorMoveToPosition elevatorMoveToPositionL4;
-    private ElevatorMoveToHold elevatorL4Hold;
-    private ElevatorMoveToHold elevatorL1Hold;
-    private CoralIntakeCommand intake;
-    private CoralIntakeCommand outake;
+    private  Elevator elevator;
+    private  CoralIntake coralIntake;
+    private  VisionSubsystem vis;
+    private  ReefscapeJoystick joystick;
 
 
 
-    public AutoCommandFactory(DrivetrainBase drivetrainBase, AutoReef autoReef,
-                              ElevatorMoveToPosition elevatorMoveToPositionL4,
-                              ElevatorMoveToPosition elevatorMoveToPositionL1,
-                              ElevatorMoveToHold elevatorL4Hold,
-                              ElevatorMoveToHold elevatorL1Hold,
-                              CoralIntakeCommand intake,
-                              CoralIntakeCommand outake) {
+    public AutoCommandFactory(DrivetrainBase drivetrainBase,
+                              Elevator elevator,
+                              CoralIntake coralIntake,
+                              VisionSubsystem visionSubsystem,
+                              ReefscapeJoystick joystick) {
+        this.joystick = joystick;
+        this.vis = visionSubsystem;
         this.drivetrainBase = drivetrainBase;
+        this.coralIntake = coralIntake;
+        this.elevator = elevator;
         timer = new Timer();
-        this.autoReef = autoReef;
-        this.elevatorMoveToPositionL1 = elevatorMoveToPositionL1;
-        this.elevatorMoveToPositionL4 = elevatorMoveToPositionL4;
-        this.elevatorL4Hold = elevatorL4Hold;
-        this.elevatorL1Hold = elevatorL1Hold;
-        this.intake = intake;
-        this.outake = outake;
+
 
         autoFactory = new AutoFactory(
             drivetrainBase::getPose,
@@ -68,15 +68,31 @@ public class AutoCommandFactory {
     public Command middleOne(){
         return Commands.sequence(
             autoFactory.resetOdometry("middle_one"),
-            autoFactory.trajectoryCmd("middle_left"),
-            autoReef,
-            elevatorMoveToPositionL4,
+            autoFactory.trajectoryCmd("middle_one"),
+            new AutoReef(drivetrainBase,vis, joystick,()-> FieldConstants.Side.RIGHT),
+            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
             Commands.race(
-                elevatorL4Hold,
-                outake),
-            elevatorMoveToPositionL1
+                new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
+                new CoralIntakeCommand(coralIntake, false)),
+            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
+
+        );
+
+    }
+    public Command rightOne(){
+        return Commands.sequence(
+            autoFactory.resetOdometry("right_one"),
+            autoFactory.trajectoryCmd("right_one"),
+            new AutoReef(drivetrainBase,vis, joystick,()-> FieldConstants.Side.RIGHT),
+            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
+            Commands.race(
+                new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
+                new CoralIntakeCommand(coralIntake, false)),
+            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
+
         );
     }
+
 
 
     public Command farLeft(){
@@ -84,21 +100,24 @@ public class AutoCommandFactory {
             Commands.sequence(
                 autoFactory.resetOdometry("far_left"),
                 autoFactory.trajectoryCmd("far_left"),
-                autoReef,
-                elevatorMoveToPositionL4,
-                Commands.race(
-                    elevatorL4Hold,
-                    outake),
-                elevatorMoveToPositionL1,
-                autoFactory.trajectoryCmd("far_left_two"),
-                intake,
-                autoFactory.trajectoryCmd("far_left_three"),
-                autoReef,
-                elevatorMoveToPositionL4,
-                Commands.race(
-                    elevatorL4Hold,
-                    outake)
-                , elevatorMoveToPositionL1);
+                new AutoReef(drivetrainBase,vis, joystick,()-> FieldConstants.Side.RIGHT),
+                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4));//,
+//                Commands.race(
+//                    new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
+//                    new CoralIntakeCommand(coralIntake, false)),
+//                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
+//                ,
+//                autoFactory.trajectoryCmd("far_left_two"),
+//                new CoralIntakeCommand(coralIntake,true),
+//                new WaitCommand(1),
+//                autoFactory.trajectoryCmd("far_left_three"),
+//                new AutoReef(drivetrainBase,vis, joystick,()-> FieldConstants.Side.RIGHT),
+//                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
+//                Commands.race(
+//                    new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
+//                    new CoralIntakeCommand(coralIntake, false))
+//                ,new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
+//                );
     }
 
 }
@@ -118,11 +137,11 @@ class AutoSelector {
         ArrayList<Command> fullRoutine = new ArrayList<>();
         String selectedPosition = PositionChooser.getSelected();
 
-        if (selectedPosition.equals("far_left")){
-            return autoCommandFactory.farLeft();
-        } else if (selectedPosition.equals("middle_one")){
-            return autoCommandFactory.middleOne();
-        }
+//        if (selectedPosition.equals("far_left")){
+//            return autoCommandFactory.farLeft();
+//        } else if (selectedPosition.equals("middle_one")){
+//            return autoCommandFactory.middleOne();
+//        }
         return null;
     }
 }

@@ -3,6 +3,7 @@ package frc.robot.commands.autos;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.FieldConstants;
+import frc.robot.RobotState;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
@@ -61,11 +62,16 @@ public class AutoReef extends StormCommand {
     @Override
     public void end(boolean interrupted) {
         super.end(interrupted);
+        RobotState.getInstance().setAligned(false);
+
     }
         @Override
     public boolean isFinished() {
 
 //        return RobotState.getInstance().isAutonomousAligned() || flag;
-        return timer.get()>5.0 || flag;
+        return !RobotState.getInstance().isCoralSensorTriggered() ||
+            RobotState.getInstance().isAutonomousAligned();
     }
+
+
 }

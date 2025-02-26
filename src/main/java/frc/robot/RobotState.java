@@ -48,6 +48,7 @@ public class RobotState extends SubsystemBase {
     private Pose2d MT2Pose;
     private boolean isAprilTagDetected;
     private boolean visionEnabled = true;
+    private boolean cancel = false;
 
     private boolean m_joystickAndButtonBoardConfigured = false;
 
@@ -113,6 +114,13 @@ public class RobotState extends SubsystemBase {
 
     public boolean getDidAuto() {
         return m_didAuto;
+    }
+
+    public void cancelAutoReef(boolean c){
+        cancel = c;
+    }
+    public boolean getCancelAutoReef(){
+        return cancel;
     }
 
     public boolean getDidTeleop() {

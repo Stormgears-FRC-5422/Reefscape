@@ -50,13 +50,13 @@ public class AutoAlign extends StormCommand {
 
         this.drivetrainBase = drivetrainBase;
         this.targetPose = targetPose;
-        translationPID = new ProfiledPIDController(3, 0.0, 0.1,
-            new TrapezoidProfile.Constraints(1.5, 1.5));
+        translationPID = new ProfiledPIDController(2.5, 0.0, 0.1,
+            new TrapezoidProfile.Constraints(5.0, 5.0));
         translationPID.setTolerance(linearTolerance);
 
 
-        thetaController = new ProfiledPIDController(3.25, 0.0, 0.1,
-            new TrapezoidProfile.Constraints(1.5, 1.5));
+        thetaController = new ProfiledPIDController(4.25, 0.0, 0.1,
+            new TrapezoidProfile.Constraints(5.0, 5.0));
         thetaController.setTolerance(thetaTolerance);
 
 
@@ -175,15 +175,17 @@ public class AutoAlign extends StormCommand {
     public boolean isFinished() {
 
         return (translationPID.atGoal() && thetaController.atGoal()) ||
-            (timer.get()>4);
+            (timer.get()>4) || !RobotState.getInstance().isCoralSensorTriggered();
+
     }
 
-    public void end() {
+    @Override
+    public void end(boolean interrupted) {
         System.out.println("auto align done");
+
         robotState.setAligned(true);
+        RobotState.getInstance().cancelAutoReef(false);
     }
-
-
 }
 
 

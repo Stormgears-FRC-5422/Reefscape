@@ -209,6 +209,8 @@ public class RobotContainer {
             new Trigger(() -> joystick.coralOuttake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
             new Trigger(() -> joystick.zeroWheels()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
             new Trigger(() -> joystick.autoReef()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+            new Trigger(() -> joystick.cancelAutoReef()).onTrue(new InstantCommand(()->robotState.cancelAutoReef(true)));
+
         }
 
 //        }
@@ -293,15 +295,21 @@ public class RobotContainer {
                     new PrintCommand("CoralIntake disabled"),
                     () -> Toggles.useCoralIntake
                 )),
+//            new AutoCommandFactory(drivetrain,
+//                new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT)
+//                , new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
+//                new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1),
+//                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
+//                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL1),
+//                coralIntakeCommand,
+//                coralOuttakeCommand
+//            ).farLeft());
             new AutoCommandFactory(drivetrain,
-                new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT)
-                , new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
-                new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1),
-                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
-                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL1),
-                coralIntakeCommand,
-                coralOuttakeCommand
-            ).farLeft());
+                elevator,
+                coralIntake,
+                visionSubsystem,
+                joystick
+            ).rightOne());
     }
 
     public void configJoysticks() throws IllegalJoystickTypeException {
