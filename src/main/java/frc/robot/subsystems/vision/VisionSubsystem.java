@@ -4,6 +4,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
@@ -14,7 +15,8 @@ import org.littletonrobotics.junction.Logger;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static frc.robot.Constants.Vision.limelightID;
+import static frc.robot.Constants.Vision.*;
+import static frc.utils.vision.LimelightHelpers.getRawFiducials;
 
 public class VisionSubsystem extends StormSubsystem {
     private final RobotState robotState;
@@ -32,6 +34,7 @@ public class VisionSubsystem extends StormSubsystem {
     StormLimelight[] limelights;
     static Pose2d estimatorPose;
     SwerveDrivePoseEstimator poseEstimator;
+    int bestTag;
 
     public VisionSubsystem(SwerveDrivePoseEstimator swerveDrivePoseEstimator, StormLimelight... stormLimelights) {
         LimelightHelpers.setLEDMode_PipelineControl("");
@@ -42,6 +45,7 @@ public class VisionSubsystem extends StormSubsystem {
         limelightReef = stormLimelights[0];
         limelights = stormLimelights;
         poseEstimator = swerveDrivePoseEstimator;
+
 
     }
 
@@ -99,8 +103,8 @@ public class VisionSubsystem extends StormSubsystem {
 //        } else {
 //            return 0;
 //        }
-        if (estimatorPose != null && LimelightHelpers.getRawFiducials(limelightID) != null) {
-            LimelightHelpers.RawFiducial[] rawFiducials = LimelightHelpers.getRawFiducials(limelightID);
+        if (estimatorPose != null && getRawFiducials(limelightID) != null) {
+            LimelightHelpers.RawFiducial[] rawFiducials = getRawFiducials(limelightID);
             double[] a = Arrays.stream(rawFiducials).mapToDouble(f -> f.id).toArray();
             double[] distances = new double[a.length];
             if (a.length == 0) {
@@ -132,7 +136,7 @@ public class VisionSubsystem extends StormSubsystem {
 //        } else {
 //            return 0;
 //        }
-        return LimelightHelpers.getRawFiducials(limelightID).length;
+        return getRawFiducials(limelightID).length;
     }
 
     public int getBestTag() {
@@ -170,7 +174,19 @@ public class VisionSubsystem extends StormSubsystem {
         estimatorPose = poseEstimator.getEstimatedPosition();
         heading = estimatorPose.getRotation().getDegrees();
         setGyro(heading);
-
+//        robotState.setTV(seesTag());
+//        robotState.setIsVisionPoseValid(getMT2().isPresent());
+//        robotState.setVisionPose(
+//            getMT2().isPresent()
+//                ? getMT2().get().pose
+//                : null
+//        );
+        LimelightHelpers.RawFiducial[] rawFiducials = getRawFiducials(limelightID);
+        if (rawFiducials.length > 0) {
+            bestTag = rawFiducials[0].id;
+        } else {
+            bestTag = -1;
+        }
 
         boolean rejectPose = false;
         Pose2d visionPose = null;
@@ -197,8 +213,8 @@ public class VisionSubsystem extends StormSubsystem {
 
             // uncertainty grows quadratically as robot is farther away
             // more tags seen uncertainty is less
-            if (LimelightHelpers.getRawFiducials(limelightID).length > 0) {
-                stdDevFactor = Math.pow(getAverageDistance(), 2.0) / LimelightHelpers.getRawFiducials(limelightID).length;
+            if (getRawFiducials(limelightID).length > 0) {
+                stdDevFactor = Math.pow(getAverageDistance(), 2.0) / getRawFiducials(limelightID).length;
             }
 //        linearStdDevBaseline and angularStdDevBaseline:
 //        base value for uncertainty then multiplied by factor above.
@@ -216,5 +232,18 @@ public class VisionSubsystem extends StormSubsystem {
             }
         }
 
+    }
+    public boolean isAligned() {
+        if ((bestTag <= tagRightRed && bestTag >= tagLeftRed) || (bestTag >= tagLeftBlue && bestTag <=tagRightBlue)) {
+            Pose2d left = FieldConstants.getReefTargetPose(FieldConstants.Side.LEFT, bestTag);
+            Pose2d right = FieldConstants.getReefTargetPose(FieldConstants.Side.RIGHT, bestTag);
+            if ((poseEstimator.getEstimatedPosition().minus(left).getTranslation().getNorm()<=0.01) || (poseEstimator.getEstimatedPosition().minus(right).getTranslation().getNorm()<=0.01)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }
