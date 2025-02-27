@@ -183,7 +183,7 @@ public class AutoAlign extends StormCommand {
     public void end(boolean interrupted) {
         System.out.println("auto align done");
 
-        robotState.setAligned(true);
+        robotState.setAligned(translationPID.atGoal() && thetaController.atGoal());
         RobotState.getInstance().cancelAutoReef(false);
     }
 }
