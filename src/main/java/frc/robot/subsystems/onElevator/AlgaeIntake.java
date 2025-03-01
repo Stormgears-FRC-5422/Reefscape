@@ -13,6 +13,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.SparkConstants;
 import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
+import org.littletonrobotics.junction.Logger;
 
 public class AlgaeIntake extends StormSubsystem {
     private final RobotState robotState;
@@ -59,6 +60,7 @@ public class AlgaeIntake extends StormSubsystem {
         double kD_loaded = Constants.AlgaeIntake.kD_loaded;  // volts / rot/s  0.001 - 0.01
         double maxV_loaded = Constants.AlgaeIntake.maxV_loaded;  // volts
         double maxVPct_loaded = maxV_loaded / SparkConstants.NominalVoltage; // percentage (-1 to 1)
+//        double maxVPct_loaded = maxV_loaded / 12.0; // percentage (-1 to 1)
         double kS_loaded = Constants.AlgaeIntake.kS_loaded;  // volts
         double kG_loaded = Constants.AlgaeIntake.kG_loaded;  // volts
         double kV_loaded = Constants.AlgaeIntake.kV_loaded;  // volts / rot/s
@@ -106,7 +108,7 @@ public class AlgaeIntake extends StormSubsystem {
         currentPosition = algaeEncoder.getPosition();
         double ffVoltage = 0;
         if (Constants.Debug.debug && robotState.getPeriod() != RobotState.StatePeriod.DISABLED) {
-            console("Current position: " + currentPosition, 50);
+            console("Current position: " + currentPosition + " loaded = " + loaded, 50);
         }
 
         switch (currentState) {
@@ -148,6 +150,13 @@ public class AlgaeIntake extends StormSubsystem {
             default:
                 algaeSpark.set(0);
         }
+
+        Logger.recordOutput("AlgaeIntake/AppliedOutput", algaeSpark.getAppliedOutput());
+        Logger.recordOutput("AlgaeIntake/Theta", Math.toDegrees(getTheta()));
+        Logger.recordOutput("AlgaeIntake/Position", currentPosition);
+        Logger.recordOutput("AlgaeIntake/Velocity", algaeEncoder.getVelocity());
+        Logger.recordOutput("AlgaeIntake/TargetLevel", targetPosition);
+        Logger.recordOutput("AlgaeIntake/Feedforward", ffVoltage);
     }
 
     public void setState(IntakeState state) {
@@ -261,7 +270,7 @@ public class AlgaeIntake extends StormSubsystem {
         algaeConfig.softLimit
             .forwardSoftLimit(IntakeTarget.HOME.getValue())
             .forwardSoftLimitEnabled(enable)
-            .reverseSoftLimit(IntakeTarget.GROUND_PICKUP.getValue())
+            .reverseSoftLimit(IntakeTarget.LOWEST.getValue())
             .reverseSoftLimitEnabled(enable);
 
         algaeSpark.configure(algaeConfig, SparkBase.ResetMode.kNoResetSafeParameters,
@@ -276,7 +285,8 @@ public class AlgaeIntake extends StormSubsystem {
         HORIZONTAL(Constants.AlgaeIntake.horizontal),
         REEF_PICKUP(Constants.AlgaeIntake.reefPickup),
         GROUND_PICKUP(Constants.AlgaeIntake.groundPickup),
-        DROPOFF(Constants.AlgaeIntake.dropoff);
+        DROPOFF(Constants.AlgaeIntake.dropoff),
+        LOWEST(Constants.AlgaeIntake.lowest);
 
         private double position;
 

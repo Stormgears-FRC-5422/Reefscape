@@ -27,7 +27,7 @@ public class Elevator extends StormSubsystem {
     private double targetPosition;
     private double currentPosition;
     private ElevatorState currentState;
-    private SparkMaxConfig elevatorLeaderConfig = new SparkMaxConfig();
+    private SparkMaxConfig elevatorLeaderConfig;
 
     public Elevator() {
         robotState = RobotState.getInstance();
@@ -254,7 +254,9 @@ public class Elevator extends StormSubsystem {
         HOME(Constants.Elevator.home),
         BOTTOM(Constants.Elevator.bottom),
         LEVEL1(Constants.Elevator.level1),
+        LOW_ALGAE(Constants.Elevator.lowAlgae),
         LEVEL2(Constants.Elevator.level2),
+        HIGH_ALGAE(Constants.Elevator.highAlgae),
         LEVEL3(Constants.Elevator.level3),
         LEVEL4(Constants.Elevator.level4),
         TOP(Constants.Elevator.top),

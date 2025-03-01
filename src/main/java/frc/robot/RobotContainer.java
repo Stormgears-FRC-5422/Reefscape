@@ -315,8 +315,12 @@ public class RobotContainer {
         }
 
         if (Toggles.useAlgaeIntake) {
-            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
-            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
+//            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
+//            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
+            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.STOW));
+            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD));
+            new Trigger(() -> buttonBoard.autoProcessor()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HORIZONTAL));
+            new Trigger(() -> buttonBoard.autoAlgaeReef()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.GROUND_PICKUP));
         }
 
         if (Toggles.useElevator) {

@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.onElevator.Elevator.ElevatorState;
@@ -269,6 +270,14 @@ public class RobotState extends SubsystemBase {
 
     public boolean getVisionEnabled(){
         return visionEnabled;
+    }
+
+    public boolean allowEndgame() {
+        if (DriverStation.isFMSAttached()) {
+            return DriverStation.getMatchTime() < Constants.Game.endGameTime;
+        } else {
+            return true;
+        }
     }
 }
 
