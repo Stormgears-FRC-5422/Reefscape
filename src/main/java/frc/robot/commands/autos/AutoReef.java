@@ -40,7 +40,7 @@ public class AutoReef extends StormCommand {
         super.initialize();
         FieldConstants.Side side;
         side = sideSupplier.get();
-        if(side==null){
+        if (side == null) {
             System.out.println("side null?");
         }
         if (visionSubsystem.seesTag()) {
@@ -50,11 +50,15 @@ public class AutoReef extends StormCommand {
             System.out.println("AutoReef: April Tag Seen!");
             Pose2d targetPose = FieldConstants.getReefTargetPose(side, tagID);
             Logger.recordOutput("Target Pose", targetPose);
-
-            AutoAlign autoAlign = new AutoAlign(drivetrainBase, targetPose, joystick);
-            autoAlign.schedule();
+            if (targetPose != null) {
+                AutoAlign autoAlign = new AutoAlign(drivetrainBase, targetPose, joystick);
+                autoAlign.schedule();
+            }else{
+                System.out.println("Wrong Tag :(");
+                flag = true;
+            }
         } else {
-            flag=true;
+            flag = true;
             System.out.println("No tag seen :(");
         }
     }
@@ -65,12 +69,13 @@ public class AutoReef extends StormCommand {
         RobotState.getInstance().setAligned(false);
 
     }
-        @Override
+
+    @Override
     public boolean isFinished() {
 
 //        return RobotState.getInstance().isAutonomousAligned() || flag;
         return !RobotState.getInstance().isCoralSensorTriggered() ||
-            RobotState.getInstance().isAutonomousAligned();
+            RobotState.getInstance().isAutonomousAligned() || timer.get()>2.5;
     }
 
 

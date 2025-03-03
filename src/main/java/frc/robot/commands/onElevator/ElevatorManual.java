@@ -11,7 +11,7 @@ public class ElevatorManual extends StormCommand {
     public ElevatorManual(Elevator elevator, ReefscapeJoystick buttonBoard) {
         this.elevator = elevator;
         this.buttonBoard = buttonBoard;
-        this.addRequirements(elevator);
+        addRequirements(elevator);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class ElevatorManual extends StormCommand {
 
 //        console("direction = " + direction + ", currentPosition = " + currentPosition);
         if (direction == Direction.UP) {
-            elevator.setTargetLevel(ElevatorLevel.LEVEL4);
+            elevator.setTargetLevel(ElevatorLevel.TOP);
         } else if (direction == Direction.DOWN) {
             elevator.setTargetLevel(ElevatorLevel.LEVEL1);
         } else {

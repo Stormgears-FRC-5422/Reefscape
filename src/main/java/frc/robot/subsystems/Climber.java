@@ -45,7 +45,9 @@ public class Climber extends StormSubsystem {
         // Hard limits
         climberMotorConfig.limitSwitch
             .forwardLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
-            .forwardLimitSwitchEnabled(true);
+            .forwardLimitSwitchEnabled(false)
+            .reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
+            .reverseLimitSwitchEnabled(false);
 
         climbLimitSwitch = climberMotor.getForwardLimitSwitch();
 
@@ -79,12 +81,16 @@ public class Climber extends StormSubsystem {
         currentState = state;
 
         switch (state) {
-            case PULLING->{
+            case PULLING -> {
                 climberSpeed = Constants.Climber.speed;
+            }
+            case PUSHING -> {
+                climberSpeed = -Constants.Climber.speed;
             }
             case START, IDLE -> {
                 climberSpeed = 0.0;
             }
+
         }
     }
 
@@ -101,7 +107,7 @@ public class Climber extends StormSubsystem {
         double currentPosition = climberEncoder.getPosition();
 
         switch (currentState) {
-            case PULLING -> {
+            case PULLING,PUSHING -> {
                 climberMotor.set(climberSpeed);
             }
             default -> {
@@ -117,6 +123,7 @@ public class Climber extends StormSubsystem {
     public enum ClimberState {
         START,
         PULLING,
+        PUSHING,
         HANGING,
         IDLE
     }

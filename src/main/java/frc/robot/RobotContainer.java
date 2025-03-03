@@ -87,10 +87,10 @@ public class RobotContainer {
     ElevatorDiagnostic moveUpElevator;
     ElevatorDiagnostic moveDownElevator;
     ElevatorManual manualElevator;
-    ElevatorMoveToPosition toLevel1;
-    ElevatorMoveToPosition toLevel2;
-    ElevatorMoveToPosition toLevel3;
-    ElevatorMoveToPosition toLevel4;
+    ElevatorMoveToHold toLevel1;
+    ElevatorMoveToHold toLevel2;
+    ElevatorMoveToHold toLevel3;
+    ElevatorMoveToHold toLevel4;
 
     //Limelights
     StormLimelight[] limelights;
@@ -141,10 +141,10 @@ public class RobotContainer {
             elevator = new Elevator();
             moveDownElevator = new ElevatorDiagnostic(elevator, false);
             moveUpElevator = new ElevatorDiagnostic(elevator, true);
-            toLevel1 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1);
-            toLevel2 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL2);
-            toLevel3 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL3);
-            toLevel4 = new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4);
+            toLevel1 = new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL1);
+            toLevel2 = new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL2);
+            toLevel3 = new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL3);
+            toLevel4 = new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4);
         }
 
         if (Toggles.useAutoReef) {
@@ -174,11 +174,11 @@ public class RobotContainer {
         console("Configuring Joystick bindings");
 
         if (Toggles.useDrive) {
-            new Trigger(() -> joystick.coralIntake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-            new Trigger(() -> joystick.coralOuttake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-            new Trigger(() -> joystick.zeroWheels()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
-            new Trigger(() -> joystick.autoReef()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-            new Trigger(() -> joystick.cancelAutoReef()).onTrue(new InstantCommand(()->robotState.cancelAutoReef(true)));
+//            new Trigger(() -> joystick.coralIntake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//            new Trigger(() -> joystick.coralOuttake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+//            new Trigger(() -> joystick.zeroWheels()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+//            new Trigger(() -> joystick.autoReef()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+//            new Trigger(() -> joystick.cancelAutoReef()).onTrue(new InstantCommand(()->robotState.cancelAutoReef(true)));
 
         }
 
@@ -187,6 +187,13 @@ public class RobotContainer {
 
             new Trigger(() -> joystick.zeroGyro())
                 .onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
+        }
+
+        if (Toggles.useClimber){
+//            new Trigger(()-> joystick.climb()).whileTrue(new Climb(climber, true));
+//            new Trigger(()-> joystick.climb()).whileTrue(new AlgaeIntakeMoveToPosition());
+//            new Trigger(()-> joystick.releaseClimb()).whileTrue(new Climb(climber, false));
+            new Trigger(()-> joystick.releaseClimb()).whileTrue(new Climb(climber, false));
         }
 
         // TODO: uncomment after week zero and change the buttons for diagnostic elevator to avoid conflict
@@ -268,12 +275,13 @@ public class RobotContainer {
 //                coralIntakeCommand,
 //                coralOuttakeCommand
 //            ).farLeft());
-            new AutoCommandFactory(drivetrain,
-                elevator,
-                coralIntake,
-                visionSubsystem,
-                joystick
-            ).rightOne());
+//           autoCommandFactory.farLeft());
+           new AutoCommandFactory(drivetrain,
+            elevator,
+            coralIntake,
+            visionSubsystem,
+            joystick)
+        .rightOne());
     }
 
     public void configJoysticks() throws IllegalJoystickTypeException {
@@ -297,12 +305,13 @@ public class RobotContainer {
             console("Making Button Board!");
             buttonBoard = ReefscapeJoystickFactory.getInstance(Constants.ButtonBoard.buttonBoard,
                 Constants.ButtonBoard.buttonBoardPort1);
-            configureButtonBoardBindings();
 
             if (!isNull(elevator) && !Constants.Elevator.useDiagnosticElevator) {
                 manualElevator = new ElevatorManual(elevator, buttonBoard);
                 elevator.setDefaultCommand(manualElevator);
             }
+            configureButtonBoardBindings();
+
         }
     }
 
@@ -334,6 +343,8 @@ public class RobotContainer {
             new Trigger(() -> buttonBoard.elevatorLevel2()).onTrue(toLevel2);
             new Trigger(() -> buttonBoard.elevatorLevel3()).onTrue(toLevel3);
             new Trigger(() -> buttonBoard.elevatorLevel4()).onTrue(toLevel4);
+            new Trigger(() -> buttonBoard.elevatorUp()).onTrue(manualElevator);
+            new Trigger(() -> buttonBoard.elevatorDown()).onTrue(manualElevator);
 
             // In auto mode, buttons L1 - L4: move to the right/left reef, move elevator to correct level, and Outtake
             if (Toggles.useAutoReef) {

@@ -103,7 +103,9 @@ public class AlgaeIntake extends StormSubsystem {
     public void periodic() {
         super.periodic();
 
-        loaded = isLoaded();
+//        loaded = isLoaded();
+        loaded = true;
+
 
         currentPosition = algaeEncoder.getPosition();
         double ffVoltage = 0;
@@ -133,6 +135,7 @@ public class AlgaeIntake extends StormSubsystem {
 
                     if (loaded) {
                         // units of velocity are rot/s
+//                        ffVoltage = computeFeedForwardVoltage(getTheta());
                         ffVoltage = feedForward_loaded.calculate(getTheta(), 0); // 0 here basically gives us gravity compensation
                         slot = loadedSlot;
                     } else {
@@ -147,9 +150,18 @@ public class AlgaeIntake extends StormSubsystem {
                 }
                 break;
 
+            case UP, DOWN:
+                if (hasBeenHomed) {
+//                        ffVoltage = computeFeedForwardVoltage(getTheta());
+                    algaeSpark.set(motorSpeed);
+                }
+                break;
+
             default:
                 algaeSpark.set(0);
         }
+
+
 
         Logger.recordOutput("AlgaeIntake/AppliedOutput", algaeSpark.getAppliedOutput());
         Logger.recordOutput("AlgaeIntake/Theta", Math.toDegrees(getTheta()));
@@ -189,6 +201,15 @@ public class AlgaeIntake extends StormSubsystem {
                 console("***** SIMPLE_MOTION state *****");
 
             }
+            case UP -> {
+                console("***** UP *****");
+                motorSpeed = Constants.AlgaeIntake.speed;
+            }
+            case DOWN -> {
+                console("***** DOWN *****");
+                motorSpeed = -Constants.AlgaeIntake.speed;
+            }
+
         }
     }
 
@@ -201,7 +222,7 @@ public class AlgaeIntake extends StormSubsystem {
         if (Constants.AlgaeIntake.useCurrentLimitHomeStrategy) {
             // might want to use an average here to minimize spikes
             console("isAtHome output current: " + algaeSpark.getOutputCurrent());
-            if (algaeSpark.getOutputCurrent() > Constants.AlgaeIntake.stallCurrentLimit) {
+            if (Math.abs(algaeSpark.getOutputCurrent()) > Constants.AlgaeIntake.stallCurrentLimit) {
                 homeCounter++;
             } else {
                 homeCounter = 0;
@@ -299,11 +320,68 @@ public class AlgaeIntake extends StormSubsystem {
         }
     }
 
+
+
+    /**
+     * Computes the feedforward voltage (Kf) for the Neo motor given an angle in degrees.
+     * Uses the standard Neo specifications:
+     *   Stall Torque = 2.6 Nm, Stall Current = 133 A,
+     *   Gear Ratio = 36, and maximum voltage 12 V.
+     *
+     * @param thetaDegrees The angle in degrees.
+     * @return The feedforward voltage in volts.
+     */
+    public static double computeFeedForwardVoltage(double thetaDegrees) {
+        // Conversion factor: inches to meters.
+        double inchToM = 0.0254;
+
+        // Mechanism parameters (in SI units)
+//        double x = 6 * inchToM;  // distance from wall to elbow (6 inches)
+//        double y = 3 * inchToM;  // length of lower arm (3 inches)
+//        double z = 3 * inchToM;  // vertical position of spring anchor (3 inches)
+
+        // Mechanism parameters (in SI units)
+        double x = 0.019;  // distance from wall to elbow (19cm)
+        double y = 0.065;  // length of lower arm (6.5cm)
+        double z = 0.095;  // vertical position of spring anchor (9.5cm)
+
+        // Spring constant (N/m)
+        // For example, if using a 50 lbs/in spring: 50 lbs/in ~ 8750 N/m.
+        double k = 1036;
+
+        // Standard Neo motor parameters
+        double tauStall = 2.6;   // Nm stall torque for Neo
+        int gearRatio = 36;
+        double Vmax = 12;        // maximum voltage (V)
+
+        // Convert theta from degrees to radians.
+        double theta = Math.toRadians(thetaDegrees);
+
+        // Compute the effective spring length L(theta)
+        double L = Math.sqrt(Math.pow(x - y * Math.cos(theta), 2) +
+            Math.pow(y * Math.sin(theta) - z, 2));
+        // Compute rest length L0 (when theta = 0)
+        double L0 = Math.sqrt(Math.pow(x - y * Math.cos(0), 2) +
+            Math.pow(y * Math.sin(0) - z, 2));
+
+        // Calculate the spring-induced torque:
+        // tau(theta) = k * y * ((L - L0) / L) * (x*sin(theta) - z*cos(theta))
+        double tau = k * y * ((L - L0) / L) * (x * Math.sin(theta) - z * Math.cos(theta));
+
+        // Compute the feedforward voltage:
+        // V_ff(theta) = Vmax * tau / (gearRatio * tauStall)
+        return Vmax * tau / (gearRatio * tauStall);
+    }
+
+
+
     public enum IntakeState {
         UNKNOWN,
         HOMING,
         HOME,
         SIMPLE_MOTION,
+        UP,
+        DOWN,
         PID_MOTION,
     }
 }

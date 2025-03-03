@@ -7,9 +7,11 @@ import frc.utils.StormCommand;
 public class Climb extends StormCommand {
     Climber climber;
     RobotState state;
+    boolean forward = false;
 
-    public Climb (Climber c){
+    public Climb(Climber c, boolean forward) {
         climber = c;
+        this.forward = forward;
         this.state = RobotState.getInstance();
         addRequirements(c);
     }
@@ -17,8 +19,11 @@ public class Climb extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
-
-        climber.setState(Climber.ClimberState.PULLING);
+        if (forward) {
+            climber.setState(Climber.ClimberState.PULLING);
+        }else{
+            climber.setState(Climber.ClimberState.PUSHING);
+        }
     }
 
     @Override

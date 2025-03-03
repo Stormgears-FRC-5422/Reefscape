@@ -173,9 +173,11 @@ public class AutoAlign extends StormCommand {
 
     @Override
     public boolean isFinished() {
-
+//        System.out.println("pid: " + (translationPID.atGoal() && thetaController.atGoal()));
+//        System.out.println("timer: " + (timer.get()>4));
+//        System.out.println("coral: " + (!RobotState.getInstance().isCoralSensorTriggered()));
         return (translationPID.atGoal() && thetaController.atGoal()) ||
-            (timer.get()>4) || !RobotState.getInstance().isCoralSensorTriggered();
+            (timer.get()>2.5) || !RobotState.getInstance().isCoralSensorTriggered();
 
     }
 
@@ -183,7 +185,7 @@ public class AutoAlign extends StormCommand {
     public void end(boolean interrupted) {
         System.out.println("auto align done");
 
-        robotState.setAligned(translationPID.atGoal() && thetaController.atGoal());
+        robotState.setAligned(true);
         RobotState.getInstance().cancelAutoReef(false);
     }
 }
