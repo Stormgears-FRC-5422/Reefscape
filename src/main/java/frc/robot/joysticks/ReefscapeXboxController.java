@@ -30,8 +30,9 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
     }
 
     @Override
-    public boolean getTurbo() {
-        return XboxController.getRightTrigger() > 0.2;
+    public double getTurbo() {
+        return XboxController.getRightTrigger();
+
     }
 
     @Override
@@ -45,8 +46,35 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
     }
 
     @Override
-    public boolean coralOuttake(){
+    public boolean cancelAutoReef() {
+        return false;
+
+    }
+
+    @Override
+    public boolean autoReef() {
+        return false;
+    }
+
+    @Override
+    public boolean climb() {
         return XboxController.getBButtonIsHeld();
+    }
+
+    @Override
+    public boolean releaseClimb() {
+        return XboxController.getYButtonIsHeld();
+    }
+
+    @Override
+    public boolean zeroWheels() {
+        return XboxController.getAButtonIsHeld();
+    }
+
+    @Override
+    public boolean coralOuttake(){
+//        return XboxController.getYButtonIsHeld();
+        return false;
     }
 
     // TODO: Uncomment after week 0, uses same buttons as diagnostic elevator
@@ -69,7 +97,8 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
 
     @Override
     public boolean elevatorUp(){
-        return XboxController.getYButtonIsHeld();
+//        return XboxController.getYButtonIsHeld();
+        return false;
     }
 
     @Override

@@ -1,0 +1,130 @@
+package frc.robot.subsystems;
+
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkLimitSwitch;
+import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.LimitSwitchConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import frc.robot.Constants;
+import frc.robot.RobotState;
+import frc.utils.StormSubsystem;
+import frc.utils.motorcontrol.LimitSwitch;
+import org.littletonrobotics.junction.Logger;
+
+public class Climber extends StormSubsystem {
+    final RobotState robotState;
+
+    final SparkMax climberMotor;
+    final RelativeEncoder climberEncoder;
+    SparkMaxConfig climberMotorConfig;
+
+    ClimberState currentState;
+    SparkLimitSwitch climbLimitSwitch;
+    double climberSpeed;
+
+    public Climber() {
+        robotState = RobotState.getInstance();
+
+        climberMotor = new SparkMax(Constants.Climber.leaderID, SparkMax.MotorType.kBrushless);
+
+        climberEncoder = climberMotor.getEncoder();
+
+        climberMotorConfig = new SparkMaxConfig();
+        SparkMaxConfig globalConfig = new SparkMaxConfig();
+
+        globalConfig.smartCurrentLimit(Constants.SparkConstants.CurrentLimit)
+            .voltageCompensation(Constants.SparkConstants.NominalVoltage)
+            .idleMode(Constants.Elevator.brakeMode ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
+
+        climberMotorConfig.apply(globalConfig)
+            .inverted(Constants.Elevator.invertLeader);
+
+        // Hard limits
+        climberMotorConfig.limitSwitch
+            .forwardLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
+            .forwardLimitSwitchEnabled(false)
+            .reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
+            .reverseLimitSwitchEnabled(false);
+
+        climbLimitSwitch = climberMotor.getForwardLimitSwitch();
+
+        // Soft limits
+        climberMotorConfig.softLimit
+            .forwardSoftLimit(Constants.Climber.forwardSoftLimit)
+            .forwardSoftLimitEnabled(true)
+            .reverseSoftLimit(Constants.Climber.reverseSoftLimit)
+            .reverseSoftLimitEnabled(true);
+
+        climberMotorConfig.openLoopRampRate(Constants.Climber.openLoopRampRate);
+
+        climberMotor.configure(climberMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+
+        if (Constants.Climber.useFollower) {
+            SparkMax followerMotor = new SparkMax(Constants.Climber.followerID, SparkLowLevel.MotorType.kBrushless);
+            SparkMaxConfig followerMotorConfig = new SparkMaxConfig();
+            followerMotorConfig.apply(globalConfig)
+                .follow(climberMotor, true);
+            followerMotor.configure(followerMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        }
+
+        setState(Climber.ClimberState.START);
+    }
+
+    public void setSpeed(double speed) {
+        climberSpeed = speed;
+    }
+
+    public void setState(ClimberState state) {
+        currentState = state;
+
+        switch (state) {
+            case PULLING -> {
+                climberSpeed = Constants.Climber.speed;
+            }
+            case PUSHING -> {
+                climberSpeed = -Constants.Climber.speed;
+            }
+            case START, IDLE -> {
+                climberSpeed = 0.0;
+            }
+
+        }
+    }
+
+
+    public boolean isLockedIn() {
+        return climbLimitSwitch.isPressed();
+    }
+
+
+    @Override
+    public void periodic() {
+        super.periodic();
+
+        double currentPosition = climberEncoder.getPosition();
+
+        switch (currentState) {
+            case PULLING,PUSHING -> {
+                climberMotor.set(climberSpeed);
+            }
+            default -> {
+                climberMotor.set(0);
+            }
+        }
+
+        Logger.recordOutput("Climber/CurrentPosition", currentPosition);
+
+
+    }
+
+    public enum ClimberState {
+        START,
+        PULLING,
+        PUSHING,
+        HANGING,
+        IDLE
+    }
+}

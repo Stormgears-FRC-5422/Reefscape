@@ -11,20 +11,24 @@ public class DrivetrainFactory {
             switch (driveType.toLowerCase()) {
                 case "diagnosticswerve" -> instance = new DiagnosticSwerve();
                 case "ctrdrive" -> instance = new CTRDrivetrain(getTunerConstants(driveSubtype));
+                case "akdrive" -> instance = new AKDriveTrain(getTunerConstants(driveSubtype));
                 default -> throw new IllegalDriveTypeException("Illegal Drive Type: " + driveType);
             }
         }
         return instance;
     }
 
-    // Right now there is only one subtype. This could be more complicated if that changes.
-    // We could just make a different get function for a different subtype
+    // Right now there is only one kind of subtype. This could be more complicated if that changes.
+    // We could just make a different get function for each driveType, but for now these should all work
+    // with ctrdrive or akdrive types
     private static Class<?> getTunerConstants(String subtype) throws IllegalDriveTypeException {
         System.out.println("Collected constants for subtype: " + subtype);
         return switch (subtype.toLowerCase()) {
             case "ctrcrescendo" -> CrescendoTunerConstants.class;
             case "ctrreefscape" -> ReefscapeTunerConstants.class;
+            case "ctrreeftorque" -> ReefscapeTorqueTunerConstants.class;
             case "ctrnovak" -> NovakTunerConstants.class;
+            case "ctrreeftorqueak" -> ReefscapeTorqueAKTunerConstants.class;
             default -> throw new IllegalDriveTypeException("Illegal Drive subtype: " + subtype);
         };
     }

@@ -1,12 +1,15 @@
 package frc.robot;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.utils.vision.LimelightHelpers;
-import frc.robot.subsystems.Elevator.ElevatorState;
+import frc.robot.subsystems.onElevator.Elevator.ElevatorState;
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 
@@ -18,6 +21,7 @@ public class RobotState extends SubsystemBase {
     public enum StatePeriod {
         NONE, DISABLED, AUTONOMOUS, TELEOP, TEST
     }
+    private double yawDouble;
 
     public enum StateSimMode {
         REAL, SIMULATION, AKIT_REPLAY, AKIT_SIM;
@@ -28,16 +32,26 @@ public class RobotState extends SubsystemBase {
     //  private StateAlliance m_alliance = StateAlliance.MISSING;
     private StateAlliance m_alliance = StateAlliance.BLUE;
     private Pose2d currentPose = new Pose2d();
-    //private Pose2d visionPose = new Pose2d();
+    private VisionMeasurement visionMeasurement = null;
 
     private StatePeriod m_period = StatePeriod.NONE;
     private final StateSimMode m_simMode;
     private boolean m_didAuto = false;
     private boolean m_didTeleop = false;
+
     boolean m_isCoralSensorTriggered = false;
     private boolean elevatorHasBeenHomed = false;
-    private boolean m_intakeWristHasBeenHomed = false;
+    private boolean intakeWristHasBeenHomed = false;
+    private boolean algaeIntakeHasBeenHomed = false;
     private ElevatorState elevatorState = ElevatorState.UNKNOWN;
+    private boolean isAligned = false;
+    private boolean isVisionPoseValid = false;
+    private Pose2d MT2Pose;
+    private boolean isAprilTagDetected;
+    private boolean visionEnabled = true;
+    private boolean cancel = false;
+
+    private boolean m_joystickAndButtonBoardConfigured = false;
 
     // Call createInstance from robotInit()
     public static RobotState createInstance() {
@@ -63,6 +77,14 @@ public class RobotState extends SubsystemBase {
         } else { // basic simulation
             m_simMode = StateSimMode.SIMULATION;            ;
         }
+    }
+
+    public boolean isJoystickAndButtonBoardConfigured() {
+        return m_joystickAndButtonBoardConfigured;
+    }
+
+    public void setJoystickAndButtonBoardConfigured(boolean state) {
+        m_joystickAndButtonBoardConfigured=state;
     }
 
     public StateSimMode getSimMode() {
@@ -93,6 +115,13 @@ public class RobotState extends SubsystemBase {
 
     public boolean getDidAuto() {
         return m_didAuto;
+    }
+
+    public void cancelAutoReef(boolean c){
+        cancel = c;
+    }
+    public boolean getCancelAutoReef(){
+        return cancel;
     }
 
     public boolean getDidTeleop() {
@@ -148,13 +177,31 @@ public class RobotState extends SubsystemBase {
     }
 
     public boolean isVisionPoseValid() {
-        return LimelightHelpers.getTV(Constants.Vision.limelightID);
+        return isVisionPoseValid;
+    }
+
+    public void setIsVisionPoseValid(boolean valid) {
+        isVisionPoseValid = valid;
     }
 
     public Pose2d getVisionPose() {
-//        Optional<LimelightHelpers.LimelightTarget_Fiducial> visionResult = vision.getLatestFiducialsTarget();
-//        return toPose2D(visionResult.map(limelightTarget_fiducial -> limelightTarget_fiducial.botpose_wpiblue).orElse(null));
-        return LimelightHelpers.getBotPose2d_wpiBlue(Constants.Vision.limelightID);
+        return MT2Pose;
+    }
+    public void setVisionPose(Pose2d pose){
+        MT2Pose = pose;
+    }
+
+    public void addVisionMeasurments(Pose2d visionRobotPoseMeters,
+                                     double timestampSeconds,
+                                     Matrix<N3, N1> visionMeasurementStdDevs) {
+        Pose2d tempPose = new Pose2d(visionRobotPoseMeters.getTranslation(), visionRobotPoseMeters.getRotation());
+        visionMeasurement = new VisionMeasurement(tempPose,
+            timestampSeconds, visionMeasurementStdDevs);
+
+    }
+
+    public VisionMeasurement getVisionMeasurments() {
+        return visionMeasurement;
     }
 
     private static Pose2d toPose2D(double[] inData) {
@@ -167,28 +214,72 @@ public class RobotState extends SubsystemBase {
         return new Pose2d(tran2d, r2d);
     }
 
+
+    public record VisionMeasurement(Pose2d visionRobotPoseMeters,
+                                    double timestampSeconds,
+                                    Matrix<N3, N1> visionMeasurementStdDevs) {
+    }
+    public boolean isAprilTagDetected() {
+        return isAprilTagDetected;
+    }
+    public void setTV(boolean tv) {
+        isAprilTagDetected = tv;
+    }
+    public void setYaw(double yaw) {
+        yawDouble = yaw;
+    }
+    public double getYaw() {
+            return yawDouble;
+        }
+
     public void setCoralSensorTriggered(boolean triggered) {
         m_isCoralSensorTriggered = triggered;
     }
 
     public void setIntakeWristHasBeenHomed(boolean homed) {
-        m_intakeWristHasBeenHomed = homed;
+        intakeWristHasBeenHomed = homed;
     }
 
     public boolean getIntakeWristHasBeenHomed() {
-        return m_intakeWristHasBeenHomed;
+        return intakeWristHasBeenHomed;
+    }
+
+    public void setAlgaeIntakeHasBeenHomed(boolean homed) {
+        algaeIntakeHasBeenHomed = homed;
+    }
+
+    public boolean getAlgaeIntakeHasBeenHomed() {
+        return algaeIntakeHasBeenHomed;
     }
 
     public boolean isCoralSensorTriggered() {
         return m_isCoralSensorTriggered;
     }
 
-    // TODO: code this (Raghav)
-    public boolean isAprilTagDetected() {
-        return false;
-    }
 
     public boolean isAutonomousAligned(){
-        return false;
+        return isAligned;
+    }
+    public void setAligned (boolean aligned){
+        isAligned = aligned;
+    }
+
+    public void setVisionEnabled(boolean visionEnabled){
+        this.visionEnabled = visionEnabled;
+    }
+
+    public boolean getVisionEnabled(){
+        return visionEnabled;
+    }
+
+    public boolean allowEndgame() {
+        if (DriverStation.isFMSAttached()) {
+            return DriverStation.getMatchTime() < Constants.Game.endGameTime;
+        } else {
+            return true;
+        }
     }
 }
+
+
+

@@ -17,8 +17,8 @@ public abstract class ReefscapeJoystick {
         return true;
     }
 
-    public boolean getTurbo() {
-        return false;
+    public double getTurbo() {
+        return 0.0;
     }
 
     public boolean zeroGyro() {
@@ -30,6 +30,21 @@ public abstract class ReefscapeJoystick {
     }
 
     public boolean coralIntake() {
+        return false;
+    }
+    public boolean autoReef() {
+        return false;
+    }
+
+    public boolean cancelAutoReef(){
+        return false;
+    }
+
+    public boolean climb(){
+        return false;
+    }
+
+    public boolean releaseClimb(){
         return false;
     }
 
@@ -102,10 +117,6 @@ public abstract class ReefscapeJoystick {
     }
 
     public boolean autoStation() {
-        return false;
-    }
-
-    public boolean autoReef() {
         return false;
     }
 

@@ -1,0 +1,82 @@
+package frc.robot.commands.autos;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.FieldConstants;
+import frc.robot.RobotState;
+import frc.robot.joysticks.ReefscapeJoystick;
+import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.drive.DrivetrainBase;
+import frc.utils.StormCommand;
+import org.littletonrobotics.junction.Logger;
+
+import java.util.function.Supplier;
+
+public class AutoReef extends StormCommand {
+    DrivetrainBase drivetrainBase;
+    VisionSubsystem visionSubsystem;
+    ReefscapeJoystick joystick;
+    int tagID = -1;
+    Supplier<FieldConstants.Side> sideSupplier;
+    Timer timer = new Timer();
+    boolean flag = false;
+
+    public AutoReef(DrivetrainBase drivetrainBase,
+                    VisionSubsystem visionSubsystem,
+                    ReefscapeJoystick joystick,
+                    Supplier<FieldConstants.Side> side) {
+        this.drivetrainBase = drivetrainBase;
+        this.visionSubsystem = visionSubsystem;
+        this.joystick = joystick;
+        this.sideSupplier = side;
+
+
+        addRequirements(drivetrainBase, visionSubsystem);
+    }
+
+    @Override
+    public void initialize() {
+        timer.restart();
+        super.initialize();
+        FieldConstants.Side side;
+        side = sideSupplier.get();
+        if (side == null) {
+            System.out.println("side null?");
+        }
+        if (visionSubsystem.seesTag()) {
+            tagID = visionSubsystem.getBestTag();
+        }
+        if (tagID != -1) {
+            System.out.println("AutoReef: April Tag Seen!");
+            Pose2d targetPose = FieldConstants.getReefTargetPose(side, tagID);
+            Logger.recordOutput("Target Pose", targetPose);
+            if (targetPose != null) {
+                AutoAlign autoAlign = new AutoAlign(drivetrainBase, targetPose, joystick);
+                autoAlign.schedule();
+            }else{
+                System.out.println("Wrong Tag :(");
+                flag = true;
+            }
+        } else {
+            flag = true;
+            System.out.println("No tag seen :(");
+        }
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        super.end(interrupted);
+        RobotState.getInstance().setAligned(false);
+
+    }
+
+    @Override
+    public boolean isFinished() {
+
+//        return RobotState.getInstance().isAutonomousAligned() || flag;
+        return !RobotState.getInstance().isCoralSensorTriggered() ||
+            RobotState.getInstance().isAutonomousAligned() || timer.get()>2.5;
+    }
+
+
+}

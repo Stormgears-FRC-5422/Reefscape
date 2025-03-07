@@ -72,6 +72,21 @@ public class LimelightExtra {
         NetworkTable table = NetworkTableInstance.getDefault().getTable(limelight);
         table.getEntry("pipeline").setNumber(1);
     }
+    public static double[] getTagIDs(String limelight) {
+        NetworkTable table = NetworkTableInstance.getDefault().getTable(limelight);
+        double[] mainTID = table.getEntry("tid").getDoubleArray(new double[0]);
+        return mainTID;
+
+    }
+    public static double[] getRawFiducials(String limelight) {
+        NetworkTable table = NetworkTableInstance.getDefault().getTable(limelight);
+        double[] rawFiducials = table.getEntry("getRawFiducials").getDoubleArray(new double[0]);
+        return rawFiducials;
+    }
+    public static int getTID(String limelight) {
+        NetworkTable table = NetworkTableInstance.getDefault().getTable(limelight);
+        return (int) table.getEntry("tid").getDouble(0);
+    }
 
 
 }

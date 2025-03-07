@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.Constants.Debug;
 
 public final class Main {
     private Main() {}
