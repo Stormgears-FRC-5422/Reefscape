@@ -72,6 +72,13 @@ public class Lights extends StormSubsystem {
     @Override
     public void periodic() {
         super.periodic();
+        console("in periodic", 50);
+
+        if (m_robotState.getAlliance() != m_alliance){
+            m_alliance = m_robotState.getAlliance();
+        }
+        setAllianceColor();
+        if (Constants.Debug.debug) {return;}
 
         // Set alliance color by default to full strip
         // if holding coral, change full strip to green
