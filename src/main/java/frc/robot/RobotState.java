@@ -118,13 +118,6 @@ public class RobotState extends SubsystemBase {
         return m_didAuto;
     }
 
-    public void cancelAutoReef(boolean c){
-        cancel = c;
-    }
-    public boolean getCancelAutoReef(){
-        return cancel;
-    }
-
     public boolean getDidTeleop() {
         return m_didTeleop;
     }
@@ -260,9 +253,6 @@ public class RobotState extends SubsystemBase {
 
     public boolean isAutonomousAligned(){
         return isAligned;
-    }
-    public void setAligned (boolean aligned){
-        isAligned = aligned;
     }
 
     public boolean isTeleopAligning(){

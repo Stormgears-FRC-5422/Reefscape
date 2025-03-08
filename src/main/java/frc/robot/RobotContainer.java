@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.autos.AutoAlign;
 import frc.robot.commands.onElevator.*;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.autos.AutoCommandFactory;
@@ -248,40 +249,49 @@ public class RobotContainer {
 //            )
 //        );
 
-        return new SequentialCommandGroup(
-            new PrintCommand("Homing and drive started"),
-            new ParallelCommandGroup(
-                new ConditionalCommand(
-                    new ElevatorHome(elevator),
-                    new PrintCommand("Elevator disabled"),
-                    () -> Toggles.useElevator
-                ),
-                new ConditionalCommand(
-                    new AlgaeIntakeHome(algaeIntake),
-                    new PrintCommand("AlgaeIntake disabled"),
-                    () -> Toggles.useAlgaeIntake
-                ),
-                new ConditionalCommand(
-                    new CoralIntakeHome(coralIntake),
-                    new PrintCommand("CoralIntake disabled"),
-                    () -> Toggles.useCoralIntake
-                )),
-//            new AutoCommandFactory(drivetrain,
-//                new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT)
-//                , new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
-//                new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1),
-//                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
-//                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL1),
-//                coralIntakeCommand,
-//                coralOuttakeCommand
-//            ).farLeft());
-//           autoCommandFactory.farLeft());
-           new AutoCommandFactory(drivetrain,
+//        return new SequentialCommandGroup(
+//            new PrintCommand("Homing and drive started"),
+//            new ParallelCommandGroup(
+//                new ConditionalCommand(
+//                    new ElevatorHome(elevator),
+//                    new PrintCommand("Elevator disabled"),
+//                    () -> Toggles.useElevator
+//                ),
+//                new ConditionalCommand(
+//                    new AlgaeIntakeHome(algaeIntake),
+//                    new PrintCommand("AlgaeIntake disabled"),
+//                    () -> Toggles.useAlgaeIntake
+//                ),
+//                new ConditionalCommand(
+//                    new CoralIntakeHome(coralIntake),
+//                    new PrintCommand("CoralIntake disabled"),
+//                    () -> Toggles.useCoralIntake
+//                )),
+////            new AutoCommandFactory(drivetrain,
+////                new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT)
+////                , new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
+////                new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1),
+////                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
+////                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL1),
+////                coralIntakeCommand,
+////                coralOuttakeCommand
+////            ).farLeft());
+////           autoCommandFactory.farLeft());
+           return new AutoCommandFactory(drivetrain,
             elevator,
             coralIntake,
             visionSubsystem,
             joystick)
-        .rightOne());
+        .rightOne();
+
+//        return  new SequentialCommandGroup(new AutoCommandFactory(drivetrain,
+//            elevator,
+//            coralIntake,
+//            visionSubsystem,
+//            joystick)
+//        .rightOne(),
+//        new AutoAlign(drivetrain, FieldConstants.getReefTargetPose(FieldConstants.Side.RIGHT,9), joystick)
+//        );
     }
 
     public void configJoysticks() throws IllegalJoystickTypeException {
@@ -346,33 +356,22 @@ public class RobotContainer {
             new Trigger(() -> buttonBoard.elevatorUp()).onTrue(manualElevator);
             new Trigger(() -> buttonBoard.elevatorDown()).onTrue(manualElevator);
 
-            // In auto mode, buttons L1 - L4: move to the right/left reef, move elevator to correct level, and Outtake
-            if (Toggles.useAutoReef) {
-//                new Trigger(() -> buttonBoard.elevatorLevel1AutoRight()).whileTrue(
-//                    new AutoReefCommand(ElevatorLevel.LEVEL1, true));
-//                new Trigger(() -> buttonBoard.elevatorLevel2AutoRight()).whileTrue(
-//                    new AutoReefCommand(ElevatorLevel.LEVEL2, true));
-//                new Trigger(() -> buttonBoard.elevatorLevel3AutoRight()).whileTrue(
-//                    new AutoReefCommand(ElevatorLevel.LEVEL3, true));
-//                new Trigger(() -> buttonBoard.elevatorLevel4AutoRight()).whileTrue(
-//                    new AutoReefCommand(ElevatorLevel.LEVEL4, true));
-//
-//                new Trigger(() -> buttonBoard.elevatorLevel1AutoLeft()).whileTrue(
-//                    new AutoReefCommand(ElevatorLevel.LEVEL1, false));
-//                new Trigger(() -> buttonBoard.elevatorLevel2AutoLeft()).whileTrue(
-//                    new AutoReefCommand(ElevatorLevel.LEVEL2, false));
-//                new Trigger(() -> buttonBoard.elevatorLevel3AutoLeft()).whileTrue(
-//                    new AutoReefCommand(ElevatorLevel.LEVEL3, false));
-//                new Trigger(() -> buttonBoard.elevatorLevel4AutoLeft()).whileTrue(
-//                    new AutoReefCommand(ElevatorLevel.LEVEL4, false));
+        }
+
+        // In auto mode, buttons L1 - L4: move to the right/left reef, move elevator to correct level, and Outtake
+        if (Toggles.useAutoReef) {
+
 
                 new Trigger(() -> buttonBoard.autoReef()).onTrue(
                     new AutoReef(drivetrain, visionSubsystem, joystick,
                         () -> (buttonBoard.isRightReef() ? FieldConstants.Side.RIGHT : FieldConstants.Side.LEFT)
                     )
                 );
+//            new Trigger(() -> buttonBoard.autoReef()).onTrue(
+//                new AutoAlign(drivetrain,
+//                    FieldConstants.getReefTargetPose(FieldConstants.Side.RIGHT, 10), joystick));
+//
 
-            }
         }
 
         if (Toggles.useAutoStation) {

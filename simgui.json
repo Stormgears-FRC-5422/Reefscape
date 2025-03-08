@@ -36,6 +36,7 @@
   "NTProvider": {
     "types": {
       "/AdvantageKit/RealOutputs/Alerts": "Alerts",
+      "/AdvantageKit/RealOutputs/Choreo Alerts": "Alerts",
       "/FMSInfo": "FMSInfo",
       "/Pose": "Field2d",
       "/SmartDashboard/Alerts": "Alerts",
@@ -54,26 +55,6 @@
         "right": 3466,
         "top": 291,
         "width": 17.54825210571289,
-        "window": {
-          "visible": true
-        }
-      },
-      "/SmartDashboard/Module 0": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/SmartDashboard/Module 1": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/SmartDashboard/Module 2": {
-        "window": {
-          "visible": true
-        }
-      },
-      "/SmartDashboard/Module 3": {
         "window": {
           "visible": true
         }

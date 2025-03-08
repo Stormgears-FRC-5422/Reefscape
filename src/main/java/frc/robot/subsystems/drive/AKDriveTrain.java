@@ -20,6 +20,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.drive.AKdrive.AKDriveInternal;
@@ -31,6 +33,7 @@ public class AKDriveTrain extends DrivetrainBase {
     private AKDriveInternal driveInternal;
 
     private SwerveDrivePoseEstimator poseEstimator;
+    private final StructPublisher<Pose2d> publisher;
 
     public AKDriveTrain(Class<?> tunerConstantsClass) {
         TunerConstantsWrapper tunerConstants = new TunerConstantsWrapper(tunerConstantsClass);
@@ -42,6 +45,9 @@ public class AKDriveTrain extends DrivetrainBase {
         double maxAngularRate = driveInternal.getMaxAngularSpeedRadPerSec();
 
         setMaxVelocities(maxSpeed, maxAngularRate);
+
+        publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("MyPose", Pose2d.struct).publish();
     }
 
     /**
@@ -120,6 +126,9 @@ public class AKDriveTrain extends DrivetrainBase {
                 m_state.getVisionMeasurments().timestampSeconds(),
                 m_state.getVisionMeasurments().visionMeasurementStdDevs());
         }
+
+        publisher.set(getPose());
+
     }
 
     @Override

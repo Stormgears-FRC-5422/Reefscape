@@ -12,34 +12,47 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Supplier;
 
-public class AutoReef extends StormCommand {
+public class AutoReef extends AutoAlign {
     DrivetrainBase drivetrainBase;
     VisionSubsystem visionSubsystem;
     ReefscapeJoystick joystick;
     int tagID = -1;
     Supplier<FieldConstants.Side> sideSupplier;
-    Timer timer = new Timer();
-    boolean flag = false;
 
     public AutoReef(DrivetrainBase drivetrainBase,
                     VisionSubsystem visionSubsystem,
                     ReefscapeJoystick joystick,
                     Supplier<FieldConstants.Side> side) {
+
+        super(drivetrainBase, joystick);
         this.drivetrainBase = drivetrainBase;
         this.visionSubsystem = visionSubsystem;
         this.joystick = joystick;
         this.sideSupplier = side;
 
-
-        addRequirements(drivetrainBase, visionSubsystem);
+        super.addRequirements(drivetrainBase, visionSubsystem);
     }
 
     @Override
     public void initialize() {
-        timer.restart();
-        super.initialize();
+        setTargetPose(findTargetPose());
+        if (targetPose != null) {
+            super.initialize();
+        }
+    }
+
+    @Override
+    public void execute() {
+        if (targetPose != null) {
+            super.execute();
+        }
+    }
+
+    public Pose2d findTargetPose() {
         FieldConstants.Side side;
         side = sideSupplier.get();
+        Pose2d targetPose = null;
+
         if (side == null) {
             System.out.println("side null?");
         }
@@ -47,35 +60,17 @@ public class AutoReef extends StormCommand {
             tagID = visionSubsystem.getBestTag();
         }
         if (tagID != -1) {
-            System.out.println("AutoReef: April Tag Seen!");
-            Pose2d targetPose = FieldConstants.getReefTargetPose(side, tagID);
+            System.out.println("AutoReef: April Tag Seen! id:" + tagID);
+            targetPose = FieldConstants.getReefTargetPose(side, tagID);
             Logger.recordOutput("Target Pose", targetPose);
-            if (targetPose != null) {
-                AutoAlign autoAlign = new AutoAlign(drivetrainBase, targetPose, joystick);
-                autoAlign.schedule();
-            }else{
-                System.out.println("Wrong Tag :(");
-                flag = true;
+            if (targetPose == null) {
+                System.out.println("Didn't detect any reef AprilTag :(");
             }
         } else {
-            flag = true;
-            System.out.println("No tag seen :(");
+            System.out.println("No April tag detected :(");
         }
-    }
 
-    @Override
-    public void end(boolean interrupted) {
-        super.end(interrupted);
-        RobotState.getInstance().setAligned(false);
-
-    }
-
-    @Override
-    public boolean isFinished() {
-
-//        return RobotState.getInstance().isAutonomousAligned() || flag;
-        return !RobotState.getInstance().isCoralSensorTriggered() ||
-            RobotState.getInstance().isAutonomousAligned() || timer.get()>2.5;
+        return targetPose;
     }
 
 

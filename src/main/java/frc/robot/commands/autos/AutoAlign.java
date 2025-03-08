@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 public class AutoAlign extends StormCommand {
 
-    private final Pose2d targetPose;
+    protected Pose2d targetPose;
     private Supplier<Pose2d> goalPose;
     private ReefscapeJoystick joystick;
     private RobotState robotState;
@@ -35,13 +35,12 @@ public class AutoAlign extends StormCommand {
     private final double linearTolerance = 0.015;
     private final double thetaTolerance = Units.degreesToRadians(1.5);
     private Timer timer;
-    private boolean flag = false;
 
 
     /**
      * This command creates and follows a path.
      */
-    public AutoAlign(DrivetrainBase drivetrainBase, Pose2d targetPose, ReefscapeJoystick joystick) {
+    public AutoAlign(DrivetrainBase drivetrainBase,ReefscapeJoystick joystick) {
         timer = new Timer();
         feedForward = new Translation2d();
         robotState = RobotState.getInstance();
@@ -49,25 +48,21 @@ public class AutoAlign extends StormCommand {
         this.joystick = joystick;
 
         this.drivetrainBase = drivetrainBase;
-        this.targetPose = targetPose;
         translationPID = new ProfiledPIDController(2.5, 0.0, 0.1,
             new TrapezoidProfile.Constraints(5.0, 5.0));
         translationPID.setTolerance(linearTolerance);
 
 
-        thetaController = new ProfiledPIDController(4.25, 0.0, 0.1,
+        thetaController = new ProfiledPIDController(5, 0.0, 0.1,
             new TrapezoidProfile.Constraints(5.0, 5.0));
         thetaController.setTolerance(thetaTolerance);
 
-
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
 
     }
 
     @Override
     public void initialize() {
-        robotState.setAligned(true);
         robotState.setTeleopAligning(false);
         timer.restart();
         goalPose = () -> {
@@ -175,22 +170,27 @@ public class AutoAlign extends StormCommand {
 
     @Override
     public boolean isFinished() {
-//        System.out.println("pid: " + (translationPID.atGoal() && thetaController.atGoal()));
-//        System.out.println("timer: " + (timer.get()>4));
-//        System.out.println("coral: " + (!RobotState.getInstance().isCoralSensorTriggered()));
-        return (translationPID.atGoal() && thetaController.atGoal()) ||
-            (timer.get()>2.5) || !RobotState.getInstance().isCoralSensorTriggered();
-
+        boolean isFinished = false;
+        boolean atTarget = translationPID.atGoal() && thetaController.atGoal();
+        boolean timerExpired = timer.get()>3.5;
+        boolean corolOut = !RobotState.getInstance().isCoralSensorTriggered();
+        if (atTarget || timerExpired || corolOut || targetPose == null) {
+            System.out.println("At Target:" + atTarget + " timerExpired:" + timerExpired + " corolOut " + corolOut);
+            isFinished =  true;
+        }
+        return isFinished;
     }
 
     @Override
     public void end(boolean interrupted) {
         System.out.println("auto align done");
-
-        robotState.setAligned(true);
         robotState.setTeleopAligning(false);
-        RobotState.getInstance().cancelAutoReef(false);
     }
+
+    protected void setTargetPose(Pose2d pose){
+        targetPose = pose;
+    }
+
 }
 
 

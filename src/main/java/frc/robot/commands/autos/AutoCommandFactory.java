@@ -99,9 +99,7 @@ public class AutoCommandFactory {
             Commands.race(
                 new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
                 new CoralIntakeCommand(coralIntake, false)),
-            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
-
-        );
+            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1));
     }
 
 

@@ -31,6 +31,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import frc.robot.Constants;
+import frc.robot.RobotState;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -91,15 +92,25 @@ public class AKDriveInternal implements Subsystem {
 
 
         this.gyroIO = new GyroIOPigeon2();
-
-        modules[0] = new Module(new ModuleIOTalonFX(TunerConstants.FrontLeft),
-            0, TunerConstants.FrontLeft);
-        modules[1] = new Module(new ModuleIOTalonFX(TunerConstants.FrontRight),
-            1, TunerConstants.FrontRight);
-        modules[2] = new Module(new ModuleIOTalonFX(TunerConstants.BackLeft),
-            2, TunerConstants.BackLeft);
-        modules[3] = new Module(new ModuleIOTalonFX(TunerConstants.BackRight),
-            3, TunerConstants.BackRight);
+        if (RobotState.getInstance().getSimMode().equals(RobotState.StateSimMode.AKIT_SIM)) {
+            modules[0] = new Module(new ModuleIOSim(TunerConstants.FrontLeft),
+                0, TunerConstants.FrontLeft);
+            modules[1] = new Module(new ModuleIOSim(TunerConstants.FrontRight),
+                1, TunerConstants.FrontRight);
+            modules[2] = new Module(new ModuleIOSim(TunerConstants.BackLeft),
+                2, TunerConstants.BackLeft);
+            modules[3] = new Module(new ModuleIOSim(TunerConstants.BackRight),
+                3, TunerConstants.BackRight);
+        } else {
+            modules[0] = new Module(new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                0, TunerConstants.FrontLeft);
+            modules[1] = new Module(new ModuleIOTalonFX(TunerConstants.FrontRight),
+                1, TunerConstants.FrontRight);
+            modules[2] = new Module(new ModuleIOTalonFX(TunerConstants.BackLeft),
+                2, TunerConstants.BackLeft);
+            modules[3] = new Module(new ModuleIOTalonFX(TunerConstants.BackRight),
+                3, TunerConstants.BackRight);
+        }
 
         // Usage reporting for swerve template
         HAL.report(FRCNetComm.tResourceType.kResourceType_RobotDrive, FRCNetComm.tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -186,11 +197,12 @@ public class AKDriveInternal implements Subsystem {
             }
 
             // Update gyro angle
-            if (gyroInputs.connected) {
-                // Use the real gyro angle
+            if (gyroInputs.connected
+                && RobotState.getInstance().getSimMode().equals(RobotState.StateSimMode.REAL)) {
+//                // Use the real gyro angle
                 rawGyroRotation = gyroInputs.odometryYawPositions[i];
             } else {
-                // Use the angle delta from the kinematics and module deltas
+//                 Use the angle delta from the kinematics and module deltas
                 Twist2d twist = kinematics.toTwist2d(moduleDeltas);
                 rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
             }
