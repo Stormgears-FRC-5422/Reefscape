@@ -10,6 +10,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import frc.robot.Constants;
+import frc.robot.Constants.Intake;
 import frc.robot.Constants.SparkConstants;
 import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
@@ -117,17 +118,9 @@ public class AlgaeIntake extends StormSubsystem {
             case HOMING:
                 home();
                 algaeSpark.set(motorSpeed);
+
                 break;
 
-            case SIMPLE_MOTION:
-                // This only applies when unloaded. This will stall if loaded. Use PID_MOTION
-                if (hasBeenHomed) {
-                    simpleMove(currentPosition);
-                    algaeSpark.set(motorSpeed);
-                } else {
-                    console("Stubbornly refusing to move before homed!", 25);
-                }
-                break;
 
             case PID_MOTION:
                 if (hasBeenHomed) {
@@ -184,6 +177,7 @@ public class AlgaeIntake extends StormSubsystem {
                 console("***** HOMING state *****");
                 enableSoftLimits(false);
                 homeCounter = 0;
+                currentState = IntakeState.HOMING;
             }
             case HOME -> {
                 console("***** HOME state *****");
@@ -193,22 +187,33 @@ public class AlgaeIntake extends StormSubsystem {
                 enableSoftLimits(true);
                 motorSpeed = 0.0;
             }
-            case PID_MOTION -> {
-                console("***** PID_MOTION state *****");
+
+            // case PID_MOTION -> {
+            //     console("***** PID_MOTION state *****");
+
+            // }
+            // case SIMPLE_MOTION -> {
+            //     console("***** SIMPLE_MOTION state *****");
+            
+            case READYFORINTAKE ->{;
+                console("**********ready for Intake*************");
+                // set this to break mode
+                motorSpeed = 0.0;
+                }
+
+
+            case HORIZONTALING ->{
+                console("***** HorizonTALING ***");
+                while(algaeEncoder.getPosition() > Constants.AlgaeIntake.horizontal){
+                    motorSpeed = 0.1;
+                    currentState = IntakeState.DOWN;
 
             }
-            case SIMPLE_MOTION -> {
-                console("***** SIMPLE_MOTION state *****");
+            
 
+                
             }
-            case UP -> {
-                console("***** UP *****");
-                motorSpeed = Constants.AlgaeIntake.speed;
-            }
-            case DOWN -> {
-                console("***** DOWN *****");
-                motorSpeed = -Constants.AlgaeIntake.speed;
-            }
+            
 
         }
     }
@@ -300,12 +305,10 @@ public class AlgaeIntake extends StormSubsystem {
 
     public enum IntakeTarget {
         UNKNOWN(Double.NaN),
+        HOMING(0),
         HOME(Constants.AlgaeIntake.home),
-        STOW(Constants.AlgaeIntake.stow),
         HOLD(Constants.AlgaeIntake.hold),
-        HORIZONTAL(Constants.AlgaeIntake.horizontal),
         REEF_PICKUP(Constants.AlgaeIntake.reefPickup),
-        GROUND_PICKUP(Constants.AlgaeIntake.groundPickup),
         DROPOFF(Constants.AlgaeIntake.dropoff),
         LOWEST(Constants.AlgaeIntake.lowest);
 
@@ -379,9 +382,14 @@ public class AlgaeIntake extends StormSubsystem {
         UNKNOWN,
         HOMING,
         HOME,
+        HORIZONTALING,
+        READYFORINTAKE,
         SIMPLE_MOTION,
         UP,
         DOWN,
         PID_MOTION,
+
     }
 }
+
+
