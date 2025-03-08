@@ -67,7 +67,8 @@ public class AutoAlign extends StormCommand {
 
     @Override
     public void initialize() {
-        robotState.setAligned(false);
+        robotState.setAligned(true);
+        robotState.setTeleopAligning(false);
         timer.restart();
         goalPose = () -> {
             double linearMagnitude = MathUtil.applyDeadband(Math.hypot(joystick.getWpiX(),
@@ -111,6 +112,7 @@ public class AutoAlign extends StormCommand {
         thetaController.reset(currentPose.getRotation().getRadians(), fieldVelocity.dtheta);
         lastSetpointTranslation = currentPose.getTranslation();
     }
+
 
     @Override
     public void execute() {
@@ -186,6 +188,7 @@ public class AutoAlign extends StormCommand {
         System.out.println("auto align done");
 
         robotState.setAligned(true);
+        robotState.setTeleopAligning(false);
         RobotState.getInstance().cancelAutoReef(false);
     }
 }

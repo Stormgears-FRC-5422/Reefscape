@@ -45,6 +45,7 @@ public class RobotState extends SubsystemBase {
     private boolean algaeIntakeHasBeenHomed = false;
     private ElevatorState elevatorState = ElevatorState.UNKNOWN;
     private boolean isAligned = false;
+    private boolean isTeleopAligning = false;
     private boolean isVisionPoseValid = false;
     private Pose2d MT2Pose;
     private boolean isAprilTagDetected;
@@ -262,6 +263,14 @@ public class RobotState extends SubsystemBase {
     }
     public void setAligned (boolean aligned){
         isAligned = aligned;
+    }
+
+    public boolean isTeleopAligning(){
+        return isTeleopAligning;
+    }
+
+    public void setTeleopAligning(boolean aligning){
+        isTeleopAligning = aligning;
     }
 
     public void setVisionEnabled(boolean visionEnabled){

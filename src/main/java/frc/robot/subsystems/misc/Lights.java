@@ -157,6 +157,12 @@ public class Lights extends StormSubsystem {
             LEDPattern pattern = LEDPattern.solid(AUTONOMOUS_ALIGNED_COLOR);
             pattern.applyTo(m_middle);
         }
+
+        if(m_robotState.isTeleopAligning()){
+            setRainbow();
+        }
+
+
     }
 
     public void setElevatorStatus() {
