@@ -152,7 +152,7 @@ public class Lights extends StormSubsystem {
             pattern.applyTo(m_middle);
         }
 
-        if (m_robotState.isAutonomousAligned()) {
+        if (m_robotState.isAligned()) {
             LEDPattern pattern = LEDPattern.solid(AUTONOMOUS_ALIGNED_COLOR);
             pattern.applyTo(m_middle);
         }
@@ -160,8 +160,6 @@ public class Lights extends StormSubsystem {
         if(m_robotState.isTeleopAligning()){
             setRainbow();
         }
-
-
     }
 
     public void setElevatorStatus() {
@@ -180,8 +178,11 @@ public class Lights extends StormSubsystem {
 
     public void isElevatorMoving() {
         if (m_robotState.getElevatorState().equals(Elevator.ElevatorState.SIMPLE_MOTION)
-        || m_robotState.getElevatorState().equals(Elevator.ElevatorState.PID_MOTION)) {
+            || m_robotState.getElevatorState().equals(Elevator.ElevatorState.PID_MOTION)) {
             setRainbow();
+            // we started moving elevator, making aligned as FALSE.
+            // TODO -> this needs to set thru vision. Target Pose / Current Pose checking should be done in vision
+            RobotState.getInstance().setAligned(false);
         }
     }
 

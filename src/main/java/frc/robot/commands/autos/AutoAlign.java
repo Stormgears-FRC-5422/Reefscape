@@ -62,7 +62,7 @@ public class AutoAlign extends StormCommand {
 
     @Override
     public void initialize() {
-        robotState.setTeleopAligning(false);
+        robotState.setTeleopAligning(true);
         timer.restart();
         goalPose = () -> {
             double linearMagnitude = MathUtil.applyDeadband(Math.hypot(joystick.getWpiX(),
@@ -177,6 +177,9 @@ public class AutoAlign extends StormCommand {
         if (atTarget || timerExpired || corolOut || targetPose == null) {
             System.out.println("At Target:" + atTarget + " timerExpired:" + timerExpired + " corolOut " + corolOut);
             isFinished =  true;
+            if(atTarget) {
+                robotState.setAligned(true);
+            }
         }
         return isFinished;
     }

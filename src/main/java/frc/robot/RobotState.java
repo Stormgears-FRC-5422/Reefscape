@@ -50,7 +50,6 @@ public class RobotState extends SubsystemBase {
     private Pose2d MT2Pose;
     private boolean isAprilTagDetected;
     private boolean visionEnabled = true;
-    private boolean cancel = false;
 
     private boolean m_joystickAndButtonBoardConfigured = false;
 
@@ -223,8 +222,8 @@ public class RobotState extends SubsystemBase {
         yawDouble = yaw;
     }
     public double getYaw() {
-            return yawDouble;
-        }
+        return yawDouble;
+    }
 
     public void setCoralSensorTriggered(boolean triggered) {
         m_isCoralSensorTriggered = triggered;
@@ -251,8 +250,12 @@ public class RobotState extends SubsystemBase {
     }
 
 
-    public boolean isAutonomousAligned(){
+    public boolean isAligned(){
         return isAligned;
+    }
+
+    public void setAligned(boolean aligned){
+        isAligned = aligned;
     }
 
     public boolean isTeleopAligning(){
@@ -261,10 +264,6 @@ public class RobotState extends SubsystemBase {
 
     public void setTeleopAligning(boolean aligning){
         isTeleopAligning = aligning;
-    }
-
-    public void setVisionEnabled(boolean visionEnabled){
-        this.visionEnabled = visionEnabled;
     }
 
     public boolean getVisionEnabled(){
@@ -279,6 +278,3 @@ public class RobotState extends SubsystemBase {
         }
     }
 }
-
-
-
