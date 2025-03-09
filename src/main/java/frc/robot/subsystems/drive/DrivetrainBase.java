@@ -44,7 +44,7 @@ public abstract class DrivetrainBase extends StormSubsystem {
     public double m_maxAngularVelocityRadiansPerSecond = 1;
     protected double m_driveSpeedScale = 0;
     protected boolean m_fieldRelative = false;
-    private static final PIDController xController = new PIDController(2.6, 0.0, 0.1);
+    private static final PIDController xController = new PIDController(2.1, 0.0, 0.1);
     private static final PIDController yController = new PIDController(2.6, 0.0, 0.1);
     private static final PIDController headingController = new PIDController(3.1, 0.0, 0.1);
     @AutoLogOutput
@@ -201,7 +201,7 @@ public abstract class DrivetrainBase extends StormSubsystem {
         // Get the current pose of the robot
         Pose2d pose = getPose();
 //        Logger.recordOutput("Auto/pose trj x", sample.x);
-        Logger.recordOutput("Auto/pose chass speeds", sample.getChassisSpeeds());
+//        Logger.recordOutput("Auto/setpoint chassis speeds", sample.getChassisSpeeds());
 
         // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
@@ -209,9 +209,10 @@ public abstract class DrivetrainBase extends StormSubsystem {
             sample.vy + yController.calculate(pose.getY(), sample.y),
             sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
-        Logger.recordOutput("Auto/header", sample.heading);
-        Logger.recordOutput("Auto/omega", sample.omega);
-        Logger.recordOutput("Auto/speed", speeds);
+//        Logger.recordOutput("Auto/header", sample.heading);
+//        Logger.recordOutput("Auto/omega", sample.omega);
+        Logger.recordOutput("Auto/setpoint chassis speed", speeds);
+        Logger.recordOutput("Auto/trajectory pose", sample.getPose());
         drive(speeds, true);
     }
 }

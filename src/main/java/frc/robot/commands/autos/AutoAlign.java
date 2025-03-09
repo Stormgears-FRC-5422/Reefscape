@@ -12,9 +12,9 @@ import frc.robot.RobotState;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.utils.StormCommand;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 public class AutoAlign extends StormCommand {
 
@@ -25,7 +25,7 @@ public class AutoAlign extends StormCommand {
     private DrivetrainBase drivetrainBase;
     private final ProfiledPIDController translationPID;
     private final ProfiledPIDController thetaController;
-    private final double maxVelocity = 4;
+    private final double maxVelocity = 5;
     private Translation2d driverAdjustment;
     private final double ffMinDistance = 0.2;
     private final double ffMaxDistance = 0.8;
@@ -48,11 +48,11 @@ public class AutoAlign extends StormCommand {
         this.joystick = joystick;
 
         this.drivetrainBase = drivetrainBase;
-        translationPID = new ProfiledPIDController(2.5, 0.0, 0.1,
+        translationPID = new ProfiledPIDController(11.5, 0.0, 0.1,
             new TrapezoidProfile.Constraints(5.0, 5.0));
         translationPID.setTolerance(linearTolerance);
 
-        thetaController = new ProfiledPIDController(5, 0.0, 0.1,
+        thetaController = new ProfiledPIDController(11.5, 0.0, 0.1,
             new TrapezoidProfile.Constraints(5.0, 5.0));
         thetaController.setTolerance(thetaTolerance);
 
@@ -125,9 +125,9 @@ public class AutoAlign extends StormCommand {
 
 //        reset the pid controller with the controller's velocity so it continues to follow path it's on
 //        and not snap to different velocity
-        translationPID.reset(
-            lastSetpointTranslation.getDistance(currentGoalPose.getTranslation()),
-            translationPID.getSetpoint().velocity);
+//        translationPID.reset(
+//            lastSetpointTranslation.getDistance(currentGoalPose.getTranslation()),
+//            translationPID.getSetpoint().velocity);
 
 //        combine both feedforward and feedback to get drive velocity
         double driveVelocityScalar =
@@ -165,13 +165,19 @@ public class AutoAlign extends StormCommand {
         drivetrainBase.drive(new ChassisSpeeds(driveVelocity.getX(), driveVelocity.getY(), thetaVelocity),
             true);
 
+        Logger.recordOutput("AutoAlign/driveVeloicty", driveVelocity);
+        Logger.recordOutput("AutoAlign/thetaVelocity", thetaVelocity);
+        Logger.recordOutput("AutoAlign/ffScalar", ffScaler);
+        Logger.recordOutput("AutoAlign/currentGoalPose", currentGoalPose);
+        Logger.recordOutput("AutoAlign/currentDistance", distance);
     }
 
     @Override
     public boolean isFinished() {
         boolean isFinished = false;
         boolean atTarget = translationPID.atGoal() && thetaController.atGoal();
-        boolean timerExpired = timer.get()>3.5;
+        boolean timerExpired = false;
+//        boolean timerExpired = timer.get()>3.5;
 //        boolean corolOut = !RobotState.getInstance().isCoralSensorTriggered();
         boolean corolOut = false;
         if (atTarget || timerExpired || corolOut || targetPose == null) {

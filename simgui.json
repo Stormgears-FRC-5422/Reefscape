@@ -62,37 +62,6 @@
     }
   },
   "NetworkTables": {
-    "Persistent Values": {
-      "open": false
-    },
-    "transitory": {
-      "AdvantageKit": {
-        "Drive": {
-          "Gyro": {
-            "open": true
-          },
-          "open": true
-        },
-        "DriverStation": {
-          "open": true
-        },
-        "RealOutputs": {
-          "DrivetrainBase": {
-            "open": true
-          },
-          "LoggedRobot": {
-            "open": true
-          },
-          "Odometry": {
-            "open": true
-          },
-          "open": true
-        },
-        "open": true
-      }
-    }
-  },
-  "NetworkTables": {
     "transitory": {
       "DriveState": {
         "Pose2d##v_/DriveState/Pose": {

@@ -37,19 +37,22 @@ public class AutoCommandFactory {
     private CoralIntake coralIntake;
     private VisionSubsystem vis;
     private ReefscapeJoystick joystick;
+    private  AlgaeIntake algaeIntake;
 
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase,
                               Elevator elevator,
                               CoralIntake coralIntake,
                               VisionSubsystem visionSubsystem,
-                              ReefscapeJoystick joystick)
+                              ReefscapeJoystick joystick,
+                              AlgaeIntake algaeIntake)
                                {
         this.joystick = joystick;
         this.vis = visionSubsystem;
         this.drivetrainBase = drivetrainBase;
         this.coralIntake = coralIntake;
         this.elevator = elevator;
+        this.algaeIntake = algaeIntake;
         timer = new Timer();
 //        Choreo.loadTrajectory("middle_one");
 //        Choreo.loadTrajectory("right_one");
@@ -75,20 +78,35 @@ public class AutoCommandFactory {
 
     }
 
-    public Command middleOne() {
+//    public Command middleOne() {
+//        return Commands.sequence(
+//            new PrintCommand("middle"),
+//            autoFactory.resetOdometry("middle_one"),
+//            autoFactory.trajectoryCmd("middle_one"),
+//            new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
+//            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
+//            Commands.race(
+//                new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
+//                new CoralIntakeCommand(coralIntake, false)),
+//            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
+//
+//        );
+//
+//    }
+
+    public Command middleOne(){
         return Commands.sequence(
             new PrintCommand("middle"),
-            autoFactory.resetOdometry("middle_one"),
-            autoFactory.trajectoryCmd("middle_one"),
-            new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
+                autoFactory.resetOdometry("middle_one"),
+                autoFactory.trajectoryCmd("middle_one"),
+        new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false))
+        ,new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
             new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
             Commands.race(
                 new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
                 new CoralIntakeCommand(coralIntake, false)),
             new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
-
         );
-
     }
 
     public Command rightOne() {
@@ -159,6 +177,26 @@ public class AutoCommandFactory {
             );
     }
 
+    public Command home(){
+        return new SequentialCommandGroup(
+            new PrintCommand("Homing and drive started"),
+            new ParallelCommandGroup(
+                new ConditionalCommand(
+                    new ElevatorHome(elevator),
+                    new PrintCommand("Elevator disabled"),
+                    () -> Constants.Toggles.useElevator
+                ),
+                new ConditionalCommand(
+                    new AlgaeIntakeHome(algaeIntake),
+                    new PrintCommand("AlgaeIntake disabled"),
+                    () -> Constants.Toggles.useAlgaeIntake
+                ),
+                new ConditionalCommand(
+                    new CoralIntakeHome(coralIntake),
+                    new PrintCommand("CoralIntake disabled"),
+                    () -> Constants.Toggles.useCoralIntake
+                )));
+    }
 }
 
 class AutoSelector {
@@ -186,4 +224,5 @@ class AutoSelector {
 //        }
         return null;
     }
+
 }

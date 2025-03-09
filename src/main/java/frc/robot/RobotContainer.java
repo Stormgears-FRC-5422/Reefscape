@@ -279,8 +279,9 @@ public class RobotContainer {
             elevator,
             coralIntake,
             visionSubsystem,
-            joystick)
-        .farLeft());
+            joystick,
+               algaeIntake)
+        .middleOne());
 
 //        return  new SequentialCommandGroup(new AutoCommandFactory(drivetrain,
 //            elevator,
