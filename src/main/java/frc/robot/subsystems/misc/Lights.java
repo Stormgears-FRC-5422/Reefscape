@@ -72,7 +72,6 @@ public class Lights extends StormSubsystem {
     @Override
     public void periodic() {
         super.periodic();
-//        console("in periodic", 50);
 
         if (m_robotState.getAlliance() != m_alliance){
             m_alliance = m_robotState.getAlliance();

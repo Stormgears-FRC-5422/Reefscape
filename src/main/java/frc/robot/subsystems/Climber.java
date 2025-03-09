@@ -54,9 +54,9 @@ public class Climber extends StormSubsystem {
         // Soft limits
         climberMotorConfig.softLimit
             .forwardSoftLimit(Constants.Climber.forwardSoftLimit)
-            .forwardSoftLimitEnabled(true)
+            .forwardSoftLimitEnabled(false)
             .reverseSoftLimit(Constants.Climber.reverseSoftLimit)
-            .reverseSoftLimitEnabled(true);
+            .reverseSoftLimitEnabled(false);
 
         climberMotorConfig.openLoopRampRate(Constants.Climber.openLoopRampRate);
 

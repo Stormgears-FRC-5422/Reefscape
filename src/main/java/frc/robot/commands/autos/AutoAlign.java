@@ -52,7 +52,6 @@ public class AutoAlign extends StormCommand {
             new TrapezoidProfile.Constraints(5.0, 5.0));
         translationPID.setTolerance(linearTolerance);
 
-
         thetaController = new ProfiledPIDController(5, 0.0, 0.1,
             new TrapezoidProfile.Constraints(5.0, 5.0));
         thetaController.setTolerance(thetaTolerance);

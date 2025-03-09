@@ -191,9 +191,7 @@ public class RobotContainer {
         }
 
         if (Toggles.useClimber){
-//            new Trigger(()-> joystick.climb()).whileTrue(new Climb(climber, true));
-//            new Trigger(()-> joystick.climb()).whileTrue(new AlgaeIntakeMoveToPosition());
-//            new Trigger(()-> joystick.releaseClimb()).whileTrue(new Climb(climber, false));
+            new Trigger(()-> joystick.climb()).whileTrue(new Climb(climber, true));
             new Trigger(()-> joystick.releaseClimb()).whileTrue(new Climb(climber, false));
         }
 
