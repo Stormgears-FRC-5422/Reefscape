@@ -39,14 +39,14 @@ public class Lights extends StormSubsystem {
 
     Color RED_COLOR = scaleColor(Color.kRed, Constants.Lights.brightness);
     Color BLUE_COLOR = scaleColor(Color.kBlue, Constants.Lights.brightness);
-    Color WHITE_COLOR = scaleColor(Color.kWhite, Constants.Lights.brightness);
+    Color ORANGE_COLOR = scaleColor(Color.kOrange, Constants.Lights.brightness);
     Color GREEN_COLOR = scaleColor(Color.kGreen, Constants.Lights.brightness);
     Color DARKGREEN_COLOR = scaleColor(Color.kDarkGreen, Constants.Lights.brightness);
     Color YELLOW_COLOR = scaleColor(Color.kYellow, Constants.Lights.brightness);
     Color LIGHTYELLOW_COLOR = scaleColor(Color.kLightYellow, Constants.Lights.brightness);
     Color PINK_COLOR = scaleColor(Color.kHotPink, Constants.Lights.brightness);
 
-    Color NO_ALLIANCE_COLOR = WHITE_COLOR;
+    Color NO_ALLIANCE_COLOR = ORANGE_COLOR;
     Color TAG_DETECTED_COLOR = YELLOW_COLOR;
     Color CORAL_STORED_COLOR = DARKGREEN_COLOR;
     Color AUTONOMOUS_ALIGNED_COLOR = GREEN_COLOR;
@@ -77,6 +77,7 @@ public class Lights extends StormSubsystem {
             m_alliance = m_robotState.getAlliance();
         }
         setAllianceColor();
+
         if (Constants.Debug.debug) {return;}
 
         // Set alliance color by default to full strip
