@@ -175,7 +175,7 @@ public class VisionSubsystem extends StormSubsystem {
         heading = estimatorPose.getRotation().getDegrees();
         setGyro(heading);
         robotState.setTV(seesTag());
-        robotState.setAligned(isAligned());
+//        robotState.setAli(isAligned());
 //        robotState.setIsVisionPoseValid(getMT2().isPresent());
 //        robotState.setVisionPose(
 //            getMT2().isPresent()

@@ -25,7 +25,7 @@ public class AutoAlign extends StormCommand {
     private DrivetrainBase drivetrainBase;
     private final ProfiledPIDController translationPID;
     private final ProfiledPIDController thetaController;
-    private final double maxVelocity = 1.5;
+    private final double maxVelocity = 4;
     private Translation2d driverAdjustment;
     private final double ffMinDistance = 0.2;
     private final double ffMaxDistance = 0.8;
@@ -173,7 +173,8 @@ public class AutoAlign extends StormCommand {
         boolean isFinished = false;
         boolean atTarget = translationPID.atGoal() && thetaController.atGoal();
         boolean timerExpired = timer.get()>3.5;
-        boolean corolOut = !RobotState.getInstance().isCoralSensorTriggered();
+//        boolean corolOut = !RobotState.getInstance().isCoralSensorTriggered();
+        boolean corolOut = false;
         if (atTarget || timerExpired || corolOut || targetPose == null) {
             System.out.println("At Target:" + atTarget + " timerExpired:" + timerExpired + " corolOut " + corolOut);
             isFinished =  true;

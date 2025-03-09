@@ -46,6 +46,7 @@ public class CoralIntakeCommand extends StormCommand {
     @Override
     public boolean isFinished() {
         if (operation == IntakeState.INTAKE) {
+//            System.out.println(coralIntake.isLoaded());
             // let the motor run for a few iterations after sensor is triggered to fully align Coral with the base
             if (coralIntake.isLoaded()) {
                 finished_counter++;

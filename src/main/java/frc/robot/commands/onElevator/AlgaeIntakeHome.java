@@ -16,12 +16,12 @@ public class AlgaeIntakeHome extends StormCommand {
     // Don't allow homing if already homed. At least for now.
     // At this point the home will happen automatically at the beginning of auto or teleop
     // whichever is run first.
-    
+
     public AlgaeIntakeHome(AlgaeIntake intake) {
-        skip = robotState.getIntakeWristHasBeenHomed();
         this.intake = intake;
         robotState = RobotState.getInstance();
-        
+        skip = robotState.getIntakeWristHasBeenHomed();
+
         if (!isNull(intake)) {
             addRequirements(intake);
         }
@@ -55,9 +55,9 @@ public class AlgaeIntakeHome extends StormCommand {
         intake.setState(AlgaeIntake.IntakeState.HOME);
 
      }
-        
-            
-        
+
+
+
 
         super.end(interrupted);
     }

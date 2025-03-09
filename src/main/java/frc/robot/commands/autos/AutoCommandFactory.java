@@ -4,6 +4,7 @@ import choreo.Choreo;
 import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.*;
@@ -103,13 +104,41 @@ public class AutoCommandFactory {
     }
 
 
+//    public Command farLeft() {
+//        return
+//            Commands.sequence(
+//                new PrintCommand("far left"),
+//                autoFactory.resetOdometry("far_left"),
+//                autoFactory.trajectoryCmd("far_left"),
+//                new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
+//                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
+//                Commands.race(
+//                    new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
+//                    new CoralIntakeCommand(coralIntake, false)),
+//                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
+//                ,
+//                autoFactory.trajectoryCmd("far_left_two"),
+//                new CoralIntakeCommand(coralIntake, true),
+//                new WaitCommand(1),
+//                autoFactory.trajectoryCmd("far_left_three"),
+//                new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
+//                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
+//                Commands.race(
+//                    new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
+//                    new CoralIntakeCommand(coralIntake, false))
+//                , new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
+//            );
+//    }
+
     public Command farLeft() {
         return
             Commands.sequence(
                 new PrintCommand("far left"),
-                autoFactory.resetOdometry("far_left"),
-                autoFactory.trajectoryCmd("far_left"),
+                autoFactory.resetOdometry("far_left2"),
+                autoFactory.trajectoryCmd("far_left2"),
+                new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false)),
                 new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
+                new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false)),
                 new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
                 Commands.race(
                     new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
@@ -117,9 +146,10 @@ public class AutoCommandFactory {
                 new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
                 ,
                 autoFactory.trajectoryCmd("far_left_two"),
+                new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false)),
                 new CoralIntakeCommand(coralIntake, true),
-                new WaitCommand(1),
                 autoFactory.trajectoryCmd("far_left_three"),
+                new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false)),
                 new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
                 new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
                 Commands.race(

@@ -249,24 +249,24 @@ public class RobotContainer {
 //            )
 //        );
 
-//        return new SequentialCommandGroup(
-//            new PrintCommand("Homing and drive started"),
-//            new ParallelCommandGroup(
-//                new ConditionalCommand(
-//                    new ElevatorHome(elevator),
-//                    new PrintCommand("Elevator disabled"),
-//                    () -> Toggles.useElevator
-//                ),
-//                new ConditionalCommand(
-//                    new AlgaeIntakeHome(algaeIntake),
-//                    new PrintCommand("AlgaeIntake disabled"),
-//                    () -> Toggles.useAlgaeIntake
-//                ),
-//                new ConditionalCommand(
-//                    new CoralIntakeHome(coralIntake),
-//                    new PrintCommand("CoralIntake disabled"),
-//                    () -> Toggles.useCoralIntake
-//                )),
+        return new SequentialCommandGroup(
+            new PrintCommand("Homing and drive started"),
+            new ParallelCommandGroup(
+                new ConditionalCommand(
+                    new ElevatorHome(elevator),
+                    new PrintCommand("Elevator disabled"),
+                    () -> Toggles.useElevator
+                ),
+                new ConditionalCommand(
+                    new AlgaeIntakeHome(algaeIntake),
+                    new PrintCommand("AlgaeIntake disabled"),
+                    () -> Toggles.useAlgaeIntake
+                ),
+                new ConditionalCommand(
+                    new CoralIntakeHome(coralIntake),
+                    new PrintCommand("CoralIntake disabled"),
+                    () -> Toggles.useCoralIntake
+                )),
 ////            new AutoCommandFactory(drivetrain,
 ////                new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT)
 ////                , new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
@@ -277,12 +277,12 @@ public class RobotContainer {
 ////                coralOuttakeCommand
 ////            ).farLeft());
 ////           autoCommandFactory.farLeft());
-           return new AutoCommandFactory(drivetrain,
+            new AutoCommandFactory(drivetrain,
             elevator,
             coralIntake,
             visionSubsystem,
             joystick)
-        .rightOne();
+        .farLeft());
 
 //        return  new SequentialCommandGroup(new AutoCommandFactory(drivetrain,
 //            elevator,
@@ -336,10 +336,10 @@ public class RobotContainer {
         if (Toggles.useAlgaeIntake) {
 //            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
 //            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
-            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.STOW));
-            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD));
-            new Trigger(() -> buttonBoard.autoProcessor()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HORIZONTAL));
-            new Trigger(() -> buttonBoard.autoAlgaeReef()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.GROUND_PICKUP));
+//            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.STOW));
+//            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD));
+//            new Trigger(() -> buttonBoard.autoProcessor()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HORIZONTAL));
+//            new Trigger(() -> buttonBoard.autoAlgaeReef()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.GROUND_PICKUP));
         }
 
         if (Toggles.useElevator) {
