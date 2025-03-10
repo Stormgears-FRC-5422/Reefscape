@@ -4,8 +4,6 @@ import frc.robot.RobotState;
 import frc.robot.subsystems.onElevator.CoralIntake;
 import frc.utils.StormCommand;
 
-import static java.util.Objects.isNull;
-
 public class CoralIntakeHome extends StormCommand {
     private boolean skip;
 
@@ -19,7 +17,7 @@ public class CoralIntakeHome extends StormCommand {
         this.coralIntake = coralIntake;
         robotState = RobotState.getInstance();
 
-        if (!isNull(coralIntake)) {
+        if (coralIntake != null) {
             addRequirements(coralIntake);
         }
     }

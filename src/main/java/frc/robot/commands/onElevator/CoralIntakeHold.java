@@ -24,7 +24,9 @@ public class CoralIntakeHold extends StormCommand {
         this.targetPosition = targetPosition;
 
         timer = new Timer();
-        addRequirements(coralIntake);
+        if (coralIntake != null) {
+            addRequirements(coralIntake);
+        }
     }
 
     // Called when the command is initially scheduled.

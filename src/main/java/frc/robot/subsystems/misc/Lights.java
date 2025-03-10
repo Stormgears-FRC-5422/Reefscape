@@ -37,14 +37,14 @@ public class Lights extends StormSubsystem {
     private final RobotState m_robotState;
     private RobotState.StateAlliance m_alliance;
 
-    Color RED_COLOR = scaleColor(Color.kRed, Constants.Lights.brightness);
-    Color BLUE_COLOR = scaleColor(Color.kBlue, Constants.Lights.brightness);
-    Color ORANGE_COLOR = scaleColor(Color.kOrange, Constants.Lights.brightness);
-    Color GREEN_COLOR = scaleColor(Color.kGreen, Constants.Lights.brightness);
-    Color DARKGREEN_COLOR = scaleColor(Color.kDarkGreen, Constants.Lights.brightness);
-    Color YELLOW_COLOR = scaleColor(Color.kYellow, Constants.Lights.brightness);
-    Color LIGHTYELLOW_COLOR = scaleColor(Color.kLightYellow, Constants.Lights.brightness);
-    Color PINK_COLOR = scaleColor(Color.kHotPink, Constants.Lights.brightness);
+    Color RED_COLOR = Color.kRed;
+    Color BLUE_COLOR = Color.kBlue;
+    Color ORANGE_COLOR = Color.kOrangeRed;
+    Color GREEN_COLOR = Color.kGreen;
+    Color DARKGREEN_COLOR = Color.kDarkGreen;
+    Color YELLOW_COLOR = Color.kYellow;
+    Color LIGHTYELLOW_COLOR = Color.kLightYellow;
+    Color PINK_COLOR = Color.kHotPink;
 
     Color NO_ALLIANCE_COLOR = ORANGE_COLOR;
     Color TAG_DETECTED_COLOR = YELLOW_COLOR;
@@ -66,7 +66,6 @@ public class Lights extends StormSubsystem {
         // set color to alliance color at start
         m_robotState = RobotState.getInstance();
         m_alliance = m_robotState.getAlliance();
-        setAllianceColor();
     }
 
     @Override
@@ -76,9 +75,9 @@ public class Lights extends StormSubsystem {
         if (m_robotState.getAlliance() != m_alliance){
             m_alliance = m_robotState.getAlliance();
         }
-        setAllianceColor();
+        console("in periodic. m_alliance is " + m_alliance, 500);
 
-        if (Constants.Debug.debug) {return;}
+        setAllianceColor();
 
         // Set alliance color by default to full strip
         // if holding coral, change full strip to green
@@ -99,14 +98,9 @@ public class Lights extends StormSubsystem {
         // Modify top view of strip based on elevator status
         setElevatorStatus();
 
+
         // Write the data to the LED strip
         m_led.setData(m_ledBuffer);
-    }
-
-    private static Color scaleColor(Color c, double s) {
-        return new Color(MathUtil.clamp((int) (s * c.red), 0, 255),
-            MathUtil.clamp((int) (s * c.green), 0, 255),
-            MathUtil.clamp((int) (s * c.blue), 0, 255));
     }
 
     public void setViews() {
@@ -165,8 +159,8 @@ public class Lights extends StormSubsystem {
 
     public void setElevatorStatus() {
         // Modify top view of strip based on elevator status
-        // isElevatorHomed();
-        isElevatorMoving();
+        isElevatorHomed();
+//        isElevatorMoving();
     }
 
     public void isElevatorHomed() {
@@ -182,8 +176,8 @@ public class Lights extends StormSubsystem {
             || m_robotState.getElevatorState().equals(Elevator.ElevatorState.PID_MOTION)) {
             setRainbow();
             // we started moving elevator, making aligned as FALSE.
-            // TODO -> this needs to set thru vision. Target Pose / Current Pose checking should be done in vision
-            RobotState.getInstance().setAligned(false);
+//            // TODO -> this needs to set thru vision. Target Pose / Current Pose checking should be done in vision
+//            RobotState.getInstance().setAligned(false);
         }
     }
 

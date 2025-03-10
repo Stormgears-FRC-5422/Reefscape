@@ -276,12 +276,12 @@ public class RobotContainer {
 ////            ).farLeft());
 ////           autoCommandFactory.farLeft());
             new AutoCommandFactory(drivetrain,
-            elevator,
-            coralIntake,
-            visionSubsystem,
-            joystick,
-               algaeIntake)
-        .middleOne());
+                elevator,
+                coralIntake,
+                visionSubsystem,
+                joystick,
+                algaeIntake)
+                    .middleOne());
 
 //        return  new SequentialCommandGroup(new AutoCommandFactory(drivetrain,
 //            elevator,
@@ -359,8 +359,6 @@ public class RobotContainer {
 
         // In auto mode, buttons L1 - L4: move to the right/left reef, move elevator to correct level, and Outtake
         if (Toggles.useAutoReef) {
-
-
                 new Trigger(() -> buttonBoard.autoReef()).onTrue(
                     new AutoReef(drivetrain, visionSubsystem, joystick,
                         () -> (buttonBoard.isRightReef() ? FieldConstants.Side.RIGHT : FieldConstants.Side.LEFT)

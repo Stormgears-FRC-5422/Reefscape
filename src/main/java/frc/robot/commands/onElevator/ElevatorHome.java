@@ -5,8 +5,6 @@ import frc.robot.subsystems.onElevator.Elevator;
 import frc.robot.subsystems.onElevator.Elevator.ElevatorState;
 import frc.utils.StormCommand;
 
-import static java.util.Objects.isNull;
-
 public class ElevatorHome extends StormCommand {
     private boolean skip;
 
@@ -19,7 +17,7 @@ public class ElevatorHome extends StormCommand {
     public ElevatorHome(Elevator elevator) {
         this.elevator = elevator;
         robotState = RobotState.getInstance();
-        if (!isNull(elevator)) {
+        if (elevator != null) {
             addRequirements(elevator);
         }
     }

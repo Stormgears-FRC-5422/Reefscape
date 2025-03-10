@@ -99,13 +99,22 @@ public class AutoCommandFactory {
             new PrintCommand("middle"),
                 autoFactory.resetOdometry("middle_one"),
                 autoFactory.trajectoryCmd("middle_one"),
-        new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false))
-        ,new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
-            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
+            new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false)),
+            new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
+            new ConditionalCommand(new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
+                new PrintCommand("Elevator disabled"),
+                () -> Constants.Toggles.useElevator),
             Commands.race(
-                new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
-                new CoralIntakeCommand(coralIntake, false)),
-            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
+                new ConditionalCommand(new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
+                    new PrintCommand("Elevator disabled"),
+                    () -> Constants.Toggles.useElevator),
+                new ConditionalCommand(new CoralIntakeCommand(coralIntake, false),
+                    new PrintCommand("CoralIntake disabled"),
+                    () -> Constants.Toggles.useElevator)
+                ),
+            new ConditionalCommand(new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1),
+                new PrintCommand("Elevator disabled"),
+                () -> Constants.Toggles.useElevator)
         );
     }
 

@@ -23,7 +23,9 @@ public class CoralIntakeCommand extends StormCommand {
         this.coralIntake = coralIntake;
         this.operation = intake ? IntakeState.INTAKE : IntakeState.OUTTAKE;
         timer = new Timer();
-        addRequirements(coralIntake);
+        if (coralIntake != null) {
+            addRequirements(coralIntake);
+        }
     }
 
     // Called when the command is initially scheduled.

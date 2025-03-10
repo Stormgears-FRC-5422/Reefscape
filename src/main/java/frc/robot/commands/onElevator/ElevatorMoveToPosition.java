@@ -12,7 +12,9 @@ public class ElevatorMoveToPosition extends StormCommand {
         this.elevatorSubsystem = elevatorSubsystem;
         this.targetPosition = position;
 
-        addRequirements(elevatorSubsystem);
+        if (elevatorSubsystem != null) {
+            addRequirements(elevatorSubsystem);
+        }
     }
 
     public ElevatorMoveToPosition(Elevator elevatorSubsystem, ElevatorLevel targetLevel) {

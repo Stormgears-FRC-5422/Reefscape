@@ -15,7 +15,9 @@ public class AlgaeIntakeMoveToPosition extends StormCommand {
         this.algaeIntake = algaeIntake;
         this.targetPosition = position;
 
-        addRequirements(algaeIntake);
+        if (algaeIntake != null) {
+            addRequirements(algaeIntake);
+        }
     }
 
     public AlgaeIntakeMoveToPosition(AlgaeIntake algaeIntake, AlgaeIntake.IntakeTarget target) {

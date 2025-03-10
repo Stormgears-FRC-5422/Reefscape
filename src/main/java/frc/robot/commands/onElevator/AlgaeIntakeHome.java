@@ -5,8 +5,6 @@ import frc.robot.subsystems.onElevator.AlgaeIntake;
 import frc.robot.subsystems.onElevator.AlgaeIntake.IntakeState;
 import frc.utils.StormCommand;
 
-import static java.util.Objects.isNull;
-
 public class AlgaeIntakeHome extends StormCommand {
     int counter;
     private boolean skip;
@@ -22,7 +20,7 @@ public class AlgaeIntakeHome extends StormCommand {
         robotState = RobotState.getInstance();
         skip = robotState.getIntakeWristHasBeenHomed();
 
-        if (!isNull(intake)) {
+        if (intake != null) {
             addRequirements(intake);
         }
     }

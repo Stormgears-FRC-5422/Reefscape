@@ -11,7 +11,9 @@ public class ElevatorManual extends StormCommand {
     public ElevatorManual(Elevator elevator, ReefscapeJoystick buttonBoard) {
         this.elevator = elevator;
         this.buttonBoard = buttonBoard;
-        addRequirements(elevator);
+        if (elevator != null) {
+            addRequirements(elevator);
+        }
     }
 
     @Override

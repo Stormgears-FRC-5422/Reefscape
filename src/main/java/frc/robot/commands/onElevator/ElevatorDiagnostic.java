@@ -11,8 +11,11 @@ public class ElevatorDiagnostic extends StormCommand {
 
     public ElevatorDiagnostic(Elevator elevator, boolean up) {
         this.elevator = elevator;
-        this.addRequirements(elevator);
         this.up = up;
+
+        if (elevator != null) {
+            this.addRequirements(elevator);
+        }
     }
 
     @Override

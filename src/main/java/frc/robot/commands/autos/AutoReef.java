@@ -30,7 +30,11 @@ public class AutoReef extends AutoAlign {
         this.joystick = joystick;
         this.sideSupplier = side;
 
-        super.addRequirements(drivetrainBase, visionSubsystem);
+        if (visionSubsystem != null) {
+            super.addRequirements(drivetrainBase, visionSubsystem);
+        } else {
+            super.addRequirements(drivetrainBase);
+        }
     }
 
     @Override
@@ -53,6 +57,7 @@ public class AutoReef extends AutoAlign {
         side = sideSupplier.get();
         Pose2d targetPose = null;
 
+        if (visionSubsystem == null) { return new Pose2d(); }
         if (side == null) {
             System.out.println("side null?");
         }

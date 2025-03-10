@@ -65,10 +65,17 @@ public class AutoAlign extends StormCommand {
         robotState.setTeleopAligning(true);
         timer.restart();
         goalPose = () -> {
-            double linearMagnitude = MathUtil.applyDeadband(Math.hypot(joystick.getWpiX(),
-                joystick.getWpiY()), 0.1);
-            Translation2d linearVelocity = new Translation2d(joystick.getWpiX(),
-                joystick.getWpiY()).times(linearMagnitude);
+            double linearMagnitude = 0;
+            Translation2d linearVelocity = new Translation2d();
+
+            // This can be called from auto. Right now there might not be a joystick in auto
+            // so we need to skip driver input
+            if (joystick != null) {
+                linearMagnitude = MathUtil.applyDeadband(Math.hypot(joystick.getWpiX(),
+                    joystick.getWpiY()), 0.1);
+                linearVelocity = new Translation2d(joystick.getWpiX(),
+                    joystick.getWpiY()).times(linearMagnitude);
+            }
 
             Pose2d finalPose = new Pose2d(targetPose.getX(), targetPose.getY(),targetPose.getRotation());
             //scale by maxVelocity and then get movement in one periodic cycle
@@ -78,7 +85,6 @@ public class AutoAlign extends StormCommand {
             double distance = drivetrainBase.getPose().getTranslation()
                 .minus(driverAdjustment)
                 .getDistance(finalPose.getTranslation());
-
 
 //            (distance - 0.3) makes adjustment sooner if number is smaller and later if number is bigger
 //            dividing by 2.5 makes robot less sensitive to changes: increase to make less and decrease to make more
