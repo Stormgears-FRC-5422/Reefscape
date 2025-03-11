@@ -2,6 +2,7 @@ package frc.robot.commands.autos;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.joysticks.ReefscapeJoystick;
@@ -57,19 +58,29 @@ public class AutoReef extends AutoAlign {
         side = sideSupplier.get();
         Pose2d targetPose = null;
 
-        if (visionSubsystem == null) { return null; }
         if (side == null) {
-            System.out.println("side null?");
+            console("side null?");
         }
-        if (visionSubsystem.seesTag()) {
-            tagID = visionSubsystem.getBestTag();
+
+        if (visionSubsystem != null) {
+            if (visionSubsystem.seesTag()) {
+                tagID = visionSubsystem.getBestTag();
+            }
+        } else {
+            if (Constants.Vision.simTag > 0) {
+                tagID = Constants.Vision.simTag;
+                console("Faking April Tag id:" + tagID);
+            } else {
+                return null;
+            }
         }
+
         if (tagID != -1) {
-            System.out.println("AutoReef: April Tag Seen! id:" + tagID);
+            console("April Tag Seen! id:" + tagID);
             targetPose = FieldConstants.getReefTargetPose(side, tagID);
             Logger.recordOutput("Target Pose", targetPose);
             if (targetPose == null) {
-                System.out.println("Didn't detect any reef AprilTag :(");
+                console("Didn't detect any reef AprilTag :(");
             }
         } else {
             System.out.println("No April tag detected :(");
@@ -77,6 +88,5 @@ public class AutoReef extends AutoAlign {
 
         return targetPose;
     }
-
 
 }

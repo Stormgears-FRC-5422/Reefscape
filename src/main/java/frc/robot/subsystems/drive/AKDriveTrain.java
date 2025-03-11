@@ -36,7 +36,8 @@ public class AKDriveTrain extends DrivetrainBase {
     private SwerveDrivePoseEstimator poseEstimator;
     private final StructPublisher<Pose2d> publisher;
 
-    private final SimpleTelemetry simpleTelemetry = new SimpleTelemetry();
+    private final SimpleTelemetry robotTelemetry = new SimpleTelemetry("robotPose");
+    private final SimpleTelemetry visionTelemetry = new SimpleTelemetry("visionPose");
 
     public AKDriveTrain(Class<?> tunerConstantsClass) {
         TunerConstantsWrapper tunerConstants = new TunerConstantsWrapper(tunerConstantsClass);
@@ -134,7 +135,8 @@ public class AKDriveTrain extends DrivetrainBase {
         }
 
         publisher.set(getPose());
-        simpleTelemetry.telemeterize(currentPose, tempPose);
+        robotTelemetry.telemeterize(currentPose);
+        visionTelemetry.telemeterize(tempPose);
     }
 
     @Override

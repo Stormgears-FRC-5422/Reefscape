@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.RobotState;
 import frc.robot.joysticks.ReefscapeJoystick;
+import frc.robot.subsystems.drive.AKdrive.SimpleTelemetry;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.utils.StormCommand;
 import org.littletonrobotics.junction.Logger;
@@ -35,6 +36,8 @@ public class AutoAlign extends StormCommand {
     private final double linearTolerance = 0.015;
     private final double thetaTolerance = Units.degreesToRadians(1.5);
     private Timer timer;
+    private final SimpleTelemetry targetTelemetry = new SimpleTelemetry("targetPose");
+    private final SimpleTelemetry profileTelemetry = new SimpleTelemetry("profilePose");
 
 
     /**
@@ -116,8 +119,11 @@ public class AutoAlign extends StormCommand {
 
     @Override
     public void execute() {
-        Pose2d currentGoalPose = goalPose.get();
         Pose2d currentPose = drivetrainBase.getPose();
+
+        Pose2d currentGoalPose = goalPose.get();
+        targetTelemetry.telemeterize(targetPose);
+        profileTelemetry.telemeterize(currentGoalPose);
 
         double distance = currentPose.getTranslation().getDistance(currentGoalPose.getTranslation());
 
@@ -184,10 +190,10 @@ public class AutoAlign extends StormCommand {
         boolean atTarget = translationPID.atGoal() && thetaController.atGoal();
         boolean timerExpired = false;
 //        boolean timerExpired = timer.get()>3.5;
-//        boolean corolOut = !RobotState.getInstance().isCoralSensorTriggered();
-        boolean corolOut = false;
-        if (atTarget || timerExpired || corolOut || targetPose == null) {
-            System.out.println("At Target:" + atTarget + " timerExpired:" + timerExpired + " corolOut " + corolOut);
+//        boolean coralOut = !RobotState.getInstance().isCoralSensorTriggered();
+        boolean coralOut = false;
+        if (atTarget || timerExpired || coralOut || targetPose == null) {
+            System.out.println("At Target:" + atTarget + " timerExpired:" + timerExpired + " coralOut " + coralOut);
             isFinished =  true;
         }
         return isFinished;
@@ -197,6 +203,7 @@ public class AutoAlign extends StormCommand {
     public void end(boolean interrupted) {
         System.out.println("auto align done");
         robotState.setTeleopAligning(false);
+        drivetrainBase.drive(new ChassisSpeeds(),true);
     }
 
     protected void setTargetPose(Pose2d pose){
