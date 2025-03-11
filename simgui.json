@@ -54,6 +54,14 @@
         "left": 534,
         "right": 3466,
         "top": 291,
+        "visionPose": {
+          "color": [
+            0.0,
+            255.0,
+            38.73414993286133,
+            255.0
+          ]
+        },
         "width": 17.54825210571289,
         "window": {
           "visible": true
@@ -63,6 +71,23 @@
   },
   "NetworkTables": {
     "transitory": {
+      "AdvantageKit": {
+        "RealOutputs": {
+          "LoggedRobot": {
+            "open": true
+          },
+          "Logger": {
+            "open": true
+          },
+          "Odometry": {
+            "Pose2d##v_/AdvantageKit/RealOutputs/Odometry/Robot": {
+              "open": true
+            },
+            "open": true
+          }
+        },
+        "open": true
+      },
       "DriveState": {
         "Pose2d##v_/DriveState/Pose": {
           "Rotation2d##v_rotation": {

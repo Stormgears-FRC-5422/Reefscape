@@ -45,8 +45,6 @@ public class VisionSubsystem extends StormSubsystem {
         limelightReef = stormLimelights[0];
         limelights = stormLimelights;
         poseEstimator = swerveDrivePoseEstimator;
-
-
     }
 
     public Optional<LimelightHelpers.PoseEstimate> getMT2() {
@@ -119,8 +117,6 @@ public class VisionSubsystem extends StormSubsystem {
         } else {
             return 0;
         }
-
-
     }
 
     private void setGyro(double headingDegrees) {
@@ -166,7 +162,6 @@ public class VisionSubsystem extends StormSubsystem {
         }
     }
 
-
     @Override
     public void periodic() {
         super.periodic();
@@ -193,8 +188,8 @@ public class VisionSubsystem extends StormSubsystem {
         Pose2d visionPose = null;
         double timeStamp = 0.0;
         LimelightHelpers.PoseEstimate poseEstimate = getMT2().orElse(null);
-        if (poseEstimate != null) {
 
+        if (poseEstimate != null) {
             rejectPose = !seesTag()
                 || poseEstimate.pose.getX() <= 0.0
                 || poseEstimate.pose.getY() <= 0.0;
@@ -207,8 +202,8 @@ public class VisionSubsystem extends StormSubsystem {
         } else {
             Logger.recordOutput("Reject Pose?", rejectPose);
             Logger.recordOutput("Vision/VisionPose", new Pose2d());
-
         }
+
         if (!rejectPose) {
             double stdDevFactor = 0.0;
 
@@ -227,13 +222,12 @@ public class VisionSubsystem extends StormSubsystem {
 //        MegaTag2 does not give rotation data (comes from gyro)
             angularStdDev *= angularStdDevMegatag2Factor;
             if (visionPose != null && robotState.getVisionEnabled()) {
-
                 poseEstimator.addVisionMeasurement(visionPose, timeStamp,
                     VecBuilder.fill(linearStdDev, linearStdDev, 1e6));
             }
         }
-
     }
+
     public boolean isAligned() {
         if ((bestTag <= tagRightRed && bestTag >= tagLeftRed) || (bestTag >= tagLeftBlue && bestTag <=tagRightBlue)) {
             Pose2d left = FieldConstants.getReefTargetPose(FieldConstants.Side.LEFT, bestTag);

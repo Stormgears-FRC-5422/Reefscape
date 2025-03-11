@@ -57,7 +57,7 @@ public class AutoReef extends AutoAlign {
         side = sideSupplier.get();
         Pose2d targetPose = null;
 
-        if (visionSubsystem == null) { return new Pose2d(); }
+        if (visionSubsystem == null) { return null; }
         if (side == null) {
             System.out.println("side null?");
         }

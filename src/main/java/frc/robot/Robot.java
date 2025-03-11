@@ -116,7 +116,6 @@ public class Robot extends LoggedRobot {
         }
     }
 
-
     @Override
     public void robotPeriodic() {
         iteration++;
@@ -146,6 +145,7 @@ public class Robot extends LoggedRobot {
             try {
                 console("disabledPeriodic: Configuring Joystick and ButtonBoard");
                 robotContainer.configJoysticks();
+                state.setJoystickAndButtonBoardConfigured(true);
             } catch (IllegalJoystickTypeException e) {
                 console("disabledPeriodic: Error configuring Joystick and button board" + e.getMessage());
             }
