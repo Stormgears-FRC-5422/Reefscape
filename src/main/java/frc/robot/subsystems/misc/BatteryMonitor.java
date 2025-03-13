@@ -14,7 +14,9 @@ public class BatteryMonitor extends StormSubsystem {
     RobotState state;
     ConduitApi conduit;
     StatePeriod lastPeriod;
+    double voltage;
     BatteryState batteryState;
+
     public BatteryMonitor() {
         state = RobotState.getInstance();
         conduit = ConduitApi.getInstance();
@@ -25,8 +27,24 @@ public class BatteryMonitor extends StormSubsystem {
     public void periodic() {
         super.periodic();
 
-        double voltage = conduit.getPDPVoltage();
+        StatePeriod newPeriod = state.getPeriod();
 
+        switch (newPeriod) {
+            case AUTONOMOUS:
+            case TELEOP:
+            case TEST:
+                // Prevent going into enabled mode if we had a low voltage the last time through
+                // Only in debug mode, so we just keep going during competition
+                if (batteryState == BatteryState.BAD
+                    && newPeriod != lastPeriod
+                    && Constants.Debug.debug) {
+                    throw new BadBatteryException("The battery must be changed: "+ voltage + " Volts");
+                }
+            default:
+                console("battery level: " + state.getBatteryState() + ", " + voltage + " Volts", 1000);
+        }
+
+        voltage = conduit.getPDPVoltage();
 
         if (voltage > Constants.Power.warnLimit) {
             batteryState = BatteryState.GOOD;
@@ -35,22 +53,8 @@ public class BatteryMonitor extends StormSubsystem {
         } else {
             batteryState = BatteryState.BAD;
         }
+
         state.setBatteryState(batteryState);
-
-        StatePeriod newPeriod = state.getPeriod();
-
-        switch (newPeriod) {
-            case AUTONOMOUS:
-            case TELEOP:
-            case TEST:
-                if (batteryState == BatteryState.BAD &&
-                    newPeriod!= lastPeriod &&
-                    Constants.Debug.debug) {
-                    throw new BadBatteryException("The battery must be changed: "+ voltage + " Volts");
-                }
-            default:
-                console("battery level: " + state.getBatteryState() + ", " + voltage + " Volts", 1000);
-        }
     }
 
     public enum BatteryState {
