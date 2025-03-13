@@ -47,18 +47,19 @@ public class CoralIntakeCommand extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        if (operation == IntakeState.INTAKE) {
-//            System.out.println(coralIntake.isLoaded());
-            // let the motor run for a few iterations after sensor is triggered to fully align Coral with the base
-            if (coralIntake.isLoaded()) {
-                finished_counter++;
-            } else {
-                finished_counter = 0;
-            }
-            return (timer.get() >= Intake.rollerIntakeDuration || finished_counter == 10);
-        } else {
-            return (timer.get() >= Intake.rollerOuttakeDuration);
-        }
+//        if (operation == IntakeState.INTAKE) {
+////            System.out.println(coralIntake.isLoaded());
+//            // let the motor run for a few iterations after sensor is triggered to fully align Coral with the base
+//            if (coralIntake.isLoaded()) {
+//                finished_counter++;
+//            } else {
+//                finished_counter = 0;
+//            }
+//            return (timer.get() >= Intake.rollerIntakeDuration || finished_counter == 10);
+//        } else {
+//            return (timer.get() >= Intake.rollerOuttakeDuration);
+//        }
+        return (timer.get() >= Intake.rollerOuttakeDuration);
     }
 
     // Called once the command ends or is interrupted.

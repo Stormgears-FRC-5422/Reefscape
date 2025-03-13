@@ -12,6 +12,8 @@ public class FieldConstants {
 //    static double leftOffset = -0.125;
     static double leftOffset = 0.0;
     static double rightOffset = 0;
+    static double xAprilTagOffset = Constants.Frame.length/2 + Constants.Frame.bumperThickness;
+
 
     public enum Side {
         LEFT, RIGHT
@@ -80,10 +82,10 @@ public class FieldConstants {
         if ((tagId <= 11 && tagId >= 6) || (tagId >= 17 && tagId <= 22)) {
             if (side == Side.LEFT) {
                 Logger.recordOutput("aprilTagPose", getPoseTag(tagId));
-                return getPoseTag(tagId).transformBy(new Transform2d(new Translation2d(0.54, -inchesToMeters(6.5 + leftOffset)), new Rotation2d(Math.PI)));
+                return getPoseTag(tagId).transformBy(new Transform2d(new Translation2d(xAprilTagOffset, -inchesToMeters(6.5 + leftOffset)), new Rotation2d(Math.PI)));
             } else if (side == Side.RIGHT) {
                 Logger.recordOutput("aprilTagPose", getPoseTag(tagId));
-                return getPoseTag(tagId).transformBy(new Transform2d(new Translation2d(0.54, inchesToMeters(6.5 + rightOffset)), new Rotation2d(Math.PI)));
+                return getPoseTag(tagId).transformBy(new Transform2d(new Translation2d(xAprilTagOffset, inchesToMeters(6.5 + rightOffset)), new Rotation2d(Math.PI)));
             }
         }
         return null;

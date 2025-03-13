@@ -82,6 +82,8 @@ public class RobotState extends SubsystemBase {
         } else { // basic simulation
             m_simMode = StateSimMode.SIMULATION;            ;
         }
+
+        this.batteryState = BatteryState.GOOD;
     }
 
     public boolean isJoystickAndButtonBoardConfigured() {

@@ -54,11 +54,11 @@ public class AutoCommandFactory {
         this.elevator = elevator;
         this.algaeIntake = algaeIntake;
         timer = new Timer();
-//        Choreo.loadTrajectory("middle_one");
-//        Choreo.loadTrajectory("right_one");
-//        Choreo.loadTrajectory("far_left");
-//        Choreo.loadTrajectory("far_left_two");
-//        Choreo.loadTrajectory("far_left_three");
+        Choreo.loadTrajectory("middle_one");
+        Choreo.loadTrajectory("right_one");
+        Choreo.loadTrajectory("far_left");
+        Choreo.loadTrajectory("far_left_two");
+        Choreo.loadTrajectory("far_left_three");
 
 
 
@@ -94,10 +94,10 @@ public class AutoCommandFactory {
     public Command middleOne(){
         return Commands.sequence(
             new PrintCommand("middle"),
-            autoFactory.resetOdometry("middle_one"),
-            autoFactory.trajectoryCmd("middle_one"),
-            new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false)),
-            new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
+            new ParallelCommandGroup(home(), new SequentialCommandGroup(
+                autoFactory.resetOdometry("middle_one"),
+                autoFactory.trajectoryCmd("middle_one"),
+                new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT))),
             new ConditionalCommand(
                 new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
                 new PrintCommand("Elevator disabled"),

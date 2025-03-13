@@ -233,6 +233,7 @@ public class VisionSubsystem extends StormSubsystem {
             Pose2d left = FieldConstants.getReefTargetPose(FieldConstants.Side.LEFT, bestTag);
             Pose2d right = FieldConstants.getReefTargetPose(FieldConstants.Side.RIGHT, bestTag);
             if ((poseEstimator.getEstimatedPosition().minus(left).getTranslation().getNorm()<=0.01) || (poseEstimator.getEstimatedPosition().minus(right).getTranslation().getNorm()<=0.01)) {
+                System.out.println("align: true");
                 return true;
             } else {
                 return false;

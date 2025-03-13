@@ -193,8 +193,8 @@ public class AutoAlign extends StormCommand {
     public boolean isFinished() {
         boolean isFinished = false;
         boolean atTarget = translationPID.atGoal() && thetaController.atGoal();
-        boolean timerExpired = false;
-//        boolean timerExpired = timer.get()>3.5;
+//        boolean timerExpired = false;
+        boolean timerExpired = timer.get()>5.2;
 //        boolean coralOut = !RobotState.getInstance().isCoralSensorTriggered();
         boolean coralOut = false;
         if (atTarget || timerExpired || coralOut || targetPose == null) {
