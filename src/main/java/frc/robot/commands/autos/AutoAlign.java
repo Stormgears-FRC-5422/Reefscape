@@ -65,6 +65,8 @@ public class AutoAlign extends StormCommand {
 
     @Override
     public void initialize() {
+        super.initialize();
+
         robotState.setTeleopAligning(true);
         timer.restart();
         goalPose = () -> {
@@ -121,8 +123,9 @@ public class AutoAlign extends StormCommand {
 
     @Override
     public void execute() {
-        Pose2d currentPose = drivetrainBase.getPose();
+        super.execute();
 
+        Pose2d currentPose = drivetrainBase.getPose();
         Pose2d currentGoalPose = goalPose.get();
         targetTelemetry.telemeterize(targetPose);
         profileTelemetry.telemeterize(currentGoalPose);
@@ -206,6 +209,7 @@ public class AutoAlign extends StormCommand {
         System.out.println("auto align done");
         robotState.setTeleopAligning(false);
         drivetrainBase.drive(new ChassisSpeeds(),true);
+        super.end(interrupted);
     }
 
     protected void setTargetPose(Pose2d pose){
