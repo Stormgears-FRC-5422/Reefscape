@@ -24,6 +24,7 @@ import frc.robot.joysticks.IllegalJoystickTypeException;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.joysticks.ReefscapeJoystickFactory;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.misc.BatteryMonitor;
 import frc.robot.subsystems.misc.ColorSensor;
 import frc.robot.subsystems.misc.Lights;
 import frc.robot.subsystems.misc.Pigeon;
@@ -47,6 +48,7 @@ public class RobotContainer {
     // **********
     // Subsystems
     // **********
+    private BatteryMonitor batteryMonitor;
     private DrivetrainBase drivetrain;
     private VisionSubsystem visionSubsystem;
     private Lights lights;
@@ -102,6 +104,10 @@ public class RobotContainer {
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         console("constructor started");
         robotState = RobotState.getInstance();
+
+        if (Constants.Toggles.useBatteryMonitor) {
+            batteryMonitor = new BatteryMonitor();
+        }
 
         if (Constants.Toggles.useDrive) {
             console("Create drive type " + Constants.Drive.driveType);

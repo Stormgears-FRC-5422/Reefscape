@@ -81,6 +81,7 @@ public class AutoAlign extends StormCommand {
             }
 
             Pose2d finalPose = new Pose2d(targetPose.getX(), targetPose.getY(),targetPose.getRotation());
+
             //scale by maxVelocity and then get movement in one periodic cycle
             feedForward = linearVelocity
                 .times(maxVelocity);
@@ -94,7 +95,8 @@ public class AutoAlign extends StormCommand {
             double offsetT = MathUtil.clamp((distance - 0.3) / 2.5, 0.0, 1.0);
 //            multiply by 1.75 causes correction to bigger: decrease to make corrections smaller
 //            and vice versa. Decrease for less overshoot
-            return finalPose.transformBy(new Transform2d(0.0, offsetT * 1.0 , new Rotation2d()));
+//            return finalPose.transformBy(new Transform2d(0.0, offsetT * 1.0 , new Rotation2d()));
+            return finalPose;
         };
         Pose2d currentPose = drivetrainBase.getPose();
         Pose2d currentGoalPose = goalPose.get();

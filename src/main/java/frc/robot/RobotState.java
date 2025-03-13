@@ -9,7 +9,9 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.misc.BatteryMonitor.BatteryState;
 import frc.robot.subsystems.onElevator.Elevator.ElevatorState;
+
 
 import static edu.wpi.first.math.util.Units.degreesToRadians;
 
@@ -52,6 +54,9 @@ public class RobotState extends SubsystemBase {
     private boolean visionEnabled = true;
 
     private boolean m_joystickAndButtonBoardConfigured = false;
+
+    private BatteryState batteryState;
+
 
     // Call createInstance from robotInit()
     public static RobotState createInstance() {
@@ -277,4 +282,13 @@ public class RobotState extends SubsystemBase {
             return true;
         }
     }
+
+    public void setBatteryState(BatteryState batteryState) {
+        this.batteryState = batteryState;
+    }
+
+    public BatteryState getBatteryState() {
+        return this.batteryState;
+    }
+
 }

@@ -197,20 +197,14 @@ public abstract class DrivetrainBase extends StormSubsystem {
     }
 
     public void followTrajectory(SwerveSample sample) {
-
-        // Get the current pose of the robot
         Pose2d pose = getPose();
-//        Logger.recordOutput("Auto/pose trj x", sample.x);
-//        Logger.recordOutput("Auto/setpoint chassis speeds", sample.getChassisSpeeds());
 
-        // Generate the next speeds for the robot
         ChassisSpeeds speeds = new ChassisSpeeds(
             sample.vx + xController.calculate(pose.getX(), sample.x),
             sample.vy + yController.calculate(pose.getY(), sample.y),
             sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
-//        Logger.recordOutput("Auto/header", sample.heading);
-//        Logger.recordOutput("Auto/omega", sample.omega);
+
         Logger.recordOutput("Auto/setpoint chassis speed", speeds);
         Logger.recordOutput("Auto/trajectory pose", sample.getPose());
         drive(speeds, true);

@@ -1,42 +1,19 @@
 package frc.robot.subsystems.misc;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.AddressableLEDBufferView;
-import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Constants;
 import frc.robot.RobotState;
+import frc.robot.subsystems.misc.BatteryMonitor.BatteryState;
 import frc.robot.subsystems.onElevator.Elevator;
 import frc.utils.StormSubsystem;
-import edu.wpi.first.units.measure.Distance;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
+
+import static edu.wpi.first.units.Units.*;
 
 public class Lights extends StormSubsystem {
-    private AddressableLED m_led;
-    private AddressableLEDBuffer m_ledBuffer;
-
-    // Views
-    private AddressableLEDBufferView m_left_top;
-    private AddressableLEDBufferView m_left_bottom;
-    private AddressableLEDBufferView m_right_top;
-    private AddressableLEDBufferView m_right_bottom;
-    private AddressableLEDBufferView m_middle;
-
-    // Patterns
-    private LEDPattern defaultPattern;
-
-    // Rainbow variables
-    private Distance kLedSpacing;
-    private LEDPattern m_rainbow;
-    private LEDPattern m_scrollingRainbow;
-
     // Alliance variables
     private final RobotState m_robotState;
-    private RobotState.StateAlliance m_alliance;
-
     Color RED_COLOR = Color.kRed;
     Color BLUE_COLOR = Color.kBlue;
     Color ORANGE_COLOR = Color.kOrangeRed;
@@ -45,13 +22,23 @@ public class Lights extends StormSubsystem {
     Color YELLOW_COLOR = Color.kYellow;
     Color LIGHTYELLOW_COLOR = Color.kLightYellow;
     Color PINK_COLOR = Color.kHotPink;
-
     Color NO_ALLIANCE_COLOR = ORANGE_COLOR;
     Color TAG_DETECTED_COLOR = YELLOW_COLOR;
     Color CORAL_STORED_COLOR = DARKGREEN_COLOR;
     Color AUTONOMOUS_ALIGNED_COLOR = GREEN_COLOR;
     Color ELEVATOR_HOMED_COLOR = LIGHTYELLOW_COLOR;
     Color ELEVATOR_HOLD_COLOR = PINK_COLOR;
+    private AddressableLED m_led;
+    private AddressableLEDBuffer m_ledBuffer;
+    private boolean batteryPulse = false;
+    private double batteryPulsePeriod;
+    // Views
+    private AddressableLEDBufferView m_left_top;
+    private AddressableLEDBufferView m_left_bottom;
+    private AddressableLEDBufferView m_right_top;
+    private AddressableLEDBufferView m_right_bottom;
+    private AddressableLEDBufferView m_middle;
+    private RobotState.StateAlliance m_alliance;
 
     public Lights() {
         m_led = new AddressableLED(Constants.Lights.ledPort);
@@ -66,15 +53,22 @@ public class Lights extends StormSubsystem {
         // set color to alliance color at start
         m_robotState = RobotState.getInstance();
         m_alliance = m_robotState.getAlliance();
+
+        batteryPulsePeriod = Constants.Lights.batteryPulsePeriod;
     }
 
     @Override
     public void periodic() {
         super.periodic();
 
-        if (m_robotState.getAlliance() != m_alliance){
+        if (m_robotState.getBatteryState() != BatteryState.GOOD) {
+            this.batteryPulse = true;
+        }
+
+        if (m_robotState.getAlliance() != m_alliance) {
             m_alliance = m_robotState.getAlliance();
         }
+
         console("in periodic. m_alliance is " + m_alliance, 500);
 
         setAllianceColor();
@@ -82,11 +76,10 @@ public class Lights extends StormSubsystem {
         // Set alliance color by default to full strip
         // if holding coral, change full strip to green
         // if aligned to shoot coral, change top half to purple
-        if (m_robotState.isCoralSensorTriggered()){
+        if (m_robotState.isCoralSensorTriggered()) {
             setSolid(CORAL_STORED_COLOR);
-        }
-        else{
-            if (m_robotState.getAlliance() != m_alliance){
+        } else {
+            if (m_robotState.getAlliance() != m_alliance) {
                 m_alliance = m_robotState.getAlliance();
             }
             setAllianceColor();
@@ -98,9 +91,20 @@ public class Lights extends StormSubsystem {
         // Modify top view of strip based on elevator status
         setElevatorStatus();
 
-
         // Write the data to the LED strip
         m_led.setData(m_ledBuffer);
+    }
+
+    // Wrapper function to allow pulse effect to be applied to any pattern. Call this function rather
+    // than calling pattern.applyTo()
+    private <T extends LEDReader & LEDWriter> void patternApplyTo(LEDPattern basePattern, T view) {
+        LEDPattern finalPattern = basePattern;
+
+        if (batteryPulse) {
+            finalPattern = basePattern.breathe(Seconds.of(batteryPulsePeriod));
+        }
+
+        finalPattern.applyTo(view);
     }
 
     public void setViews() {
@@ -113,46 +117,44 @@ public class Lights extends StormSubsystem {
     }
 
     public void setRainbow() {
-        m_rainbow = LEDPattern.rainbow(255, 128);
-        kLedSpacing = Meters.of(1 / 120.0);
-        m_scrollingRainbow = m_rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(0.45), kLedSpacing);
-        m_scrollingRainbow.applyTo(m_ledBuffer);
+        LEDPattern rainbow = LEDPattern.rainbow(255, 128);
+        Distance kLedSpacing = Meters.of(1 / 120.0);
+        LEDPattern m_scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(0.45), kLedSpacing);
+        patternApplyTo(m_scrollingRainbow, m_ledBuffer);
     }
 
-    public void setAllianceColor(){
-        switch(m_alliance){
+    public void setAllianceColor() {
+        LEDPattern pattern;
+        switch (m_alliance) {
             case RED -> {
-                defaultPattern = LEDPattern.solid(RED_COLOR);
+                pattern = LEDPattern.solid(RED_COLOR);
             }
             case BLUE -> {
-                defaultPattern = LEDPattern.solid(BLUE_COLOR);
+                pattern = LEDPattern.solid(BLUE_COLOR);
             }
             default -> {
-                defaultPattern = LEDPattern.solid(NO_ALLIANCE_COLOR);
+                pattern = LEDPattern.solid(NO_ALLIANCE_COLOR);
             }
         }
-        defaultPattern.applyTo(m_ledBuffer);
+        patternApplyTo(pattern, m_ledBuffer);
     }
 
     public void setSolid(Color color) {
         // Create an LED pattern that sets the entire view to one color
         LEDPattern pattern = LEDPattern.solid(color);
-        pattern.applyTo(m_ledBuffer);
+        patternApplyTo(pattern, m_ledBuffer);
     }
 
     public void setAlignmentStatus() {
         // Modify bottom view of strip based on alignment status
-        if (m_robotState.isAprilTagDetected()) {
-            LEDPattern pattern = LEDPattern.solid(TAG_DETECTED_COLOR);
-            pattern.applyTo(m_middle);
-        }
-
+        LEDPattern pattern;
         if (m_robotState.isAligned()) {
-            LEDPattern pattern = LEDPattern.solid(AUTONOMOUS_ALIGNED_COLOR);
-            pattern.applyTo(m_middle);
-        }
-
-        if(m_robotState.isTeleopAligning()){
+            pattern = LEDPattern.solid(AUTONOMOUS_ALIGNED_COLOR);
+            patternApplyTo(pattern, m_middle);
+        } else if (m_robotState.isAprilTagDetected()) {
+            pattern = LEDPattern.solid(TAG_DETECTED_COLOR);
+            patternApplyTo(pattern, m_middle);
+        } else if (m_robotState.isTeleopAligning()) {
             setRainbow();
         }
     }
@@ -166,8 +168,8 @@ public class Lights extends StormSubsystem {
     public void isElevatorHomed() {
         if (m_robotState.elevatorHasBeenHomed()) {
             LEDPattern pattern = LEDPattern.solid(ELEVATOR_HOMED_COLOR);
-            pattern.applyTo(m_left_top);
-            pattern.applyTo(m_right_top);
+            patternApplyTo(pattern, m_left_top);
+            patternApplyTo(pattern, m_right_top);
         }
     }
 
@@ -175,17 +177,14 @@ public class Lights extends StormSubsystem {
         if (m_robotState.getElevatorState().equals(Elevator.ElevatorState.SIMPLE_MOTION)
             || m_robotState.getElevatorState().equals(Elevator.ElevatorState.PID_MOTION)) {
             setRainbow();
-            // we started moving elevator, making aligned as FALSE.
-//            // TODO -> this needs to set thru vision. Target Pose / Current Pose checking should be done in vision
-//            RobotState.getInstance().setAligned(false);
         }
     }
 
     public void isElevatorOnHoldAtPosition() {
         if (m_robotState.getElevatorState().equals(Elevator.ElevatorState.HOLD)) {
             LEDPattern pattern = LEDPattern.solid(ELEVATOR_HOLD_COLOR);
-            pattern.applyTo(m_left_top);
-            pattern.applyTo(m_right_top);
+            patternApplyTo(pattern, m_left_top);
+            patternApplyTo(pattern, m_right_top);
         }
     }
 }
