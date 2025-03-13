@@ -61,9 +61,7 @@ public class Lights extends StormSubsystem {
     public void periodic() {
         super.periodic();
 
-        if (m_robotState.getBatteryState() != BatteryState.GOOD) {
-            this.batteryPulse = true;
-        }
+        this.batteryPulse = (m_robotState.getBatteryState() != BatteryState.GOOD);
 
         if (m_robotState.getAlliance() != m_alliance) {
             m_alliance = m_robotState.getAlliance();

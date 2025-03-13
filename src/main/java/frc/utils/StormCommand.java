@@ -21,7 +21,7 @@ public class StormCommand extends Command {
 
     @Override public void execute() {
         _count++;
-        console("running",50);
+        console("running",500);
     }
     @Override
     public void end(boolean interrupted) {
