@@ -198,6 +198,7 @@ public abstract class DrivetrainBase extends StormSubsystem {
 
     public void followTrajectory(SwerveSample sample) {
         Pose2d pose = getPose();
+        Logger.recordOutput("Auto/trajectory chassis speed", sample.getChassisSpeeds());
 
         ChassisSpeeds speeds = new ChassisSpeeds(
             sample.vx + xController.calculate(pose.getX(), sample.x),

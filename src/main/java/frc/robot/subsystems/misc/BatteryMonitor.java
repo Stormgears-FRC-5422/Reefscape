@@ -35,11 +35,11 @@ public class BatteryMonitor extends StormSubsystem {
             case TEST:
                 // Prevent going into enabled mode if we had a low voltage the last time through
                 // Only in debug mode, so we just keep going during competition
-                if (batteryState == BatteryState.BAD
-                    && newPeriod != lastPeriod
-                    && Constants.Debug.debug) {
-                    throw new BadBatteryException("The battery must be changed: "+ voltage + " Volts");
-                }
+//                if (batteryState == BatteryState.BAD
+//                    && newPeriod != lastPeriod
+//                    && Constants.Debug.debug) {
+//                    throw new BadBatteryException("The battery must be changed: "+ voltage + " Volts");
+//                }
             default:
                 console("battery level: " + state.getBatteryState() + ", " + voltage + " Volts", 1000);
         }

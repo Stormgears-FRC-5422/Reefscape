@@ -70,6 +70,12 @@ public class AutoCommandFactory {
             drivetrainBase
         );
 
+        visionSubsystem.setGyro(Choreo.loadTrajectory("far_left")
+                .get().getInitialPose(RobotState.createInstance().isAllianceRed())
+                .get().getRotation().getDegrees()
+            );
+
+
 //        autoFactory.resetOdometry("middle_one");
 //        autoFactory.resetOdometry("middle_one");
 //        autoFactory.resetOdometry("far_left");
@@ -162,11 +168,11 @@ public class AutoCommandFactory {
         return
             Commands.sequence(
                 new PrintCommand("far left"),
-                autoFactory.resetOdometry("far_left2"),
-                autoFactory.trajectoryCmd("far_left2"),
-                new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false)),
-                new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
-                new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false)),
+                new ParallelCommandGroup(home(), new SequentialCommandGroup(
+                    autoFactory.resetOdometry("far_left"),
+                    autoFactory.trajectoryCmd("far_left"),
+                    new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT))),
+//                new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false)),
                 new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
                 Commands.race(
                     new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),

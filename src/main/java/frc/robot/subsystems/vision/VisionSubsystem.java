@@ -119,7 +119,7 @@ public class VisionSubsystem extends StormSubsystem {
         }
     }
 
-    private void setGyro(double headingDegrees) {
+    public void setGyro(double headingDegrees) {
 //        for (StormLimelight limelight : limelights) {
 //            limelight.setGyroMeasurement(headingDegrees);
 //        }

@@ -59,7 +59,11 @@ public class CoralIntakeCommand extends StormCommand {
 //        } else {
 //            return (timer.get() >= Intake.rollerOuttakeDuration);
 //        }
+        if (operation == IntakeState.INTAKE){
+            return (timer.get() >= Intake.rollerIntakeDuration);
+        } else{
         return (timer.get() >= Intake.rollerOuttakeDuration);
+        }
     }
 
     // Called once the command ends or is interrupted.

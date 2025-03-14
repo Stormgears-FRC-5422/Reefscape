@@ -253,24 +253,24 @@ public class RobotContainer {
 //            )
 //        );
 
-        return new SequentialCommandGroup(
-            new PrintCommand("Homing and drive started"),
-            new ParallelCommandGroup(
-                new ConditionalCommand(
-                    new ElevatorHome(elevator),
-                    new PrintCommand("Elevator disabled"),
-                    () -> Toggles.useElevator
-                ),
-                new ConditionalCommand(
-                    new AlgaeIntakeHome(algaeIntake),
-                    new PrintCommand("AlgaeIntake disabled"),
-                    () -> Toggles.useAlgaeIntake
-                ),
-                new ConditionalCommand(
-                    new CoralIntakeHome(coralIntake),
-                    new PrintCommand("CoralIntake disabled"),
-                    () -> Toggles.useCoralIntake
-                )),
+//        return new SequentialCommandGroup(
+//            new PrintCommand("Homing and drive started"),
+//            new ParallelCommandGroup(
+//                new ConditionalCommand(
+//                    new ElevatorHome(elevator),
+//                    new PrintCommand("Elevator disabled"),
+//                    () -> Toggles.useElevator
+//                ),
+//                new ConditionalCommand(
+//                    new AlgaeIntakeHome(algaeIntake),
+//                    new PrintCommand("AlgaeIntake disabled"),
+//                    () -> Toggles.useAlgaeIntake
+//                ),
+//                new ConditionalCommand(
+//                    new CoralIntakeHome(coralIntake),
+//                    new PrintCommand("CoralIntake disabled"),
+//                    () -> Toggles.useCoralIntake
+//                )),
 ////            new AutoCommandFactory(drivetrain,
 ////                new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT)
 ////                , new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
@@ -281,13 +281,13 @@ public class RobotContainer {
 ////                coralOuttakeCommand
 ////            ).farLeft());
 ////           autoCommandFactory.farLeft());
-            new AutoCommandFactory(drivetrain,
+            return new AutoCommandFactory(drivetrain,
                 elevator,
                 coralIntake,
                 visionSubsystem,
                 joystick,
-                algaeIntake)
-                    .middleOne());
+                algaeIntake).farLeft();
+
 
 //        return  new SequentialCommandGroup(new AutoCommandFactory(drivetrain,
 //            elevator,

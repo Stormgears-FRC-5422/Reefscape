@@ -51,7 +51,7 @@ public class AutoAlign extends StormCommand {
         this.joystick = joystick;
 
         this.drivetrainBase = drivetrainBase;
-        translationPID = new ProfiledPIDController(11.5, 0.0, 0.1,
+        translationPID = new ProfiledPIDController(13, 0.0, 0.1,
             new TrapezoidProfile.Constraints(5.0, 5.0));
         translationPID.setTolerance(linearTolerance);
 
