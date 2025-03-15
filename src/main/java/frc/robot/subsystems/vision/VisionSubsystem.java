@@ -232,8 +232,18 @@ public class VisionSubsystem extends StormSubsystem {
         if ((bestTag <= tagRightRed && bestTag >= tagLeftRed) || (bestTag >= tagLeftBlue && bestTag <=tagRightBlue)) {
             Pose2d left = FieldConstants.getReefTargetPose(FieldConstants.Side.LEFT, bestTag);
             Pose2d right = FieldConstants.getReefTargetPose(FieldConstants.Side.RIGHT, bestTag);
-            if ((poseEstimator.getEstimatedPosition().minus(left).getTranslation().getNorm()<=0.01) || (poseEstimator.getEstimatedPosition().minus(right).getTranslation().getNorm()<=0.01)) {
-                System.out.println("align: true");
+            if(FieldConstants.getSide().equals(FieldConstants.Side.RIGHT)){
+            Logger.recordOutput("Robot Target error",
+                new Pose2d(poseEstimator.getEstimatedPosition().minus(right).getTranslation(),
+                poseEstimator.getEstimatedPosition().minus(right).getRotation()));
+            }else{
+                Logger.recordOutput("Robot Target error",
+                    new Pose2d(poseEstimator.getEstimatedPosition().minus(left).getTranslation(),
+                        poseEstimator.getEstimatedPosition().minus(left).getRotation()));
+
+            }
+            if ((poseEstimator.getEstimatedPosition().minus(left).getTranslation().getNorm()<=0.015 && poseEstimator.getEstimatedPosition().minus(left).getRotation().getDegrees()<=1.5) || (poseEstimator.getEstimatedPosition().minus(right).getTranslation().getNorm()<=0.015 && poseEstimator.getEstimatedPosition().minus(right).getRotation().getDegrees()<=1.5)) {
+//                System.out.println("align: true");
                 return true;
             } else {
                 return false;

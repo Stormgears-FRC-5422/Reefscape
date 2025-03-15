@@ -12,6 +12,7 @@ public class FieldConstants {
 //    static double leftOffset = -0.125;
     static double leftOffset = 0.0;
     static double rightOffset = 0;
+    static Side reefSide = null;
     static double xAprilTagOffset = Constants.Frame.length/2 + Constants.Frame.bumperThickness;
 
 
@@ -79,6 +80,7 @@ public class FieldConstants {
      * @param tagId the tagId of the tag
      */
     public static Pose2d getReefTargetPose(Side side, int tagId) {
+        reefSide = side;
         if ((tagId <= 11 && tagId >= 6) || (tagId >= 17 && tagId <= 22)) {
             if (side == Side.LEFT) {
                 Logger.recordOutput("aprilTagPose", getPoseTag(tagId));
@@ -98,4 +100,9 @@ public class FieldConstants {
             return null;
         }
     }
+
+    public static Side getSide() {
+        return reefSide;
+    }
+
 }
