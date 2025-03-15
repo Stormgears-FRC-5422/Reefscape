@@ -286,7 +286,7 @@ public class RobotContainer {
                 coralIntake,
                 visionSubsystem,
                 joystick,
-                algaeIntake).farLeft();
+                algaeIntake).middleOne();
 
 
 //        return  new SequentialCommandGroup(new AutoCommandFactory(drivetrain,

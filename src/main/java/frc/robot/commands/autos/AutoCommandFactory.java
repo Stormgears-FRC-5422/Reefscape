@@ -70,13 +70,13 @@ public class AutoCommandFactory {
             drivetrainBase
         );
 
-        visionSubsystem.setGyro(Choreo.loadTrajectory("far_left")
-                .get().getInitialPose(RobotState.createInstance().isAllianceRed())
-                .get().getRotation().getDegrees()
-            );
+//        visionSubsystem.setGyro(Choreo.loadTrajectory("far_left")
+//                .get().getInitialPose(RobotState.createInstance().isAllianceRed())
+//                .get().getRotation().getDegrees()
+//            );
 
 
-//        autoFactory.resetOdometry("middle_one");
+        autoFactory.resetOdometry("middle_one");
 //        autoFactory.resetOdometry("middle_one");
 //        autoFactory.resetOdometry("far_left");
     }
@@ -101,8 +101,8 @@ public class AutoCommandFactory {
         return Commands.sequence(
             new PrintCommand("middle"),
             new ParallelCommandGroup(home(), new SequentialCommandGroup(
-                autoFactory.resetOdometry("middle_one"),
                 autoFactory.trajectoryCmd("middle_one"),
+                new PrintCommand("after middle trajectory"),
                 new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT))),
             new ConditionalCommand(
                 new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
@@ -202,11 +202,11 @@ public class AutoCommandFactory {
                     new PrintCommand("Elevator disabled"),
                     () -> Constants.Toggles.useElevator
                 ),
-                new ConditionalCommand(
-                    new AlgaeIntakeHome(algaeIntake),
-                    new PrintCommand("AlgaeIntake disabled"),
-                    () -> Constants.Toggles.useAlgaeIntake
-                ),
+//                new ConditionalCommand(
+//                    new AlgaeIntakeHome(algaeIntake),
+//                    new PrintCommand("AlgaeIntake disabled"),
+//                    () -> Constants.Toggles.useAlgaeIntake
+//                ),
                 new ConditionalCommand(
                     new CoralIntakeHome(coralIntake),
                     new PrintCommand("CoralIntake disabled"),
