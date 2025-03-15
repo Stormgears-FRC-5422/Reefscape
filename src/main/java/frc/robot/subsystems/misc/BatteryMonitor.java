@@ -37,7 +37,8 @@ public class BatteryMonitor extends StormSubsystem {
                 // Only in debug mode, so we just keep going during competition
                 if (batteryState == BatteryState.BAD
                     && newPeriod != lastPeriod
-                    && Constants.Debug.debug) {
+                    && Constants.Debug.debug
+                    && Constants.Power.autoKill) {
                     throw new BadBatteryException("The battery must be changed: " + voltage + " Volts");
                 }
             default:

@@ -68,11 +68,13 @@ public class StormNet {
 			e.printStackTrace();
 		}
 
-		m_testSensor.setDebug(true);
-		System.out.println("core test " + (m_testSensor.test() ? "passed" : "failed"));
+//		m_testSensor.setDebug(true);
+//		System.out.println("core test " + (m_testSensor.test() ? "passed" : "failed"));
 //		System.out.println("about to test lidar");
 //		m_lidar.test();
-		m_testSensor.setDebug(false);
+//		m_testSensor.setDebug(false);
+        m_lidar.setDebug(true);
+        System.out.println("lidar distances = " + getLidarDistances());
 		return true;
 	}
 
