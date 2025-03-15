@@ -45,7 +45,7 @@ public class Climber extends StormSubsystem {
         // Hard limits
         climberMotorConfig.limitSwitch
             .forwardLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
-            .forwardLimitSwitchEnabled(false)
+            .forwardLimitSwitchEnabled(true)
             .reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
             .reverseLimitSwitchEnabled(false);
 

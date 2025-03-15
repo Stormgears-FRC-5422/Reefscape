@@ -71,23 +71,23 @@ public class Lights extends StormSubsystem {
 
         setAllianceColor();
 
-        // Set alliance color by default to full strip
-        // if holding coral, change full strip to green
-        // if aligned to shoot coral, change top half to purple
-        if (m_robotState.isCoralSensorTriggered()) {
-            setSolid(CORAL_STORED_COLOR);
-        } else {
-            if (m_robotState.getAlliance() != m_alliance) {
-                m_alliance = m_robotState.getAlliance();
-            }
-            setAllianceColor();
-        }
+//        // Set alliance color by default to full strip
+//        // if holding coral, change full strip to green
+//        // if aligned to shoot coral, change top half to purple
+//        if (m_robotState.isCoralSensorTriggered()) {
+//            setSolid(CORAL_STORED_COLOR);
+//        } else {
+//            if (m_robotState.getAlliance() != m_alliance) {
+//                m_alliance = m_robotState.getAlliance();
+//            }
+//            setAllianceColor();
+//        }
 
         // Modify bottom view of strip based on april tag detection/alignment
         setAlignmentStatus();
 
-        // Modify top view of strip based on elevator status
-        setElevatorStatus();
+//        // Modify top view of strip based on elevator status
+//        setElevatorStatus();
 
         // Write the data to the LED strip
         m_led.setData(m_ledBuffer);

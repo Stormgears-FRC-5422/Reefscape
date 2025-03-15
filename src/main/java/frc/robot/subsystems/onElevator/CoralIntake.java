@@ -17,6 +17,7 @@ import frc.robot.Constants.Intake;
 import frc.robot.Constants.SparkConstants;
 import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
+import org.littletonrobotics.junction.Logger;
 
 public class CoralIntake extends StormSubsystem {
     private final RobotState robotState;
@@ -119,6 +120,8 @@ public class CoralIntake extends StormSubsystem {
                 rollerSpark.set(0);
                 wristSpark.set(0);
         }
+
+        Logger.recordOutput("CoralIntake/WristPosition", currentPosition);
 
         robotState.setCoralSensorTriggered(isLoaded());
     }

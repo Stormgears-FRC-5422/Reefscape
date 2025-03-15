@@ -60,8 +60,6 @@ public class AutoCommandFactory {
         Choreo.loadTrajectory("far_left_two");
         Choreo.loadTrajectory("far_left_three");
 
-
-
         autoFactory = new AutoFactory(
             drivetrainBase::getPose,
             drivetrainBase::declarePoseIsNow,

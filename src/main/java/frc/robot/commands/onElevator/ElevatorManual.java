@@ -1,5 +1,6 @@
 package frc.robot.commands.onElevator;
 
+import frc.robot.Constants;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.subsystems.onElevator.Elevator;
 import frc.robot.subsystems.onElevator.Elevator.ElevatorLevel;
@@ -20,7 +21,11 @@ public class ElevatorManual extends StormCommand {
     public void initialize() {
         super.initialize();
         elevator.setTargetPosition(elevator.getCurrentPosition());
-        elevator.setState(Elevator.ElevatorState.PID_MOTION);
+        if (Constants.Elevator.useSimpleMotion) {
+            elevator.setState(Elevator.ElevatorState.SIMPLE_MOTION);
+        } else {
+            elevator.setState(Elevator.ElevatorState.PID_MOTION);
+        }
     }
 
     @Override

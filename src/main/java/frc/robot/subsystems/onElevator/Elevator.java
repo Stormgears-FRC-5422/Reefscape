@@ -70,11 +70,19 @@ public class Elevator extends StormSubsystem {
         double maxVPct = maxV / SparkConstants.NominalVoltage; // percentage (-1 to 1)
 
         // These functions can optionally take a slot - e.g. ClosedLoopSlot.kSlot0 is the default
-        elevatorLeaderConfig.closedLoop
-            .p(kP)
-            .i(kI)
-            .d(kD)
-            .outputRange(-maxVPct, maxVPct);
+        if (Constants.Elevator.pidOpenLoop) {
+            elevatorLeaderConfig.closedLoop
+                .p(kP)
+                .i(kI)
+                .d(kD)
+                .outputRange(-maxVPct, maxVPct);
+        } else {
+            elevatorLeaderConfig.closedLoop
+                .p(0)
+                .i(0)
+                .d(0)
+                .outputRange(-maxVPct, maxVPct);
+        }
 
         elevatorLeaderConfig.closedLoopRampRate(Constants.Elevator.closedLoopRampRate);
 
