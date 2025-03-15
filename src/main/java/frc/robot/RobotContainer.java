@@ -28,6 +28,7 @@ import frc.robot.subsystems.misc.BatteryMonitor;
 import frc.robot.subsystems.misc.ColorSensor;
 import frc.robot.subsystems.misc.Lights;
 import frc.robot.subsystems.misc.Pigeon;
+import frc.robot.subsystems.stormnet.StormNet;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
 import frc.robot.subsystems.drive.DrivetrainFactory;
@@ -67,6 +68,8 @@ public class RobotContainer {
     private Elevator elevator;
     private ColorSensor colorSensor;
 
+    // Stormnet isn't quite a subsystem
+    private StormNet stormNet;
 
     // Joysticks
     ReefscapeJoystick joystick;
@@ -174,6 +177,17 @@ public class RobotContainer {
             climber = new Climber();
         }
 
+        if (Toggles.useStormNet) {
+            console("Creating StormNet");
+            StormNet.init();
+            stormNet = StormNet.getInstance();
+            // TODO only in debug
+            if (Constants.Debug.debug) {
+                stormNet.test();
+            }
+        } else {
+            console("NOT using StormNet");
+        }
         console("constructor ended");
     }
 
