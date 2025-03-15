@@ -112,6 +112,7 @@ public class Lights extends StormSubsystem {
         m_right_top = m_ledBuffer.createView(Constants.Lights.rightTopViewStart, Constants.Lights.rightTopViewEnd);
         m_right_bottom = m_ledBuffer.createView(Constants.Lights.rightBottomViewStart, Constants.Lights.rightBottomViewEnd);
         m_middle = m_ledBuffer.createView(Constants.Lights.middleViewStart, Constants.Lights.middleViewEnd);
+
     }
 
     public void setRainbow() {
@@ -148,10 +149,10 @@ public class Lights extends StormSubsystem {
         LEDPattern pattern;
         if (m_robotState.isAligned()) {
             pattern = LEDPattern.solid(AUTONOMOUS_ALIGNED_COLOR);
-            patternApplyTo(pattern, m_middle);
+            patternApplyTo(pattern, m_ledBuffer);
         } else if (m_robotState.isAprilTagDetected()) {
             pattern = LEDPattern.solid(TAG_DETECTED_COLOR);
-            patternApplyTo(pattern, m_middle);
+            patternApplyTo(pattern, m_ledBuffer);
         } else if (m_robotState.isTeleopAligning()) {
             setRainbow();
         }
