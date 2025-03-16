@@ -230,20 +230,20 @@ public class AKDriveInternal implements Subsystem {
     public void runVelocity(ChassisSpeeds speeds) {
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-        if (Constants.Toggles.useHeadingCorrection) {
-            if (Math.abs(discreteSpeeds.omegaRadiansPerSecond) < Constants.Drive.headingCorrectionDeadband
-                && (Math.abs(discreteSpeeds.vxMetersPerSecond) > Constants.Drive.headingCorrectionDeadband
-                || Math.abs(discreteSpeeds.vyMetersPerSecond) > Constants.Drive.headingCorrectionDeadband)) {
-                if (!correctionEnabled) {
-                    lastHeadingRadians = getRotation().getRadians();
-                    correctionEnabled = true;
-                }
-                discreteSpeeds.omegaRadiansPerSecond =
-                    headingController.calculate(getRotation().getRadians(), lastHeadingRadians);
-            } else {
-                correctionEnabled = false;
-            }
-        }
+//        if (Constants.Toggles.useHeadingCorrection) {
+//            if (Math.abs(discreteSpeeds.omegaRadiansPerSecond) < Constants.Drive.headingCorrectionDeadband
+//                && (Math.abs(discreteSpeeds.vxMetersPerSecond) > Constants.Drive.headingCorrectionDeadband
+//                || Math.abs(discreteSpeeds.vyMetersPerSecond) > Constants.Drive.headingCorrectionDeadband)) {
+//                if (!correctionEnabled) {
+//                    lastHeadingRadians = getRotation().getRadians();
+//                    correctionEnabled = true;
+//                }
+//                discreteSpeeds.omegaRadiansPerSecond =
+//                    headingController.calculate(getRotation().getRadians(), lastHeadingRadians);
+//            } else {
+//                correctionEnabled = false;
+//            }
+//        }
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
         // Log unoptimized setpoints and setpoint speeds

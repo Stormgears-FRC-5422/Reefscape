@@ -244,7 +244,9 @@ public class VisionSubsystem extends StormSubsystem {
                         poseEstimator.getEstimatedPosition().minus(left).getRotation()));
 
             }
-            if ((poseEstimator.getEstimatedPosition().minus(left).getTranslation().getNorm()<=0.015 && poseEstimator.getEstimatedPosition().minus(left).getRotation().getDegrees()<=1.5) || (poseEstimator.getEstimatedPosition().minus(right).getTranslation().getNorm()<=0.015 && poseEstimator.getEstimatedPosition().minus(right).getRotation().getDegrees()<=1.5)) {
+            if ((poseEstimator.getEstimatedPosition().minus(left).getTranslation().getNorm()<=0.015
+                && poseEstimator.getEstimatedPosition().minus(left).getRotation().getDegrees()<=1.5)
+                || (poseEstimator.getEstimatedPosition().minus(right).getTranslation().getNorm()<=0.015 && poseEstimator.getEstimatedPosition().minus(right).getRotation().getDegrees()<=1.5)) {
 //                System.out.println("align: true");
                 return true;
             } else {

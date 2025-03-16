@@ -42,8 +42,10 @@ public class AKTunerConstantsTest {
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs FLdriveGains = new Slot0Configs()
-        .withKP(0.0).withKI(0).withKD(0)
-        .withKS(0.0).withKV(0.0);
+        .withKP(45).withKI(0).withKD(0)
+        .withKS(12).withKV(0)
+        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+
 
 //    private static final Slot0Configs FRsteerGains = new Slot0Configs()
 //        .withKP(175).withKI(0.0).withKD(9.58)
@@ -54,12 +56,15 @@ public class AKTunerConstantsTest {
         .withKS(0).withKV(0.0).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     //    kv 2.66 ks 0.1
+//    3.36
 
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs FRdriveGains = new Slot0Configs()
-        .withKP(35.0).withKI(0).withKD(0.0)
-        .withKS(5.0).withKV(0.0);
+        .withKP(45).withKI(0).withKD(0.0)
+        .withKS(12).withKV(0.0)
+        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+
 
 //    private static final Slot0Configs BRsteerGains = new Slot0Configs()
 //        .withKP(200).withKI(0.0).withKD(7.46)
@@ -67,15 +72,18 @@ public class AKTunerConstantsTest {
 //        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     private static final Slot0Configs BRsteerGains = new Slot0Configs()
         .withKP(4000).withKI(0.0).withKD(50)
-        .withKS(0).withKV(0.0).withKA(0)
+        .withKS(0).withKV(0.0).withKA(12)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     //    kv 2.66 ks 0.1
 
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs BRdriveGains = new Slot0Configs()
-        .withKP(35.0).withKI(0).withKD(0.0)
-        .withKS(5.0).withKV(0.0);;
+        .withKP(45).withKI(0).withKD(0.0)
+        .withKS(12).withKV(0.0)
+        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+
+//    3.48
 
 //    private static final Slot0Configs BLsteerGains = new Slot0Configs()
 //        .withKP(87).withKI(0.0).withKD(11)
@@ -90,8 +98,10 @@ private static final Slot0Configs BLsteerGains = new Slot0Configs()
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs BLdriveGains = new Slot0Configs()
-        .withKP(35.0).withKI(0).withKD(0.0)
-        .withKS(5.0).withKV(0.0);
+        .withKP(45).withKI(0).withKD(0)
+        .withKS(12).withKV(0.0)
+        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+
 
 
     // The closed-loop output type to use for the steer motors;
