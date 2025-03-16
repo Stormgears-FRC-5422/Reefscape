@@ -56,6 +56,9 @@ public class RobotState extends SubsystemBase {
     private boolean m_joystickAndButtonBoardConfigured = false;
 
     private BatteryState batteryState;
+    int bestTag;
+    private double lidarAngle;
+    private boolean lidarAngleIsValid;
 
 
     // Call createInstance from robotInit()
@@ -291,6 +294,27 @@ public class RobotState extends SubsystemBase {
 
     public BatteryState getBatteryState() {
         return this.batteryState;
+    }
+
+    public void setBestTag(int bestTag) {
+        this.bestTag = bestTag;
+    }
+
+    public int getBestTag() {
+        return bestTag;
+    }
+
+    public void setLidarAngle(double lidarAngle, boolean isValid) {
+        this.lidarAngle = lidarAngle;
+        this.lidarAngleIsValid = isValid;
+    }
+
+    public double getLidarAngle() {
+        return lidarAngle;
+    }
+
+    public boolean getLidarAngleIsValid() {
+        return lidarAngleIsValid;
     }
 
 }

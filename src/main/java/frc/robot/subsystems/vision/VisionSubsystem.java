@@ -184,6 +184,8 @@ public class VisionSubsystem extends StormSubsystem {
             bestTag = -1;
         }
 
+        robotState.setBestTag(bestTag);
+
         boolean rejectPose = false;
         Pose2d visionPose = null;
         double timeStamp = 0.0;

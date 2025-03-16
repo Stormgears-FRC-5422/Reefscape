@@ -58,9 +58,9 @@ public class StormNet {
 	}
 
 	public boolean test() {
-		System.out.println("In StormNet Test");
-		System.out.println("about to test core");
-		System.out.println("waiting for 1 second to make sure we've gotten data");
+		console("In StormNet Test");
+        console("about to test core");
+        console("waiting for 1 second to make sure we've gotten data");
 
 		try {
 			TimeUnit.SECONDS.sleep(1);
@@ -74,7 +74,7 @@ public class StormNet {
 //		m_lidar.test();
 //		m_testSensor.setDebug(false);
         m_lidar.setDebug(true);
-        System.out.println("lidar distances = " + getLidarDistances());
+        console("lidar distances = " + getLidarDistances());
 		return true;
 	}
 
@@ -96,4 +96,9 @@ public class StormNet {
 	public boolean getLidarQuality() {
 		return m_lidar.getSensorQuality(); // true is good
 	}
+
+    public void console(String message) {
+        System.out.println("StormNet : " + message);
+    }
+
 }
