@@ -59,6 +59,7 @@ public class RobotState extends SubsystemBase {
     int bestTag;
     private double lidarAngle;
     private boolean lidarAngleIsValid;
+    private double lidarOffsetAngle;
 
 
     // Call createInstance from robotInit()
@@ -304,9 +305,10 @@ public class RobotState extends SubsystemBase {
         return bestTag;
     }
 
-    public void setLidarAngle(double lidarAngle, boolean isValid) {
-        this.lidarAngle = lidarAngle;
+    public void setLidarAngles(double lidarHeading, double lidarOffsetAngle, boolean isValid) {
+        this.lidarAngle = lidarHeading;
         this.lidarAngleIsValid = isValid;
+        this.lidarOffsetAngle = lidarOffsetAngle;
     }
 
     public double getLidarAngle() {
@@ -316,5 +318,7 @@ public class RobotState extends SubsystemBase {
     public boolean getLidarAngleIsValid() {
         return lidarAngleIsValid;
     }
+
+    public double getLidarOffsetAngle() { return lidarOffsetAngle; }
 
 }
