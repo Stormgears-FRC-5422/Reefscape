@@ -20,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -32,6 +33,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import frc.robot.Constants;
 import frc.robot.RobotState;
+import frc.utils.swerve.ModuleLimits;
+import frc.utils.swerve.SwerveSetpoint;
+import frc.utils.swerve.SwerveSetpointGenerator;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -66,6 +70,10 @@ public class AKDriveInternal implements Subsystem {
 
     private SwerveDrivePoseEstimator poseEstimator =
         new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+    private final SwerveSetpointGenerator setpointGenerator;
+    private final ModuleLimits moduleLimits;
+    private SwerveSetpoint lastSwerveSetpoint;
+
 
     ChassisSpeeds m_chassisSpeeds;
 
@@ -139,6 +147,24 @@ public class AKDriveInternal implements Subsystem {
                     (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
                     (voltage) -> runTurnCharacterization(voltage.in(Volts)), null, this));
+
+        setpointGenerator =
+            SwerveSetpointGenerator.builder()
+                .kinematics(kinematics)
+                .moduleLocations(getModuleTranslations())
+                .build();
+
+        moduleLimits = new ModuleLimits(getMaxLinearSpeedMetersPerSec(),
+            Units.feetToMeters(60), getMaxAngularSpeedRadPerSec());
+
+        lastSwerveSetpoint = new SwerveSetpoint(
+            new ChassisSpeeds(),
+            new SwerveModuleState[]{
+                new SwerveModuleState(),
+                new SwerveModuleState(),
+                new SwerveModuleState(),
+                new SwerveModuleState()
+            });
     }
 
     public SwerveDrivePoseEstimator getPoseEstimator() {
@@ -230,22 +256,19 @@ public class AKDriveInternal implements Subsystem {
     public void runVelocity(ChassisSpeeds speeds) {
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-//        if (Constants.Toggles.useHeadingCorrection) {
-//            if (Math.abs(discreteSpeeds.omegaRadiansPerSecond) < Constants.Drive.headingCorrectionDeadband
-//                && (Math.abs(discreteSpeeds.vxMetersPerSecond) > Constants.Drive.headingCorrectionDeadband
-//                || Math.abs(discreteSpeeds.vyMetersPerSecond) > Constants.Drive.headingCorrectionDeadband)) {
-//                if (!correctionEnabled) {
-//                    lastHeadingRadians = getRotation().getRadians();
-//                    correctionEnabled = true;
-//                }
-//                discreteSpeeds.omegaRadiansPerSecond =
-//                    headingController.calculate(getRotation().getRadians(), lastHeadingRadians);
-//            } else {
-//                correctionEnabled = false;
-//            }
-//        }
+
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
+        if (Constants.Toggles.useSetPointGenerator) {
+            lastSwerveSetpoint = setpointGenerator.generateSetpoint(
+                moduleLimits, lastSwerveSetpoint, discreteSpeeds, 0.02
+            );
+            setpointStates = lastSwerveSetpoint.moduleStates();
+
+        } else {
+            SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
+        }
+
+
         // Log unoptimized setpoints and setpoint speeds
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
         Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
@@ -253,12 +276,7 @@ public class AKDriveInternal implements Subsystem {
 
         // Send setpoints to modules
         for (int i = 0; i < 4; i++) {
-//            if(setpointStates[i].angle.getDegrees()<1.5 && setpointStates[i].angle.getDegrees()>-1.5 && RobotState.a){
-//                SwerveModuleState tempState = new SwerveModuleState(setpointStates[i].speedMetersPerSecond, new Rotation2d());
-//                modules[i].runSetpoint(tempState);
-//            } else {
             modules[i].runSetpoint(setpointStates[i]);
-//            }
         }
 
         // Log optimized setpoints (runSetpoint mutates each state)

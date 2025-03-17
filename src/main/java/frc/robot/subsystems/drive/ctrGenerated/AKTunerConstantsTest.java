@@ -43,7 +43,7 @@ public class AKTunerConstantsTest {
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs FLdriveGains = new Slot0Configs()
         .withKP(45).withKI(0).withKD(0)
-        .withKS(12).withKV(0)
+        .withKS(0).withKV(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
 
@@ -62,7 +62,7 @@ public class AKTunerConstantsTest {
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs FRdriveGains = new Slot0Configs()
         .withKP(45).withKI(0).withKD(0.0)
-        .withKS(12).withKV(0.0)
+        .withKS(0).withKV(0.0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
 
@@ -80,7 +80,7 @@ public class AKTunerConstantsTest {
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs BRdriveGains = new Slot0Configs()
         .withKP(45).withKI(0).withKD(0.0)
-        .withKS(12).withKV(0.0)
+        .withKS(0).withKV(0.0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
 //    3.48
@@ -99,7 +99,7 @@ private static final Slot0Configs BLsteerGains = new Slot0Configs()
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs BLdriveGains = new Slot0Configs()
         .withKP(45).withKI(0).withKD(0)
-        .withKS(12).withKV(0.0)
+        .withKS(0).withKV(0.0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
 

@@ -42,8 +42,6 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Queue;
 
 import static frc.utils.CTR.PhoenixUtil.tryUntilOk;
@@ -258,25 +256,21 @@ public class ModuleIOTalonFX implements ModuleIO {
   }
 
   @Override
-  public void setDriveVelocity(double velocityRadPerSec) {
+  public void setDriveVelocity(double velocityRadPerSec, double feedForward) {
     double velocityRotPerSec = Units.radiansToRotations(velocityRadPerSec);
-      Logger.recordOutput("Module " + driveTalon.getDeviceID() + " PID error", driveTalon.getClosedLoopError().getValue());
 
-//      Logger.recordOutput("Module " + driveTalon.getDeviceID() + " set acceleration", velocityTorqueCurrentRequest.Acceleration);
-//      Logger.recordOutput("Module " + driveTalon.getDeviceID() + " set acceleration", velocityTorqueCurrentRequest.Acceleration);
-      Logger.recordOutput("Module " + driveTalon.getDeviceID() + "measured acceleration", driveTalon.getAcceleration().getValue());
     driveTalon.setControl(
         switch (constants.DriveMotorClosedLoopOutput) {
           case Voltage -> velocityVoltageRequest.withVelocity(velocityRotPerSec);
-          case TorqueCurrentFOC -> velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec);
+          case TorqueCurrentFOC -> velocityTorqueCurrentRequest
+              .withVelocity(velocityRotPerSec).
+              withFeedForward(feedForward);
         });
-      Logger.recordOutput("Module " + driveTalon.getDeviceID() + " ff", velocityTorqueCurrentRequest.FeedForward);
 
-//      driveTalon.setControl(
-//          switch (constants.DriveMotorClosedLoopOutput) {
-//              case Voltage -> voltageRequest.withOutput(velocityRotPerSec);
-//              case TorqueCurrentFOC -> torqueCurrentRequest.withOutput(velocityRotPerSec);
-//          });
+      Logger.recordOutput("Module " + driveTalon.getDeviceID() + " PID error",
+          driveTalon.getClosedLoopError().getValue());
+      Logger.recordOutput("Module " + driveTalon.getDeviceID() + "measured acceleration",
+          driveTalon.getAcceleration().getValue());
   }
 
   @Override
