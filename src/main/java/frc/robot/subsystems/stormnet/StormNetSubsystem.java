@@ -7,6 +7,7 @@ import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
 import org.littletonrobotics.junction.Logger;
 
+
 public class StormNetSubsystem extends StormSubsystem {
     private StormNet stormNet;
     private RobotState state;
@@ -15,7 +16,8 @@ public class StormNetSubsystem extends StormSubsystem {
     private final double maxRotationTheta;
     private final double lidarSeparation;
     private boolean isValid;
-    private double lidarAngle;
+    private double offsetAngle;
+    private double lidarHeading;
 
     public StormNetSubsystem() {
         StormNet.init();
@@ -31,7 +33,7 @@ public class StormNetSubsystem extends StormSubsystem {
         lidarSeparation = Constants.StormNet.lidarSeparation;
 
         isValid = false;
-        lidarAngle = 0;
+        lidarHeading = 0;
         state = RobotState.getInstance();
     }
 
@@ -41,12 +43,12 @@ public class StormNetSubsystem extends StormSubsystem {
 
         if (state.isAprilTagDetected()) {
             calculateLidarRotation();
-            state.setLidarAngle(lidarAngle, isValid);
+            state.setLidarAngles(lidarHeading, offsetAngle, isValid);
         } else {
-            state.setLidarAngle(0.0, false);
+            state.setLidarAngles(0.0, 0.0, false);
         }
 
-        Logger.recordOutput("StormNet/LidarAngle", lidarAngle);
+        Logger.recordOutput("StormNet/LidarAngle", lidarHeading);
         Logger.recordOutput("StormNet/LidarIsValid", isValid);
     }
 
@@ -60,26 +62,23 @@ public class StormNetSubsystem extends StormSubsystem {
             distances[0] > maxDistance ||
             distances[1] > maxDistance) {
             isValid = false;
-            lidarAngle = 0;
+            lidarHeading = 0;
             return;
         }
 
         // We can see a tag and have a good reading. Calculate rotation error relative to the wall
-        double tmpAngle = Math.atan2(distances[0] - distances[1], lidarSeparation);
+        offsetAngle = Math.atan2(distances[0] - distances[1], lidarSeparation);
 
         Rotation2d tagHeading = FieldConstants.getPoseTag(tag).getRotation();
-        Rotation2d robotHeading = tagHeading.plus(Rotation2d.fromRadians(tmpAngle));
-
-        // Convert Rotation2d to a simple double angle if needed
-        tmpAngle = robotHeading.getRadians();
+        Rotation2d robotHeading = tagHeading.plus(Rotation2d.fromRadians(offsetAngle));
 
         // Clamp lidarAngle to prevent extreme values
-        if (Math.abs(tmpAngle - tagHeading.getRadians()) < maxRotationTheta) {
+        if (Math.abs(robotHeading.getRadians() - tagHeading.getRadians()) < maxRotationTheta) {
             isValid = true;
-            lidarAngle = tmpAngle;
+            lidarHeading = robotHeading.getRadians();
         } else {
             isValid = false;
-            lidarAngle = 0;
+            lidarHeading = 0;
         }
     }
 }

@@ -40,6 +40,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Queue;
 
@@ -255,13 +256,21 @@ public class ModuleIOTalonFX implements ModuleIO {
   }
 
   @Override
-  public void setDriveVelocity(double velocityRadPerSec) {
+  public void setDriveVelocity(double velocityRadPerSec, double feedForward) {
     double velocityRotPerSec = Units.radiansToRotations(velocityRadPerSec);
+
     driveTalon.setControl(
         switch (constants.DriveMotorClosedLoopOutput) {
           case Voltage -> velocityVoltageRequest.withVelocity(velocityRotPerSec);
-          case TorqueCurrentFOC -> velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec);
+          case TorqueCurrentFOC -> velocityTorqueCurrentRequest
+              .withVelocity(velocityRotPerSec).
+              withFeedForward(feedForward);
         });
+
+      Logger.recordOutput("Module " + driveTalon.getDeviceID() + " PID error",
+          driveTalon.getClosedLoopError().getValue());
+      Logger.recordOutput("Module " + driveTalon.getDeviceID() + "measured acceleration",
+          driveTalon.getAcceleration().getValue());
   }
 
   @Override

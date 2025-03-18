@@ -106,6 +106,7 @@ public class Robot extends LoggedRobot {
             console("Message: " + tmpException.getMessage());
             console("Stack trace:");
             tmpException.printStackTrace();
+            CommandScheduler.getInstance().cancelAll();
             try {
                 while (true) {
                     Thread.sleep(1000);

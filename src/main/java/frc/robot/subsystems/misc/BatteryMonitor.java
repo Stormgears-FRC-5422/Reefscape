@@ -56,6 +56,7 @@ public class BatteryMonitor extends StormSubsystem {
         }
 
         state.setBatteryState(batteryState);
+        lastPeriod = newPeriod;
     }
 
     public enum BatteryState {
