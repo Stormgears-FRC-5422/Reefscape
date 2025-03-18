@@ -115,6 +115,7 @@ public class AlgaeIntake extends StormSubsystem {
 
         switch (currentState) {
             case HOMING:
+            motorSpeed = 0.1;
                 home();
                 algaeSpark.set(motorSpeed);
 
@@ -322,8 +323,6 @@ public class AlgaeIntake extends StormSubsystem {
         }
     }
 
-
-
     /**
      * Computes the feedforward voltage (Kf) for the Neo motor given an angle in degrees.
      * Uses the standard Neo specifications:
@@ -387,7 +386,7 @@ public class AlgaeIntake extends StormSubsystem {
         UP,
         DOWN,
         PID_MOTION,
-
+        REEF_PICKUP
     }
 }
 

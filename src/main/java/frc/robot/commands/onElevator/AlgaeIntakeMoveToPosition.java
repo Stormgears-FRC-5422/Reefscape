@@ -29,9 +29,13 @@ public class AlgaeIntakeMoveToPosition extends StormCommand {
     public void initialize() {
         super.initialize();
         console("targetPosition = " + targetPosition);
-
         algaeIntake.setTargetPosition(targetPosition);
-        algaeIntake.setState(AlgaeIntake.IntakeState.PID_MOTION);
+        if (targetPosition > algaeIntake.getCurrentPosition()) {
+            algaeIntake.setState(AlgaeIntake.IntakeState.DOWN);
+        }
+        else {
+            algaeIntake.setState(AlgaeIntake.IntakeState.UP);
+        }
     }
 
     // Called once the command ends or is interrupted.

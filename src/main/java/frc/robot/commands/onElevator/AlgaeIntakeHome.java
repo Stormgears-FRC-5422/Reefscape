@@ -41,7 +41,7 @@ public class AlgaeIntakeHome extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return counter>=50 || !skip;
+        return !skip;
 
     }
 
