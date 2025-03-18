@@ -38,8 +38,10 @@ public class Module {
     private final Alert turnDisconnectedAlert;
     private final Alert turnEncoderDisconnectedAlert;
     private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[]{};
-    private SimpleMotorFeedforward ff =
-        new SimpleMotorFeedforward(Constants.Drive.kS, 0.0);
+    private SimpleMotorFeedforward ffLeft =
+        new SimpleMotorFeedforward(12, 0.0);
+    private SimpleMotorFeedforward ffRight =
+        new SimpleMotorFeedforward(12, 0.0);
 
     public Module(
         ModuleIO io,
@@ -84,15 +86,21 @@ public class Module {
     /**
      * Runs the module with the specified setpoint state. Mutates the state to optimize it.
      */
-    public void runSetpoint(SwerveModuleState state) {
+    public void runSetpoint(SwerveModuleState state, int module) {
         // Optimize velocity setpoint
         state.optimize(getAngle());
         state.cosineScale(inputs.turnPosition);
 
-        // Apply setpoints
-        io.setDriveVelocity(
-            state.speedMetersPerSecond / constants.WheelRadius,
-            ff.calculate(state.speedMetersPerSecond / constants.WheelRadius));
+        if (module % 2 == 0) {
+            // Apply setpoints
+            io.setDriveVelocity(
+                state.speedMetersPerSecond / constants.WheelRadius,
+                ffRight.calculate(state.speedMetersPerSecond / constants.WheelRadius));
+        } else {
+            io.setDriveVelocity(
+                state.speedMetersPerSecond / constants.WheelRadius*0.75,
+                ffLeft.calculate(state.speedMetersPerSecond / constants.WheelRadius));
+        }
 //    io.setTurnOpenLoop(5);
         io.setTurnPosition(state.angle);
     }

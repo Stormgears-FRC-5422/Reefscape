@@ -276,7 +276,7 @@ public class AKDriveInternal implements Subsystem {
 
         // Send setpoints to modules
         for (int i = 0; i < 4; i++) {
-            modules[i].runSetpoint(setpointStates[i]);
+            modules[i].runSetpoint(setpointStates[i], i+1);
         }
 
         // Log optimized setpoints (runSetpoint mutates each state)

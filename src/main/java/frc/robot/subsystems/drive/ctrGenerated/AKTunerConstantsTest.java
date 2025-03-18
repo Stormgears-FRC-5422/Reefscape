@@ -61,7 +61,7 @@ public class AKTunerConstantsTest {
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs FRdriveGains = new Slot0Configs()
-        .withKP(45).withKI(0).withKD(0.0)
+        .withKP(55).withKI(0).withKD(0.0)
         .withKS(0).withKV(0.0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
@@ -98,7 +98,7 @@ private static final Slot0Configs BLsteerGains = new Slot0Configs()
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs BLdriveGains = new Slot0Configs()
-        .withKP(45).withKI(0).withKD(0)
+        .withKP(45).withKI(0).withKD(0.0)
         .withKS(0).withKV(0.0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
