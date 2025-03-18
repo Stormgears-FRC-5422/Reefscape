@@ -32,7 +32,6 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
     @Override
     public double getTurbo() {
         return XboxController.getRightTrigger();
-
     }
 
     @Override
@@ -43,17 +42,6 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
     @Override
     public boolean coralIntake(){
         return XboxController.getXButtonIsHeld();
-    }
-
-    @Override
-    public boolean cancelAutoReef() {
-        return false;
-
-    }
-
-    @Override
-    public boolean autoReef() {
-        return false;
     }
 
     @Override
@@ -69,23 +57,6 @@ public class ReefscapeXboxController extends ReefscapeJoystick {
     @Override
     public boolean zeroWheels() {
         return XboxController.getAButtonIsHeld();
-    }
-
-    @Override
-    public boolean coralOuttake(){
-//        return XboxController.getYButtonIsHeld();
-        return false;
-    }
-
-    @Override
-    public boolean elevatorDown(){
-        return XboxController.getAButtonIsHeld();
-    }
-
-    @Override
-    public boolean elevatorUp(){
-//        return XboxController.getYButtonIsHeld();
-        return false;
     }
 
     @Override

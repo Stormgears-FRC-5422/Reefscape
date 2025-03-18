@@ -212,26 +212,8 @@ public class RobotContainer {
             new Trigger(()-> joystick.releaseClimb()).whileTrue(new Climb(climber, false));
         }
 
-        // TODO: uncomment after week zero and change the buttons for diagnostic elevator to avoid conflict
-        /*
-        if (Toggles.useAlgaeIntake){
-            new Trigger(()-> joystick.algaeIntake())
-                .onTrue(algaeIntakeCommand);
-
-            new Trigger(()-> joystick.algaeOuttake())
-                .onTrue(algaeOuttakeCommand);
-        }
-         */
         if (Toggles.useElevator) {
             if (Constants.Elevator.useDiagnosticElevator) {
-                new Trigger(() -> joystick.elevatorDown())
-                    .and(robotState::elevatorHasBeenHomed)
-                    .whileTrue(new ElevatorDiagnostic(elevator, false));
-
-                new Trigger(() -> joystick.elevatorUp())
-                    .and(robotState::elevatorHasBeenHomed)
-                    .whileTrue(new ElevatorDiagnostic(elevator, true));
-
                 new Trigger(() -> joystick.elevatorTestPid())
                     .and(robotState::elevatorHasBeenHomed)
                     .whileTrue(new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL3));
@@ -362,10 +344,6 @@ public class RobotContainer {
         }
 
         if (Toggles.useElevator) {
-            // unnecessary if manual control is the default command
-            // manual joystick on button board
-            // new Trigger(() -> buttonBoard.elevatorUp()).whileTrue(moveUpElevator);
-            // new Trigger(() -> buttonBoard.elevatorDown()).whileTrue(moveDownElevator);
 
             // In manual mode, buttons L1 - L4 only move elevator
             new Trigger(() -> buttonBoard.elevatorLevel1()).onTrue(toLevel1);
