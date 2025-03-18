@@ -10,7 +10,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import frc.robot.Constants;
-import frc.robot.Constants.Intake;
 import frc.robot.Constants.SparkConstants;
 import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
@@ -194,7 +193,7 @@ public class AlgaeIntake extends StormSubsystem {
             // }
             // case SIMPLE_MOTION -> {
             //     console("***** SIMPLE_MOTION state *****");
-            
+
             case READYFORINTAKE ->{;
                 console("**********ready for Intake*************");
                 // set this to break mode
@@ -209,11 +208,11 @@ public class AlgaeIntake extends StormSubsystem {
                     currentState = IntakeState.DOWN;
 
             }
-            
 
-                
+
+
             }
-            
+
 
         }
     }

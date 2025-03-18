@@ -79,6 +79,7 @@ public class RobotContainer {
     CoralIntakeCommand coralIntakeCommand;
     CoralIntakeHold coralIntakeHoldUp;
     CoralIntakeHold coralIntakeHoldDown;
+    CoralIntakeGrip coralIntakeGrip;
     CoralIntakeCommand coralOuttakeCommand;
     AlgaeIntakeMoveToPosition algaeIntakeCommand;
     AlgaeIntakeMoveToPosition algaeOuttakeCommand;
@@ -122,6 +123,7 @@ public class RobotContainer {
             coralIntakeCommand = new CoralIntakeCommand(coralIntake, true);
             coralIntakeHoldUp = new CoralIntakeHold(coralIntake, CoralIntake.IntakePosition.INTAKE);
             coralIntakeHoldDown = new CoralIntakeHold(coralIntake, CoralIntake.IntakePosition.OUTTAKE);
+            coralIntakeGrip = new CoralIntakeGrip(coralIntake);
             coralOuttakeCommand = new CoralIntakeCommand(coralIntake, false);
         }
 
@@ -343,7 +345,8 @@ public class RobotContainer {
         console("Configuring button board bindings");
 
         if (Toggles.useCoralIntake) {
-            new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand.andThen(coralIntakeHoldDown));
+            new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand
+                .andThen(new ParallelCommandGroup(coralIntakeHoldDown, coralIntakeGrip)));
             new Trigger(() -> buttonBoard.coralOuttake()).onTrue(coralOuttakeCommand);
         }
 

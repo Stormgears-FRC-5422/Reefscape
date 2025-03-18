@@ -116,6 +116,16 @@ public class CoralIntake extends StormSubsystem {
                 }
                 break;
 
+            case GRIP_CORAL:
+                if (hasBeenHomed) {
+                    rollerSpark.set(rollerSpeed);
+                    wristSpark.set(0);
+                } else {
+                    console("Stubbornly refusing to move before homed!", 25);
+                }
+                break;
+
+            case IDLE:
             default:
                 rollerSpark.set(0);
                 wristSpark.set(0);
@@ -221,7 +231,7 @@ public class CoralIntake extends StormSubsystem {
     }
 
     public enum IntakeState {
-        UNKNOWN, IDLE, HOMING, HOME, GO_HOME, HOLD_UP, INTAKE, OUTTAKE, READY;
+        UNKNOWN, IDLE, HOMING, HOME, GO_HOME, HOLD_UP, INTAKE, OUTTAKE, GRIP_CORAL, READY;
     }
 
     public enum IntakePosition {
