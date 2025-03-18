@@ -120,9 +120,14 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotPeriodic() {
         iteration++;
-        Threads.setCurrentThreadPriority(true, 99);
-        CommandScheduler.getInstance().run();
-        Threads.setCurrentThreadPriority(false, 10);
+
+        if (Constants.System.useRealtimeThreadPriority) {
+            Threads.setCurrentThreadPriority(true, 99);
+            CommandScheduler.getInstance().run();
+            Threads.setCurrentThreadPriority(false, 10);
+        } else {
+            CommandScheduler.getInstance().run();
+        }
     }
 
     @Override

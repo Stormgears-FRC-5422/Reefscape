@@ -204,7 +204,7 @@ public class RobotState extends SubsystemBase {
 
     }
 
-    public VisionMeasurement getVisionMeasurments() {
+    public VisionMeasurement getVisionMeasurment() {
         return visionMeasurement;
     }
 

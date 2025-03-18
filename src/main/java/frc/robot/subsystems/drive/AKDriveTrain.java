@@ -14,7 +14,6 @@
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,6 +23,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.AKdrive.AKDriveInternal;
 import frc.robot.subsystems.drive.AKdrive.SimpleTelemetry;
 import frc.utils.vision.LimelightHelpers;
@@ -119,24 +119,16 @@ public class AKDriveTrain extends DrivetrainBase {
         Pose2d currentPose = getPose();
         m_state.setPose(currentPose);
 
-        Pose2d tempPose;
-        if (m_state.getVisionMeasurments() != null) {
-            double tRadians = driveInternal.getRotation().getRadians();
-            tempPose = new Pose2d(m_state.getVisionMeasurments().visionRobotPoseMeters().getTranslation(),
-                m_state.getVisionMeasurments().visionRobotPoseMeters().getRotation());
-//            System.out.println( m_state.getVisionMeasurments().visionMeasurementStdDevs());
-
-//          console(m_state.getVisionMeasurements().visionRobotPoseMeters().getRotation(),25);
-            addVisionMeasurement(tempPose,
-                m_state.getVisionMeasurments().timestampSeconds(),
-                m_state.getVisionMeasurments().visionMeasurementStdDevs());
-        } else {
-            tempPose = new Pose2d();
+        RobotState.VisionMeasurement m = m_state.getVisionMeasurment();
+        if (m != null) {
+            Pose2d visionPose = m.visionRobotPoseMeters();
+            addVisionMeasurement(visionPose, m.timestampSeconds(), m.visionMeasurementStdDevs());
         }
 
         publisher.set(getPose());
-        robotTelemetry.telemeterize(currentPose);
-        visionTelemetry.telemeterize(tempPose);
+        // TODO - add a config to add these during simulation
+//        robotTelemetry.telemeterize(currentPose);
+//        visionTelemetry.telemeterize(visionPose);
     }
 
     @Override
