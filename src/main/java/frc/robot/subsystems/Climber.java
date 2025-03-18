@@ -13,7 +13,8 @@ import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
 import org.littletonrobotics.junction.Logger;
 
-public class Climber extends StormSubsystem {
+public class
+Climber extends StormSubsystem {
     final RobotState robotState;
 
     final SparkMax climberMotor;
@@ -22,7 +23,7 @@ public class Climber extends StormSubsystem {
 
     ClimberState currentState;
     SparkLimitSwitch climbClosedLimitSwitch;
-    SparkLimitSwitch climbForwardLimitSwitch;
+    SparkLimitSwitch climbOpenLimitSwitch;
     double climberSpeed;
 
     public Climber() {
@@ -46,11 +47,11 @@ public class Climber extends StormSubsystem {
         climberMotorConfig.limitSwitch
             .forwardLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
             .forwardLimitSwitchEnabled(true)
-            .reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen)
+            .reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyClosed)
             .reverseLimitSwitchEnabled(true);
 
         climbClosedLimitSwitch = climberMotor.getForwardLimitSwitch();
-        climbForwardLimitSwitch = climberMotor.getReverseLimitSwitch();
+        climbOpenLimitSwitch = climberMotor.getReverseLimitSwitch();
 
         // Soft limits
         climberMotorConfig.softLimit
@@ -100,7 +101,7 @@ public class Climber extends StormSubsystem {
     }
 
     private boolean isFullyForward() {
-        return climbForwardLimitSwitch.isPressed();
+        return climbOpenLimitSwitch.isPressed();
     }
 
     @Override

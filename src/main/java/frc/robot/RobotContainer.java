@@ -346,7 +346,9 @@ public class RobotContainer {
 
         if (Toggles.useCoralIntake) {
             new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand
-                .andThen(new ParallelCommandGroup(coralIntakeHoldDown, coralIntakeGrip)));
+                .andThen(coralIntakeHoldDown));
+    //            new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand
+    //                .andThen(new ParallelCommandGroup(coralIntakeHoldDown, coralIntakeGrip)));
             new Trigger(() -> buttonBoard.coralOuttake()).onTrue(coralOuttakeCommand);
         }
 

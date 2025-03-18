@@ -28,10 +28,6 @@ public class Climb extends StormCommand {
 
     @Override
     public boolean isFinished() {
-//        if (climber.isLockedIn()) {
-//            console("locked in. isFinished = true");
-//            return true;
-//        }
         return false;
     }
 
