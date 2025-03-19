@@ -26,7 +26,7 @@ public class AutoAlign extends StormCommand {
     private DrivetrainBase drivetrainBase;
     private final ProfiledPIDController translationPID;
     private final ProfiledPIDController thetaController;
-    private final double maxVelocity = 5;
+    private final double maxVelocity = 6;
     private Translation2d driverAdjustment;
     private final double ffMinDistance = 0.2;
     private final double ffMaxDistance = 0.8;
@@ -51,12 +51,12 @@ public class AutoAlign extends StormCommand {
         this.joystick = joystick;
 
         this.drivetrainBase = drivetrainBase;
-        translationPID = new ProfiledPIDController(13, 0.0, 0.1,
-            new TrapezoidProfile.Constraints(5.0, 5.0));
+        translationPID = new ProfiledPIDController(13.3, 0.0, 0.1,
+            new TrapezoidProfile.Constraints(6, 6));
         translationPID.setTolerance(linearTolerance);
 
-        thetaController = new ProfiledPIDController(11.5, 0.0, 0.1,
-            new TrapezoidProfile.Constraints(5.0, 5.0));
+        thetaController = new ProfiledPIDController(8.75, 0.0, 0.1,
+            new TrapezoidProfile.Constraints(6, 6));
         thetaController.setTolerance(thetaTolerance);
 
         thetaController.enableContinuousInput(-Math.PI, Math.PI);

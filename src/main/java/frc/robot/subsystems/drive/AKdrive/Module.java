@@ -101,6 +101,9 @@ public class Module {
                 state.speedMetersPerSecond / constants.WheelRadius*0.75,
                 ffLeft.calculate(state.speedMetersPerSecond / constants.WheelRadius));
         }
+//        io.setDriveVelocity(
+//            state.speedMetersPerSecond / constants.WheelRadius,
+//            ffRight.calculate(state.speedMetersPerSecond / constants.WheelRadius));
 //    io.setTurnOpenLoop(5);
         io.setTurnPosition(state.angle);
     }

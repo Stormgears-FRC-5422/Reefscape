@@ -268,6 +268,17 @@ public class AKDriveInternal implements Subsystem {
             SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
         }
 
+//        var tmpStates = kinematics.toSwerveModuleStates(speeds);
+//        SwerveDriveKinematics.desaturateWheelSpeeds(tmpStates, TunerConstants.kSpeedAt12Volts);
+//
+//        var speedsConverted = kinematics.toChassisSpeeds(tmpStates);
+//
+//        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speedsConverted, 0.02);
+//
+//        SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+//        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
+
+
 
         // Log unoptimized setpoints and setpoint speeds
         Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
@@ -276,7 +287,7 @@ public class AKDriveInternal implements Subsystem {
 
         // Send setpoints to modules
         for (int i = 0; i < 4; i++) {
-            modules[i].runSetpoint(setpointStates[i], i+1);
+            modules[i].runSetpoint(setpointStates[i], i + 1);
         }
 
         // Log optimized setpoints (runSetpoint mutates each state)

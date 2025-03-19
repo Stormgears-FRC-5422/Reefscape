@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.autos.AutoCommandFactory;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -66,6 +67,8 @@ public class Robot extends LoggedRobot {
                 console("This is a SIMULATION robot");
                 break;
         }
+
+        AutoCommandFactory.loadTrajectories();
 
         if (Toggles.useAdvantageKit) {
             Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.

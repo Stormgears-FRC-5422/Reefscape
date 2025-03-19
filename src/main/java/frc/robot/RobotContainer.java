@@ -11,8 +11,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.autos.AutoAlign;
 import frc.robot.commands.onElevator.*;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.autos.AutoCommandFactory;
@@ -28,7 +26,6 @@ import frc.robot.subsystems.misc.BatteryMonitor;
 import frc.robot.subsystems.misc.ColorSensor;
 import frc.robot.subsystems.misc.Lights;
 import frc.robot.subsystems.misc.Pigeon;
-import frc.robot.subsystems.stormnet.StormNet;
 import frc.robot.subsystems.stormnet.StormNetSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
@@ -104,6 +101,8 @@ public class RobotContainer {
     StormLimelight limelightReef;
     StormLimelight limelightStation;
 
+    AutoCommandFactory autoCommandFactory;
+
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         console("constructor started");
@@ -114,7 +113,8 @@ public class RobotContainer {
         }
 
         if (Constants.Toggles.useDrive) {
-            console("Create drive type " + Constants.Drive.driveType);
+            console("Crea" +
+                "te drive type " + Constants.Drive.driveType);
             drivetrain = DrivetrainFactory.getInstance(Constants.Drive.driveType, Constants.Drive.driveSubtype);
         }
 
@@ -185,6 +185,14 @@ public class RobotContainer {
         } else {
             console("NOT using StormNet");
         }
+
+        autoCommandFactory = new AutoCommandFactory(drivetrain,
+            elevator,
+            coralIntake,
+            visionSubsystem,
+            joystick,
+            algaeIntake);
+
         console("constructor ended");
     }
 
@@ -207,9 +215,9 @@ public class RobotContainer {
                 .onTrue(new InstantCommand(() -> drivetrain.resetOrientation()));
         }
 
-        if (Toggles.useClimber){
-            new Trigger(()-> joystick.climb()).whileTrue(new Climb(climber, true));
-            new Trigger(()-> joystick.releaseClimb()).whileTrue(new Climb(climber, false));
+        if (Toggles.useClimber) {
+            new Trigger(() -> joystick.climb()).whileTrue(new Climb(climber, true));
+            new Trigger(() -> joystick.releaseClimb()).whileTrue(new Climb(climber, false));
         }
 
         if (Toggles.useElevator) {
@@ -245,7 +253,7 @@ public class RobotContainer {
 //                new CoralIntakeCommand(coralIntake, false)
 //            )
 //        );
-
+//        return autoCommandFactory.farLeft();
 //        return new SequentialCommandGroup(
 //            new PrintCommand("Homing and drive started"),
 //            new ParallelCommandGroup(
@@ -279,7 +287,7 @@ public class RobotContainer {
                 coralIntake,
                 visionSubsystem,
                 joystick,
-                algaeIntake).middleOne();
+                algaeIntake).farLeft();
 
 
 //        return  new SequentialCommandGroup(new AutoCommandFactory(drivetrain,
@@ -329,8 +337,8 @@ public class RobotContainer {
         if (Toggles.useCoralIntake) {
             new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand
                 .andThen(coralIntakeHoldDown));
-    //            new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand
-    //                .andThen(new ParallelCommandGroup(coralIntakeHoldDown, coralIntakeGrip)));
+            //            new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand
+            //                .andThen(new ParallelCommandGroup(coralIntakeHoldDown, coralIntakeGrip)));
             new Trigger(() -> buttonBoard.coralOuttake()).onTrue(coralOuttakeCommand);
         }
 
@@ -357,11 +365,11 @@ public class RobotContainer {
 
         // In auto mode, buttons L1 - L4: move to the right/left reef, move elevator to correct level, and Outtake
         if (Toggles.useAutoReef) {
-                new Trigger(() -> buttonBoard.autoReef()).onTrue(
-                    new AutoReef(drivetrain, visionSubsystem, joystick,
-                        () -> (buttonBoard.isRightReef() ? FieldConstants.Side.RIGHT : FieldConstants.Side.LEFT)
-                    )
-                );
+            new Trigger(() -> buttonBoard.autoReef()).onTrue(
+                new AutoReef(drivetrain, visionSubsystem, joystick,
+                    () -> (buttonBoard.isRightReef() ? FieldConstants.Side.RIGHT : FieldConstants.Side.LEFT)
+                )
+            );
 //            new Trigger(() -> buttonBoard.autoReef()).onTrue(
 //                new AutoAlign(drivetrain,
 //                    FieldConstants.getReefTargetPose(FieldConstants.Side.RIGHT, 10), joystick));
@@ -435,6 +443,27 @@ public class RobotContainer {
                 new PrintCommand("CoralIntake disabled"),
                 () -> Toggles.useCoralIntake)
         ).schedule();
+    }
+
+    public Command home() {
+        return new SequentialCommandGroup(
+            new PrintCommand("Homing and drive started"),
+            new ParallelCommandGroup(
+                new ConditionalCommand(
+                    new ElevatorHome(elevator),
+                    new PrintCommand("Elevator disabled"),
+                    () -> Toggles.useElevator
+                ),
+                new ConditionalCommand(
+                    new AlgaeIntakeHome(algaeIntake),
+                    new PrintCommand("AlgaeIntake disabled"),
+                    () -> Toggles.useAlgaeIntake
+                ),
+                new ConditionalCommand(
+                    new CoralIntakeHome(coralIntake),
+                    new PrintCommand("CoralIntake disabled"),
+                    () -> Toggles.useCoralIntake
+                )));
     }
 
 
