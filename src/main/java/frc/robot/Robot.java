@@ -78,7 +78,7 @@ public class Robot extends LoggedRobot {
             robotContainer = new RobotContainer();
             // We might not have enough information for this here, but it will reset in teleop init if necessary
             robotContainer.updateAlliance();
-            robotContainer.resetInitialPose();
+            robotContainer.resetInitialPose(null);
         } catch (Exception e) {
             robotContainer = null;
             console("can't create RobotContainer. Eating the following exception:");
@@ -145,6 +145,9 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledPeriodic() {
         if (iteration % 25 == 0) {
+            if (!RobotState.getInstance().isAllianceMissing()){
+                robotContainer.resetInitialPose(AutoCommandFactory.getAutoInitialPose());
+            }
             if (robotContainer != null) {
                 robotContainer.updateAlliance();
             }
@@ -225,7 +228,7 @@ public class Robot extends LoggedRobot {
         // we (usually) want to reset.
         if (!state.getDidAuto()) {
             console("Resetting initial pose in teleopInit");
-            robotContainer.resetInitialPose();
+            robotContainer.resetInitialPose(null);
         } else {
             console("NOT Resetting initial pose in teleopInit because we did autonomous already");
         }

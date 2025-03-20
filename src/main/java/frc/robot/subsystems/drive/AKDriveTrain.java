@@ -120,15 +120,16 @@ public class AKDriveTrain extends DrivetrainBase {
         m_state.setPose(currentPose);
 
         RobotState.VisionMeasurement m = m_state.getVisionMeasurment();
+        Pose2d visionPose = new Pose2d();
         if (m != null) {
-            Pose2d visionPose = m.visionRobotPoseMeters();
+            visionPose = m.visionRobotPoseMeters();
             addVisionMeasurement(visionPose, m.timestampSeconds(), m.visionMeasurementStdDevs());
         }
 
         publisher.set(getPose());
         // TODO - add a config to add these during simulation
-//        robotTelemetry.telemeterize(currentPose);
-//        visionTelemetry.telemeterize(visionPose);
+        robotTelemetry.telemeterize(currentPose);
+        visionTelemetry.telemeterize(visionPose);
     }
 
     @Override

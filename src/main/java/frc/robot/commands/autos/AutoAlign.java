@@ -87,6 +87,7 @@ public class AutoAlign extends StormCommand {
             //scale by maxVelocity and then get movement in one periodic cycle
             feedForward = linearVelocity
                 .times(maxVelocity);
+//            calculates how long the robot will move in one interation
             driverAdjustment = feedForward.times(loopTimeSec);
             double distance = drivetrainBase.getPose().getTranslation()
                 .minus(driverAdjustment)
@@ -120,7 +121,6 @@ public class AutoAlign extends StormCommand {
         lastSetpointTranslation = currentPose.getTranslation();
     }
 
-
     @Override
     public void execute() {
         super.execute();
@@ -150,6 +150,8 @@ public class AutoAlign extends StormCommand {
         double driveVelocityScalar =
             translationPID.getSetpoint().velocity * ffScaler
                 + translationPID.calculate(distance, 0.0);
+        Logger.recordOutput("ff addition", + translationPID.getSetpoint().velocity * ffScaler);
+        Logger.recordOutput("PID calculation", + translationPID.calculate(distance,0.0));
 
 //        calculate last setpoint by getting pose of target and transform by adding the next setpoint
 //        we should not have to construct a new pose but leaving it bc I am not 100% sure
@@ -187,6 +189,7 @@ public class AutoAlign extends StormCommand {
         Logger.recordOutput("AutoAlign/ffScalar", ffScaler);
         Logger.recordOutput("AutoAlign/currentGoalPose", currentGoalPose);
         Logger.recordOutput("AutoAlign/currentDistance", distance);
+        Logger.recordOutput("AutoAlign/driveVelocityScaler", driveVelocityScalar);
     }
 
     @Override

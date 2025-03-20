@@ -4,6 +4,7 @@ import choreo.Choreo;
 import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -57,8 +58,8 @@ public class AutoCommandFactory {
         this.elevator = elevator;
         this.algaeIntake = algaeIntake;
         timer = new Timer();
-        autoReef = new AutoReef(drivetrainBase,vis,joystick, ()->FieldConstants.Side.RIGHT);
-        autoReef2 = new AutoReef(drivetrainBase,vis,joystick, ()->FieldConstants.Side.RIGHT);
+//        autoReef = new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT);
+//        autoReef2 = new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT);
 //        Choreo.loadTrajectory("middle_one");
 //        Choreo.loadTrajectory("right_one");
 //        Choreo.loadTrajectory("far_left");
@@ -78,9 +79,9 @@ public class AutoCommandFactory {
             .get().getInitialPose(RobotState.createInstance().isAllianceRed())
             .get().getRotation().getDegrees()
         );
-        if (!resetOdomtery){
-        autoFactory.resetOdometry("far_left");
-        resetOdomtery = true;
+        if (!resetOdomtery) {
+            autoFactory.resetOdometry("far_left");
+            resetOdomtery = true;
         }
 
 //        middle = autoFactory.trajectoryCmd("middle_one");
@@ -150,13 +151,24 @@ public class AutoCommandFactory {
             new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1));
     }
 
-    public static void loadTrajectories(){
+    public static void loadTrajectories() {
         Choreo.loadTrajectory("middle_one");
         Choreo.loadTrajectory("right_one");
         Choreo.loadTrajectory("far_left");
         Choreo.loadTrajectory("far_left_two");
         Choreo.loadTrajectory("far_left_three");
 
+    }
+
+    public static Pose2d getAutoInitialPose() {
+        if (Choreo.loadTrajectory("middle_one").isPresent() &&
+            Choreo.loadTrajectory("middle_one")
+                .get().getInitialPose(RobotState.createInstance().isAllianceRed()).isPresent()) {
+
+            return Choreo.loadTrajectory("middle_one")
+                .get().getInitialPose(RobotState.createInstance().isAllianceRed()).get();
+        }
+        return null;
     }
 
 

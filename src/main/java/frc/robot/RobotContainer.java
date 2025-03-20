@@ -160,7 +160,7 @@ public class RobotContainer {
         }
 
         if (Toggles.useAutoReef) {
-//            autoReefCommand = new AutoReefCommand(ElevatorLevel.LEVEL4, true);
+            new AutoReef(drivetrain,visionSubsystem, joystick, ()-> FieldConstants.Side.RIGHT);
         }
 
         if (Toggles.useAutoStation) {
@@ -186,12 +186,6 @@ public class RobotContainer {
             console("NOT using StormNet");
         }
 
-        autoCommandFactory = new AutoCommandFactory(drivetrain,
-            elevator,
-            coralIntake,
-            visionSubsystem,
-            joystick,
-            algaeIntake);
 
         console("constructor ended");
     }
@@ -287,7 +281,7 @@ public class RobotContainer {
                 coralIntake,
                 visionSubsystem,
                 joystick,
-                algaeIntake).farLeft();
+                algaeIntake).middleOne();
 
 
 //        return  new SequentialCommandGroup(new AutoCommandFactory(drivetrain,
@@ -414,10 +408,12 @@ public class RobotContainer {
         robotState.setAlliance(a);
     }
 
-    public void resetInitialPose() {
+    public void resetInitialPose(Pose2d autoPose) {
         Pose2d initialPose;
-
-        if (Constants.Debug.debug && !robotState.isAllianceMissing()) {
+        if (autoPose!=null){
+            initialPose = autoPose;
+        }
+        else if (Constants.Debug.debug && !robotState.isAllianceMissing()) {
             initialPose = new Pose2d(Constants.Debug.initPoseX, Constants.Debug.initPoseY,
                 Rotation2d.fromDegrees(Constants.Debug.initPoseDegrees));
             initialPose = ReefscapeField.remapPose(initialPose, robotState.getAlliance());
@@ -425,6 +421,7 @@ public class RobotContainer {
             // We need to be somewhere. AutoChooser should set the pose itself.
             // This reset only really matter for non-match situations.
             initialPose = new Pose2d();
+
         }
         if (Toggles.useDrive)
             drivetrain.declarePoseIsNow(initialPose);
