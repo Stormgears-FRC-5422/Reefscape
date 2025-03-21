@@ -107,7 +107,6 @@ public abstract class DrivetrainBase extends StormSubsystem {
         } else {
             m_chassisSpeeds = speeds;
         }
-
         m_chassisSpeeds = scaleChassisSpeeds(m_chassisSpeeds, speedScale);
     }
 

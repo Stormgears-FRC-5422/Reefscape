@@ -43,7 +43,7 @@ public class AutoAlign extends StormCommand {
     /**
      * This command creates and follows a path.
      */
-    public AutoAlign(DrivetrainBase drivetrainBase,ReefscapeJoystick joystick) {
+    public AutoAlign(DrivetrainBase drivetrainBase, ReefscapeJoystick joystick) {
         timer = new Timer();
         feedForward = new Translation2d();
         robotState = RobotState.getInstance();
@@ -82,7 +82,7 @@ public class AutoAlign extends StormCommand {
                     joystick.getWpiY()).times(linearMagnitude);
             }
 
-            Pose2d finalPose = new Pose2d(targetPose.getX(), targetPose.getY(),targetPose.getRotation());
+            Pose2d finalPose = new Pose2d(targetPose.getX(), targetPose.getY(), targetPose.getRotation());
 
             //scale by maxVelocity and then get movement in one periodic cycle
             feedForward = linearVelocity
@@ -148,10 +148,12 @@ public class AutoAlign extends StormCommand {
 
 //        combine both feedforward and feedback to get drive velocity
         double driveVelocityScalar =
-            translationPID.getSetpoint().velocity * ffScaler
-                + translationPID.calculate(distance, 0.0);
-        Logger.recordOutput("ff addition", + translationPID.getSetpoint().velocity * ffScaler);
-        Logger.recordOutput("PID calculation", + translationPID.calculate(distance,0.0));
+            MathUtil.clamp(
+                translationPID.getSetpoint().velocity * ffScaler
+                    + translationPID.calculate(distance, 0.0),
+                -4.79, 4.79);
+        Logger.recordOutput("AutoAlign/ff addition", translationPID.getSetpoint().velocity * ffScaler);
+        Logger.recordOutput("AutoAlign/PID calculation", +translationPID.calculate(distance, 0.0));
 
 //        calculate last setpoint by getting pose of target and transform by adding the next setpoint
 //        we should not have to construct a new pose but leaving it bc I am not 100% sure
@@ -165,20 +167,25 @@ public class AutoAlign extends StormCommand {
 
         // Calculate theta speed just like drive
         double thetaVelocity =
-            thetaController.getSetpoint().velocity * ffScaler
-                + thetaController.calculate(
-                currentPose.getRotation().getRadians(), currentGoalPose.getRotation().getRadians());
+            MathUtil.clamp(
+                thetaController.getSetpoint().velocity * ffScaler
+                    + thetaController.calculate(
+                    currentPose.getRotation().getRadians(), currentGoalPose.getRotation().getRadians()),
+                -8, 8);
 
 
 //        we also add feedforward so the velocity of the actual robot changes not only the goal pose
 //        when driver moves joystick
+//        this transforms the drive velocity scalar into a vector.
+//        By doing this we have a velocity is x and y
+//        We use translation to change the speed to x and y velocity even though it is usually used for distance
         Translation2d driveVelocity =
             new Pose2d(
                 new Translation2d(),
                 currentPose.getTranslation().minus(currentGoalPose.getTranslation()).getAngle())
                 .transformBy(new Transform2d(driveVelocityScalar, 0.0, new Rotation2d()))
-                .getTranslation()
-                .plus(feedForward);
+                .getTranslation();
+//                .plus(feedForward);
 
 
         drivetrainBase.drive(new ChassisSpeeds(driveVelocity.getX(), driveVelocity.getY(), thetaVelocity),
@@ -197,12 +204,12 @@ public class AutoAlign extends StormCommand {
         boolean isFinished = false;
         boolean atTarget = translationPID.atGoal() && thetaController.atGoal();
 //        boolean timerExpired = false;
-        boolean timerExpired = timer.get()>5.2;
+        boolean timerExpired = timer.get() > 4.5;
 //        boolean coralOut = !RobotState.getInstance().isCoralSensorTriggered();
         boolean coralOut = false;
         if (atTarget || timerExpired || coralOut || targetPose == null) {
             System.out.println("At Target:" + atTarget + " timerExpired:" + timerExpired + " coralOut " + coralOut);
-            isFinished =  true;
+            isFinished = true;
         }
         return isFinished;
     }
@@ -211,11 +218,11 @@ public class AutoAlign extends StormCommand {
     public void end(boolean interrupted) {
         System.out.println("auto align done");
         robotState.setTeleopAligning(false);
-        drivetrainBase.drive(new ChassisSpeeds(),true);
+        drivetrainBase.drive(new ChassisSpeeds(), true);
         super.end(interrupted);
     }
 
-    protected void setTargetPose(Pose2d pose){
+    protected void setTargetPose(Pose2d pose) {
         targetPose = pose;
     }
 
