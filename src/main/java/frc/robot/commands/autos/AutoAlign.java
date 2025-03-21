@@ -51,12 +51,12 @@ public class AutoAlign extends StormCommand {
         this.joystick = joystick;
 
         this.drivetrainBase = drivetrainBase;
-        translationPID = new ProfiledPIDController(13.3, 0.0, 0.1,
-            new TrapezoidProfile.Constraints(6, 6));
+        translationPID = new ProfiledPIDController(2, 0.0, 0.1,
+            new TrapezoidProfile.Constraints(3, 3));
         translationPID.setTolerance(linearTolerance);
 
-        thetaController = new ProfiledPIDController(8.75, 0.0, 0.1,
-            new TrapezoidProfile.Constraints(6, 6));
+        thetaController = new ProfiledPIDController(1.2, 0.0, 0.1,
+            new TrapezoidProfile.Constraints(3, 3));
         thetaController.setTolerance(thetaTolerance);
 
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
@@ -151,7 +151,7 @@ public class AutoAlign extends StormCommand {
             MathUtil.clamp(
                 translationPID.getSetpoint().velocity * ffScaler
                     + translationPID.calculate(distance, 0.0),
-                -4.79, 4.79);
+                -3, 3);
         Logger.recordOutput("AutoAlign/ff addition", translationPID.getSetpoint().velocity * ffScaler);
         Logger.recordOutput("AutoAlign/PID calculation", +translationPID.calculate(distance, 0.0));
 
@@ -171,7 +171,7 @@ public class AutoAlign extends StormCommand {
                 thetaController.getSetpoint().velocity * ffScaler
                     + thetaController.calculate(
                     currentPose.getRotation().getRadians(), currentGoalPose.getRotation().getRadians()),
-                -8, 8);
+                -3, 3);
 
 
 //        we also add feedforward so the velocity of the actual robot changes not only the goal pose
@@ -189,7 +189,7 @@ public class AutoAlign extends StormCommand {
 
 
         drivetrainBase.drive(new ChassisSpeeds(driveVelocity.getX(), driveVelocity.getY(), thetaVelocity),
-            true);
+            true,1);
 
         Logger.recordOutput("AutoAlign/driveVeloicty", driveVelocity);
         Logger.recordOutput("AutoAlign/thetaVelocity", thetaVelocity);

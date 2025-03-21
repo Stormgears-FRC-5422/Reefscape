@@ -55,6 +55,8 @@ public class JoyStickDrive extends StormCommand {
         robotRelativeSupplier = joystick::getRobotRelative;
         turboSupplier = joystick::getTurbo;
 
+        addRequirements(drivetrain);
+
 //        ShuffleboardConstants.getInstance().drivetrainTab.add("Drive direction",
 //            robotRelativeSupplier.getAsBoolean() ? "Robot Orientation" : "Field Orientation");
     }
