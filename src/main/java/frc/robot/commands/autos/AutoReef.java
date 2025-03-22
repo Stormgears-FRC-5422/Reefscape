@@ -85,6 +85,7 @@ public class AutoReef extends AutoAlign {
         } else {
             System.out.println("No April tag detected :(");
         }
+        tagID = -1;
 
         return targetPose;
     }

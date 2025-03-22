@@ -115,7 +115,6 @@ public class AlgaeIntake extends StormSubsystem {
 
         switch (currentState) {
             case HOMING:
-            motorSpeed = 0.1;
                 home();
                 algaeSpark.set(motorSpeed);
 
@@ -202,14 +201,14 @@ public class AlgaeIntake extends StormSubsystem {
                 }
 
 
-            case HORIZONTALING ->{
+
+            case REEF_PICKUP ->{
                 console("***** HorizonTALING ***");
-                while(algaeEncoder.getPosition() > Constants.AlgaeIntake.horizontal){
+                while(algaeEncoder.getPosition() > Constants.AlgaeIntake.reefPickup){
                     motorSpeed = 0.1;
                     currentState = IntakeState.DOWN;
 
-            }
-
+                }
 
 
             }
@@ -311,6 +310,7 @@ public class AlgaeIntake extends StormSubsystem {
         REEF_PICKUP(Constants.AlgaeIntake.reefPickup),
         DROPOFF(Constants.AlgaeIntake.dropoff),
         LOWEST(Constants.AlgaeIntake.lowest);
+
 
         private double position;
 

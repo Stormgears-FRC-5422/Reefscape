@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -203,6 +204,7 @@ public class RobotContainer {
         console("Configuring Joystick bindings");
 
         if (Toggles.useDrive) {
+            new Trigger(()-> joystick.cancelAutoReef()).onTrue(new DummyDriveCommand(drivetrain));
 //            new Trigger(() -> joystick.coralIntake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 //            new Trigger(() -> joystick.coralOuttake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 //            new Trigger(() -> joystick.zeroWheels()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
@@ -290,7 +292,7 @@ public class RobotContainer {
                 coralIntake,
                 visionSubsystem,
                 joystick,
-                algaeIntake).middleOne();
+                algaeIntake).farLeft();
 
 
 //        return  new SequentialCommandGroup(new AutoCommandFactory(drivetrain,
@@ -346,11 +348,11 @@ public class RobotContainer {
         }
 
         if (Toggles.useAlgaeIntake) {
-//            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
-//            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
+            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
+            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
 //            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.STOW));
-//            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD));
-//            new Trigger(() -> buttonBoard.autoProcessor()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HORIZONTAL));
+            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD));
+            new Trigger(() -> buttonBoard.autoProcessor()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.REEF_PICKUP));
 //            new Trigger(() -> buttonBoard.autoAlgaeReef()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.GROUND_PICKUP));
         }
 

@@ -41,7 +41,7 @@ public class AlgaeIntakeHome extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return !skip;
+        return skip || intake.isAtHome();
 
     }
 

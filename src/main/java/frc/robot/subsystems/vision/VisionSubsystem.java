@@ -141,7 +141,8 @@ public class VisionSubsystem extends StormSubsystem {
 //        } else {
 //            return -1;
 //        }
-        return (int) LimelightExtra.getTID(limelightID);
+        //return (int) LimelightExtra.getTID(limelightID);
+        return bestTag;
     }
 
     public StormLimelight getLimelightFromID(String id) {
@@ -183,6 +184,7 @@ public class VisionSubsystem extends StormSubsystem {
         } else {
             bestTag = -1;
         }
+        Logger.recordOutput("Closest Tag", bestTag);
 
         robotState.setBestTag(bestTag);
 
