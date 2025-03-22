@@ -145,7 +145,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledPeriodic() {
         if (iteration % 25 == 0) {
-            if (!RobotState.getInstance().isAllianceMissing()){
+            if (!RobotState.getInstance().isAllianceMissing() && !RobotState.getInstance().getDidAuto()){
                 robotContainer.resetInitialPose(AutoCommandFactory.getAutoInitialPose());
             }
             if (robotContainer != null) {

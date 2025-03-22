@@ -1,3 +1,5 @@
+package frc.robot.subsystems.vision;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.DoubleArraySubscriber;

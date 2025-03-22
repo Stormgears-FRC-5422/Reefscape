@@ -43,6 +43,7 @@ public class AutoCommandFactory {
     private static boolean resetOdomtery = false;
     AutoReef autoReef;
     AutoReef autoReef2;
+    static Optional<? extends Trajectory<?>> cachedTrajectory;
 
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase,
@@ -74,15 +75,15 @@ public class AutoCommandFactory {
             drivetrainBase
         );
 
-
-        visionSubsystem.setGyro(Choreo.loadTrajectory("far_left")
-            .get().getInitialPose(RobotState.createInstance().isAllianceRed())
-            .get().getRotation().getDegrees()
-        );
-        if (!resetOdomtery) {
-            autoFactory.resetOdometry("far_left");
-            resetOdomtery = true;
-        }
+//
+//        visionSubsystem.setGyro(Choreo.loadTrajectory("far_left")
+//            .get().getInitialPose(RobotState.createInstance().isAllianceRed())
+//            .get().getRotation().getDegrees()
+//        );
+//        if (!resetOdomtery) {
+//            autoFactory.resetOdometry("far_left");
+//            resetOdomtery = true;
+//        }
 
 //        middle = autoFactory.trajectoryCmd("middle_one");
 
@@ -152,21 +153,17 @@ public class AutoCommandFactory {
     }
 
     public static void loadTrajectories() {
-        Choreo.loadTrajectory("middle_one");
+        cachedTrajectory = Choreo.loadTrajectory("middle_one");
         Choreo.loadTrajectory("right_one");
-        Choreo.loadTrajectory("far_left");
-        Choreo.loadTrajectory("far_left_two");
-        Choreo.loadTrajectory("far_left_three");
-
-    }
+}
 
     public static Pose2d getAutoInitialPose() {
-        if (Choreo.loadTrajectory("middle_one").isPresent() &&
-            Choreo.loadTrajectory("middle_one")
-                .get().getInitialPose(RobotState.createInstance().isAllianceRed()).isPresent()) {
+        if (cachedTrajectory.isPresent() &&
+            cachedTrajectory.get().getInitialPose(RobotState.createInstance()
+                .isAllianceRed()).isPresent()) {
 
-            return Choreo.loadTrajectory("middle_one")
-                .get().getInitialPose(RobotState.createInstance().isAllianceRed()).get();
+            return cachedTrajectory.get().getInitialPose(RobotState.createInstance()
+                .isAllianceRed()).get();
         }
         return null;
     }
