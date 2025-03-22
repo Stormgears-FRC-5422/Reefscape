@@ -22,6 +22,7 @@ import frc.robot.subsystems.onElevator.Elevator;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 
 public class AutoCommandFactory {
@@ -33,7 +34,7 @@ public class AutoCommandFactory {
 
     private Timer timer;
     private int count = 0;
-    private final AutoFactory autoFactory;
+    private static AutoFactory autoFactory;
     private Elevator elevator;
     private CoralIntake coralIntake;
     private VisionSubsystem vis;
@@ -44,7 +45,7 @@ public class AutoCommandFactory {
     AutoReef autoReef;
     AutoReef autoReef2;
     static Optional<? extends Trajectory<?>> cachedTrajectory;
-
+    static HashMap<String, Optional<? extends Trajectory<?>>> loadedTrajectories = new HashMap<>();
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase,
                               Elevator elevator,
@@ -75,8 +76,9 @@ public class AutoCommandFactory {
             drivetrainBase
         );
 
+
 //
-//        visionSubsystem.setGyro(Choreo.loadTrajectory("far_left")
+//        visionSubsystem.setGyro(autoFactory.cache().loadTrajectory("far_left")
 //            .get().getInitialPose(RobotState.createInstance().isAllianceRed())
 //            .get().getRotation().getDegrees()
 //        );
@@ -153,9 +155,18 @@ public class AutoCommandFactory {
     }
 
     public static void loadTrajectories() {
-        cachedTrajectory = Choreo.loadTrajectory("middle_one");
-        Choreo.loadTrajectory("right_one");
-}
+        String cacheName = "middle_one";
+
+        loadTrajectory("middle_one");
+        loadTrajectory("right_one");
+        loadTrajectory("left_one");
+        loadTrajectory("far_left");
+        loadTrajectory("far_left_two");
+        loadTrajectory("far_left_three");
+        loadTrajectory("far_left2");
+
+        cachedTrajectory = loadTrajectory(cacheName);
+    }
 
     public static Pose2d getAutoInitialPose() {
         if (cachedTrajectory.isPresent() &&
@@ -246,32 +257,46 @@ public class AutoCommandFactory {
                     () -> Constants.Toggles.useCoralIntake
                 )));
     }
-}
 
-class AutoSelector {
-    private SendableChooser<String> PositionChooser = new SendableChooser<>();
-    private final AutoCommandFactory autoCommandFactory;
 
-    public AutoSelector(AutoCommandFactory autoCommandFactory) {
-        this.autoCommandFactory = autoCommandFactory;
-        PositionChooser.addOption("Middle", "middle_one");
-        PositionChooser.addOption("Far Left", "far_left");
-        PositionChooser.addOption("Right", "right_one");
-        ShuffleboardConstants.getInstance().autoSelectionLayout
-            .add("Starting Position?", PositionChooser)
-            .withPosition(0, 0);
+    private static Optional<? extends Trajectory<?>> loadTrajectory(String trajectoryName) {
+//        if (loadedTrajectories.containsKey(trajectoryName)) {
+//            return loadedTrajectories.get(trajectoryName);
+//        } else {
+//            loadedTrajectories.put(trajectoryName, Choreo.loadTrajectory(trajectoryName));
+//        }
+//        return loadedTrajectories.get(trajectoryName);
+
+//    }
+        return autoFactory.cache().loadTrajectory(trajectoryName);
+
+
     }
 
-    public Command buildAuto() {
-        ArrayList<Command> fullRoutine = new ArrayList<>();
-        String selectedPosition = PositionChooser.getSelected();
+    class AutoSelector {
+        private SendableChooser<String> PositionChooser = new SendableChooser<>();
+        private final AutoCommandFactory autoCommandFactory;
+
+        public AutoSelector(AutoCommandFactory autoCommandFactory) {
+            this.autoCommandFactory = autoCommandFactory;
+            PositionChooser.addOption("Middle", "middle_one");
+            PositionChooser.addOption("Far Left", "far_left");
+            PositionChooser.addOption("Right", "right_one");
+            ShuffleboardConstants.getInstance().autoSelectionLayout
+                .add("Starting Position?", PositionChooser)
+                .withPosition(0, 0);
+        }
+
+        public Command buildAuto() {
+            ArrayList<Command> fullRoutine = new ArrayList<>();
+            String selectedPosition = PositionChooser.getSelected();
 
 //        if (selectedPosition.equals("far_left")){
 //            return autoCommandFactory.farLeft();
 //        } else if (selectedPosition.equals("middle_one")){
 //            return autoCommandFactory.middleOne();
 //        }
-        return null;
+            return null;
+        }
     }
-
 }

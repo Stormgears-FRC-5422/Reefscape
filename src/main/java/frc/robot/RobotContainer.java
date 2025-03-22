@@ -186,6 +186,15 @@ public class RobotContainer {
             console("NOT using StormNet");
         }
 
+        AutoCommandFactory autoCommandFactoryDummy = new AutoCommandFactory(drivetrain,
+            elevator,
+            coralIntake,
+            visionSubsystem,
+            joystick,
+            algaeIntake);
+        AutoCommandFactory.loadTrajectories();
+
+
 
         console("constructor ended");
     }
