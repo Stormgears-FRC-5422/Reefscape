@@ -73,7 +73,7 @@ public class AutoCommandFactory {
                 drivetrainBase::getPose,
                 drivetrainBase::declarePoseIsNow,
                 drivetrainBase::followTrajectory,
-                true,
+                Constants.Auto.side.equalsIgnoreCase("red"),
                 drivetrainBase
             );
         }
@@ -159,7 +159,7 @@ public class AutoCommandFactory {
     }
 
     public static void loadTrajectories() {
-        String cacheName = "far_left";
+        String cacheName = Constants.Auto.path;
 
         loadTrajectory("middle_one");
         loadTrajectory("right_one");
@@ -276,6 +276,15 @@ public class AutoCommandFactory {
 //    }
         return autoFactory.cache().loadTrajectory(trajectoryName);
 
+
+    }
+    public Command choosePath(String path){
+        return switch (path){
+            case "middle_one" -> middleOne();
+            case "right_one" -> rightOne();
+            case "far_left" -> farLeft();
+            default -> null;
+        };
 
     }
 

@@ -287,12 +287,20 @@ public class RobotContainer {
 ////                coralOuttakeCommand
 ////            ).farLeft());
 ////           autoCommandFactory.farLeft());
-            return new AutoCommandFactory(drivetrain,
-                elevator,
-                coralIntake,
-                visionSubsystem,
-                joystick,
-                algaeIntake).farLeft();
+//            return new AutoCommandFactory(drivetrain,
+//                elevator,
+//                coralIntake,
+//                visionSubsystem,
+//                joystick,
+//                algaeIntake).farLeft();
+        return new AutoCommandFactory(drivetrain,
+            elevator,
+            coralIntake,
+            visionSubsystem,
+            joystick,
+            algaeIntake)
+            .choosePath(Constants.Auto.path);
+//.farLeft();
 
 
 //        return  new SequentialCommandGroup(new AutoCommandFactory(drivetrain,
