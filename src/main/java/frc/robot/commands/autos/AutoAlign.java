@@ -69,6 +69,7 @@ public class AutoAlign extends StormCommand {
 
         robotState.setTeleopAligning(true);
         timer.restart();
+        console("after time restart, before goal pose creation");
         goalPose = () -> {
             double linearMagnitude = 0;
             Translation2d linearVelocity = new Translation2d();
@@ -101,6 +102,7 @@ public class AutoAlign extends StormCommand {
 //            return finalPose.transformBy(new Transform2d(0.0, offsetT * 1.0 , new Rotation2d()));
             return finalPose;
         };
+        console("after goal pose");
         Pose2d currentPose = drivetrainBase.getPose();
         Pose2d currentGoalPose = goalPose.get();
         Twist2d fieldVelocity = new Twist2d(drivetrainBase.getCurrentChassisSpeeds().vxMetersPerSecond,
@@ -119,6 +121,7 @@ public class AutoAlign extends StormCommand {
             currentPose.getTranslation().getDistance(currentGoalPose.getTranslation()), linearVelocity);
         thetaController.reset(currentPose.getRotation().getRadians(), fieldVelocity.dtheta);
         lastSetpointTranslation = currentPose.getTranslation();
+        console("end of init auto align");
     }
 
     @Override
@@ -152,8 +155,8 @@ public class AutoAlign extends StormCommand {
                 translationPID.getSetpoint().velocity * ffScaler
                     + translationPID.calculate(distance, 0.0),
                 -3, 3);
-        Logger.recordOutput("AutoAlign/ff addition", translationPID.getSetpoint().velocity * ffScaler);
-        Logger.recordOutput("AutoAlign/PID calculation", +translationPID.calculate(distance, 0.0));
+//        Logger.recordOutput("AutoAlign/ff addition", translationPID.getSetpoint().velocity * ffScaler);
+//        Logger.recordOutput("AutoAlign/PID calculation", +translationPID.calculate(distance, 0.0));
 
 //        calculate last setpoint by getting pose of target and transform by adding the next setpoint
 //        we should not have to construct a new pose but leaving it bc I am not 100% sure
@@ -191,12 +194,12 @@ public class AutoAlign extends StormCommand {
         drivetrainBase.drive(new ChassisSpeeds(driveVelocity.getX(), driveVelocity.getY(), thetaVelocity),
             true,1);
 
-        Logger.recordOutput("AutoAlign/driveVeloicty", driveVelocity);
-        Logger.recordOutput("AutoAlign/thetaVelocity", thetaVelocity);
-        Logger.recordOutput("AutoAlign/ffScalar", ffScaler);
-        Logger.recordOutput("AutoAlign/currentGoalPose", currentGoalPose);
-        Logger.recordOutput("AutoAlign/currentDistance", distance);
-        Logger.recordOutput("AutoAlign/driveVelocityScaler", driveVelocityScalar);
+//        Logger.recordOutput("AutoAlign/driveVeloicty", driveVelocity);
+//        Logger.recordOutput("AutoAlign/thetaVelocity", thetaVelocity);
+//        Logger.recordOutput("AutoAlign/ffScalar", ffScaler);
+//        Logger.recordOutput("AutoAlign/currentGoalPose", currentGoalPose);
+//        Logger.recordOutput("AutoAlign/currentDistance", distance);
+//        Logger.recordOutput("AutoAlign/driveVelocityScaler", driveVelocityScalar);
     }
 
     @Override

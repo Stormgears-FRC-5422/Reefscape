@@ -119,6 +119,9 @@ Climber extends StormSubsystem {
             }
         }
 
+        robotState.setClimberFullyForward(isFullyForward());
+        robotState.setClimberLockedIn(isLockedIn());
+
         Logger.recordOutput("Climber/CurrentPosition", currentPosition);
     }
 

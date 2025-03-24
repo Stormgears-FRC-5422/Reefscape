@@ -28,7 +28,7 @@ public class AlgaeIntake extends StormSubsystem {
     IntakeState currentState;
     private double currentPosition;
     private double targetPosition;
-    private boolean hasBeenHomed = false;
+    public boolean hasBeenHomed = false;
 
     private boolean loaded = false;
     private final SparkClosedLoopController controller;
@@ -209,8 +209,12 @@ public class AlgaeIntake extends StormSubsystem {
                     currentState = IntakeState.DOWN;
 
                 }
-
-
+            }
+            case UP -> {
+                motorSpeed = Constants.AlgaeIntake.speed;
+            }
+            case DOWN -> {
+                motorSpeed = -Constants.AlgaeIntake.speed;
             }
 
 
@@ -253,6 +257,9 @@ public class AlgaeIntake extends StormSubsystem {
         } else {
             return Math.abs(currentPosition - targetPosition) < Constants.AlgaeIntake.allowedError_unloaded;
         }
+    }
+    public boolean getAlgaeIsAtHome() {
+        return hasBeenHomed;
     }
 
     private void simpleMove(double currentPosition) {
@@ -373,7 +380,6 @@ public class AlgaeIntake extends StormSubsystem {
         // V_ff(theta) = Vmax * tau / (gearRatio * tauStall)
         return Vmax * tau / (gearRatio * tauStall);
     }
-
 
 
     public enum IntakeState {

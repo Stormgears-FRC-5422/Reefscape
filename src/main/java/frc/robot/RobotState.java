@@ -60,6 +60,9 @@ public class RobotState extends SubsystemBase {
     private double lidarAngle;
     private boolean lidarAngleIsValid;
     private double lidarOffsetAngle;
+    private boolean isClimberFullyForward;
+    private boolean isClimberLockedIn;
+
 
 
     // Call createInstance from robotInit()
@@ -88,6 +91,22 @@ public class RobotState extends SubsystemBase {
         }
 
         this.batteryState = BatteryState.GOOD;
+    }
+
+    public boolean isClimberFullyForward() {
+        return isClimberFullyForward;
+    }
+
+    public void setClimberFullyForward(boolean isClimberFullyForward){
+        this.isClimberFullyForward = isClimberFullyForward;
+    }
+
+    public boolean isClimberLockedIn(){
+        return isClimberLockedIn;
+    }
+
+    public void setClimberLockedIn(boolean isClimberLockedIn){
+        this.isClimberLockedIn = isClimberLockedIn;
     }
 
     public boolean isJoystickAndButtonBoardConfigured() {
