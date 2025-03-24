@@ -1,6 +1,11 @@
 package frc.robot.subsystems.misc;
 
+import edu.wpi.first.units.TimeUnit;
+import edu.wpi.first.units.Unit;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MutTime;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Constants;
@@ -86,6 +91,12 @@ public class Lights extends StormSubsystem {
         // Modify bottom view of strip based on april tag detection/alignment
         setAlignmentStatus();
 
+        if(m_robotState.isClimberLockedIn()){
+            setRainbow();
+        }
+        if(m_robotState.isClimberFullyForward()){
+            setClimberOut();
+        }
 //        // Modify top view of strip based on elevator status
 //        setElevatorStatus();
 
@@ -120,6 +131,13 @@ public class Lights extends StormSubsystem {
         Distance kLedSpacing = Meters.of(1 / 120.0);
         LEDPattern m_scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(0.45), kLedSpacing);
         patternApplyTo(m_scrollingRainbow, m_ledBuffer);
+    }
+
+    public void setClimberOut(){
+        LEDPattern blink = LEDPattern.solid(Color.kFirebrick).blink(Time.ofBaseUnits(0.2,Seconds),
+            Time.ofBaseUnits(0.2,Seconds));
+
+        patternApplyTo(blink,m_ledBuffer);
     }
 
     public void setAllianceColor() {

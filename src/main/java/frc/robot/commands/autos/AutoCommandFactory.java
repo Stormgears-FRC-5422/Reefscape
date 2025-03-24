@@ -46,6 +46,8 @@ public class AutoCommandFactory {
     AutoReef autoReef2;
     static Optional<? extends Trajectory<?>> cachedTrajectory;
     static HashMap<String, Optional<? extends Trajectory<?>>> loadedTrajectories = new HashMap<>();
+    private int autoReefFirstTagId = -1;
+    private int autoReefSecondTagId = -1;
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase,
                               Elevator elevator,
@@ -76,6 +78,14 @@ public class AutoCommandFactory {
                 Constants.Auto.side.equalsIgnoreCase("red"),
                 drivetrainBase
             );
+        }
+
+        if (Constants.Auto.side.equalsIgnoreCase("red")) {
+            autoReefFirstTagId = 9;
+            autoReefSecondTagId = 8;
+        } else {
+            autoReefFirstTagId = 22;
+            autoReefSecondTagId = 17;
         }
 
 
@@ -143,19 +153,55 @@ public class AutoCommandFactory {
                 () -> Constants.Toggles.useElevator)
         );
     }
+//
+//    public Command rightOne() {
+//        return Commands.sequence(
+////            autoFactory.resetOdometry("right_one"),
+//            new ParallelCommandGroup(
+//                new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
+//                home()),
+//            new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
+//            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
+//            Commands.race(
+//                new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
+//                new CoralIntakeCommand(coralIntake, false)),
+//            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1));
+//    }
 
     public Command rightOne() {
-        return Commands.sequence(
-//            autoFactory.resetOdometry("right_one"),
-            new ParallelCommandGroup(
-                new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
-                home()),
-            new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
-            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
-            Commands.race(
-                new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
-                new CoralIntakeCommand(coralIntake, false)),
-            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1));
+        return
+            Commands.sequence(
+                new PrintCommand("right"),
+                new ParallelCommandGroup(
+                    new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT,
+                        autoReefFirstTagId)
+//                    autoFactory.trajectoryCmd("far_left").andThen(
+//                        new PrintCommand("after left trajectory")
+//                        )),
+                    ,
+                    home().andThen(new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL3))),
+//                new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false)),
+                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
+                Commands.race(
+                    new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
+                    new CoralIntakeCommand(coralIntake, false)),
+                new ParallelCommandGroup(
+                    new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1),
+                    autoFactory.trajectoryCmd("right_two")
+                        .andThen(new InstantCommand(() -> drivetrainBase.drive(new ChassisSpeeds(), false))),
+                    new CoralIntakeCommand(coralIntake, true)),
+//                autoFactory.trajectoryCmd("far_left_three"),
+//                new InstantCommand(() -> drivetrainBase.drive(new ChassisSpeeds(), false)).andThen(new WaitCommand(0.25)),
+                new ParallelRaceGroup(
+                    new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT, autoReefSecondTagId),
+                    new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL3))
+                ,
+                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
+                Commands.race(
+                    new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
+                    new CoralIntakeCommand(coralIntake, false))
+                , new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
+            );
     }
 
     public static void loadTrajectories() {
@@ -215,25 +261,28 @@ public class AutoCommandFactory {
             Commands.sequence(
                 new PrintCommand("far left"),
                 new ParallelCommandGroup(
-                    new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT)
+                    new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT,
+                        autoReefFirstTagId)
 //                    autoFactory.trajectoryCmd("far_left").andThen(
 //                        new PrintCommand("after left trajectory")
 //                        )),
                     ,
-                    home()),
+                    home().andThen(new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL3))),
 //                new InstantCommand(()-> drivetrainBase.drive(new ChassisSpeeds(),false)),
                 new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
                 Commands.race(
                     new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
                     new CoralIntakeCommand(coralIntake, false)),
-                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
-                ,
-                autoFactory.trajectoryCmd("far_left_two"),
-                new InstantCommand(() -> drivetrainBase.drive(new ChassisSpeeds(), false)),
-                new CoralIntakeCommand(coralIntake, true),
-                autoFactory.trajectoryCmd("far_left_three"),
-                new InstantCommand(() -> drivetrainBase.drive(new ChassisSpeeds(), false)).andThen(new WaitCommand(0.25)),
-                new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT)
+                new ParallelCommandGroup(
+                    new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1),
+                    autoFactory.trajectoryCmd("far_left_two")
+                        .andThen(new InstantCommand(() -> drivetrainBase.drive(new ChassisSpeeds(), false))),
+                    new CoralIntakeCommand(coralIntake, true)),
+//                autoFactory.trajectoryCmd("far_left_three"),
+//                new InstantCommand(() -> drivetrainBase.drive(new ChassisSpeeds(), false)).andThen(new WaitCommand(0.25)),
+                new ParallelRaceGroup(
+                    new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT, autoReefSecondTagId),
+                    new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL3))
                 ,
                 new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
                 Commands.race(
@@ -278,8 +327,9 @@ public class AutoCommandFactory {
 
 
     }
-    public Command choosePath(String path){
-        return switch (path){
+
+    public Command choosePath(String path) {
+        return switch (path) {
             case "middle_one" -> middleOne();
             case "right_one" -> rightOne();
             case "far_left" -> farLeft();

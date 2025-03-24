@@ -128,10 +128,14 @@ public class RobotContainer {
             coralOuttakeCommand = new CoralIntakeCommand(coralIntake, false);
         }
 
-        if (Constants.Toggles.useAlgaeIntake) {
-            algaeIntake = new AlgaeIntake();
-            algaeIntakeCommand = new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD);
-            algaeOuttakeCommand = new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.REEF_PICKUP);
+        if (Toggles.useAlgaeIntake) {
+            //    new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
+            //    new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
+            //    new Trigger(() -> buttonBoard.algaeIntake()).onTrue(coralIntakeHoldUp.andThen(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOMING)));
+            //    new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(coralIntakeHoldUp.andThen(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD)));
+            new Trigger(() -> buttonBoard.autoProcessor()).onTrue(coralIntakeHoldUp.andThen(new AlgaeIntakeHome(algaeIntake)));
+            new Trigger(() -> buttonBoard.algaeIntake()).whileTrue(new AlgaeIntakeDiagnostic(algaeIntake, true));
+            new Trigger(() -> buttonBoard.algaeOuttake()).whileTrue(new AlgaeIntakeDiagnostic(algaeIntake, false));
         }
 
         if (Constants.Toggles.useLights) {
@@ -452,9 +456,9 @@ public class RobotContainer {
             new ConditionalCommand(new ElevatorHome(elevator),
                 new PrintCommand("Elevator disabled"),
                 () -> Toggles.useElevator),
-            new ConditionalCommand(new AlgaeIntakeHome(algaeIntake),
-                new PrintCommand("AlgaeIntake` disabled"),
-                () -> Toggles.useAlgaeIntake),
+//            new ConditionalCommand(new AlgaeIntakeHome(algaeIntake),
+//                new PrintCommand("AlgaeIntake` disabled"),
+//                () -> Toggles.useAlgaeIntake),
             new ConditionalCommand(new CoralIntakeHome(coralIntake),
                 new PrintCommand("CoralIntake disabled"),
                 () -> Toggles.useCoralIntake)

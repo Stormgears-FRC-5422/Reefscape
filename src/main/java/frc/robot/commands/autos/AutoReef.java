@@ -1,14 +1,11 @@
 package frc.robot.commands.autos;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
-import frc.robot.RobotState;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.DrivetrainBase;
-import frc.utils.StormCommand;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Supplier;
@@ -17,19 +14,21 @@ public class AutoReef extends AutoAlign {
     DrivetrainBase drivetrainBase;
     VisionSubsystem visionSubsystem;
     ReefscapeJoystick joystick;
-    int tagID = -1;
+    int targetTagID = -1;
     Supplier<FieldConstants.Side> sideSupplier;
 
     public AutoReef(DrivetrainBase drivetrainBase,
                     VisionSubsystem visionSubsystem,
                     ReefscapeJoystick joystick,
-                    Supplier<FieldConstants.Side> side) {
+                    Supplier<FieldConstants.Side> side,
+                    int targetTagID) {
 
         super(drivetrainBase, joystick);
         this.drivetrainBase = drivetrainBase;
         this.visionSubsystem = visionSubsystem;
         this.joystick = joystick;
         this.sideSupplier = side;
+        this.targetTagID = targetTagID;
 
         if (visionSubsystem != null) {
             super.addRequirements(drivetrainBase, visionSubsystem);
@@ -37,6 +36,14 @@ public class AutoReef extends AutoAlign {
             super.addRequirements(drivetrainBase);
         }
     }
+
+    public AutoReef(DrivetrainBase drivetrainBase,
+                    VisionSubsystem visionSubsystem,
+                    ReefscapeJoystick joystick,
+                    Supplier<FieldConstants.Side> side) {
+        this(drivetrainBase, visionSubsystem, joystick, side, -1);
+    }
+
 
     @Override
     public void initialize() {
@@ -63,29 +70,29 @@ public class AutoReef extends AutoAlign {
         }
 
         if (visionSubsystem != null) {
-            if (visionSubsystem.seesTag()) {
-                tagID = visionSubsystem.getBestTag();
+            if (visionSubsystem.seesTag() && targetTagID == -1) {
+                targetTagID = visionSubsystem.getBestTag();
             }
         } else {
             if (Constants.Vision.simTag > 0) {
-                tagID = Constants.Vision.simTag;
-                console("Faking April Tag id:" + tagID);
+                targetTagID = Constants.Vision.simTag;
+                console("Faking April Tag id:" + targetTagID);
             } else {
                 return null;
             }
         }
 
-        if (tagID != -1) {
-            console("April Tag Seen! id:" + tagID);
-            targetPose = FieldConstants.getReefTargetPose(side, tagID);
-            Logger.recordOutput("Target Pose", targetPose);
+        if (targetTagID != -1) {
+            console("April Tag Seen! id:" + targetTagID);
+            targetPose = FieldConstants.getReefTargetPose(side, targetTagID);
+//            Logger.recordOutput("Target Pose", targetPose);
             if (targetPose == null) {
                 console("Didn't detect any reef AprilTag :(");
             }
         } else {
             System.out.println("No April tag detected :(");
         }
-        tagID = -1;
+        targetTagID = -1;
 
         return targetPose;
     }

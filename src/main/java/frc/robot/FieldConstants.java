@@ -83,10 +83,10 @@ public class FieldConstants {
         reefSide = side;
         if ((tagId <= 11 && tagId >= 6) || (tagId >= 17 && tagId <= 22)) {
             if (side == Side.LEFT) {
-                Logger.recordOutput("aprilTagPose", getPoseTag(tagId));
+//                Logger.recordOutput("aprilTagPose", getPoseTag(tagId));
                 return getPoseTag(tagId).transformBy(new Transform2d(new Translation2d(xAprilTagOffset, -inchesToMeters(6.5 + leftOffset)), new Rotation2d(Math.PI)));
             } else if (side == Side.RIGHT) {
-                Logger.recordOutput("aprilTagPose", getPoseTag(tagId));
+//                Logger.recordOutput("aprilTagPose", getPoseTag(tagId));
                 return getPoseTag(tagId).transformBy(new Transform2d(new Translation2d(xAprilTagOffset, inchesToMeters(6.5 + rightOffset)), new Rotation2d(Math.PI)));
             }
         }
