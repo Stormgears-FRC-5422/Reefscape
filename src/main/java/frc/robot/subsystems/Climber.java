@@ -36,12 +36,12 @@ Climber extends StormSubsystem {
         climberMotorConfig = new SparkMaxConfig();
         SparkMaxConfig globalConfig = new SparkMaxConfig();
 
-        globalConfig.smartCurrentLimit(Constants.SparkConstants.CurrentLimit)
+        globalConfig.smartCurrentLimit(Constants.Climber.safetyCurrentLimit)
             .voltageCompensation(Constants.SparkConstants.NominalVoltage)
-            .idleMode(Constants.Elevator.brakeMode ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
+            .idleMode(Constants.Climber.brakeMode ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
 
         climberMotorConfig.apply(globalConfig)
-            .inverted(Constants.Elevator.invertLeader);
+            .inverted(Constants.Climber.invertLeader);
 
         // Hard limits
         climberMotorConfig.limitSwitch
@@ -64,13 +64,13 @@ Climber extends StormSubsystem {
 
         climberMotor.configure(climberMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-        if (Constants.Climber.useFollower) {
-            SparkMax followerMotor = new SparkMax(Constants.Climber.followerID, SparkLowLevel.MotorType.kBrushless);
-            SparkMaxConfig followerMotorConfig = new SparkMaxConfig();
-            followerMotorConfig.apply(globalConfig)
-                .follow(climberMotor, true);
-            followerMotor.configure(followerMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-        }
+//        if (Constants.Climber.useFollower) {
+//            SparkMax followerMotor = new SparkMax(Constants.Climber.followerID, SparkLowLevel.MotorType.kBrushless);
+//            SparkMaxConfig followerMotorConfig = new SparkMaxConfig();
+//            followerMotorConfig.apply(globalConfig)
+//                .follow(climberMotor, true);
+//            followerMotor.configure(followerMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+//        }
 
         setState(Climber.ClimberState.START);
     }
