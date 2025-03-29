@@ -20,6 +20,10 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import frc.robot.Constants.Toggles;
 import frc.robot.RobotState.*;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
+
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
@@ -71,6 +75,23 @@ public class Robot extends LoggedRobot {
 
         if (Toggles.useAdvantageKit) {
             Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+
+            Map<String, Integer> commandCounts = new HashMap<>();
+            BiConsumer<Command, Boolean> logCommandFunction =
+                (Command command, Boolean active) -> {
+                    String name = command.getName();
+                    int count = commandCounts.getOrDefault(name, 0) + (active ? 1 : -1);
+                    commandCounts.put(name, count);
+                    Logger.recordOutput(
+                        "CommandsUnique/" + name + "_" + Integer.toHexString(command.hashCode()), active);
+                    Logger.recordOutput("CommandsAll/" + name, count > 0);
+                };
+            CommandScheduler.getInstance()
+                .onCommandInitialize((Command command) -> logCommandFunction.accept(command, true));
+            CommandScheduler.getInstance()
+                .onCommandFinish((Command command) -> logCommandFunction.accept(command, false));
+            CommandScheduler.getInstance()
+                .onCommandInterrupt((Command command) -> logCommandFunction.accept(command, false));
         }
 
         try {
