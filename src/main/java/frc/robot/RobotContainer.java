@@ -98,8 +98,6 @@ public class RobotContainer {
 
     //Limelights
     StormLimelight[] limelights;
-    StormLimelight limelightReef;
-    StormLimelight limelightStation;
 
     AutoCommandFactory autoCommandFactory;
 
@@ -142,11 +140,8 @@ public class RobotContainer {
         }
 
         if (Constants.Toggles.useVision && Toggles.useDrive) {
-//            limelightReef = new StormLimelight(Constants.Vision.limelightID);
-//            limelightStation = new StormLimelight("limelight-station");
             limelights = CameraConstants.getReefscapeLimelights();
             visionSubsystem = new VisionSubsystem(drivetrain.getPoseEstimator(), limelights);
-//            visionSubsystem = new VisionSubsystem(limelightReef, limelightStation)
         }
         if (Constants.Toggles.useColorSensor) {
             colorSensor = new ColorSensor();

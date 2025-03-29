@@ -35,7 +35,6 @@ public class AutoReef extends AutoAlign {
         } else {
             super.addRequirements(drivetrainBase);
         }
-        System.out.println("AutoReef constructor");
     }
 
     public AutoReef(DrivetrainBase drivetrainBase,
