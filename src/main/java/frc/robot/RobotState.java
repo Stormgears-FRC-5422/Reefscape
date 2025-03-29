@@ -62,6 +62,7 @@ public class RobotState extends SubsystemBase {
     private double lidarOffsetAngle;
     private boolean isClimberFullyForward;
     private boolean isClimberLockedIn;
+    private boolean didAllianceUpdated = false;
 
 
 
@@ -161,6 +162,14 @@ public class RobotState extends SubsystemBase {
 
     public boolean isAllianceRed() {
         return m_alliance == StateAlliance.RED;
+    }
+
+    public boolean didAllianceUpdated(){
+        return didAllianceUpdated;
+    }
+
+    public void setAllianceUpdated(boolean completed){
+        didAllianceUpdated = completed;
     }
 
     public boolean isAllianceMissing() {

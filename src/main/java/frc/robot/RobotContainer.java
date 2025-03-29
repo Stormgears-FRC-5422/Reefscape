@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -165,7 +164,7 @@ public class RobotContainer {
         }
 
         if (Toggles.useAutoReef) {
-            new AutoReef(drivetrain,visionSubsystem, joystick, ()-> FieldConstants.Side.RIGHT);
+            new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT);
         }
 
         if (Toggles.useAutoStation) {
@@ -200,7 +199,6 @@ public class RobotContainer {
         AutoCommandFactory.loadTrajectories();
 
 
-
         console("constructor ended");
     }
 
@@ -208,7 +206,7 @@ public class RobotContainer {
         console("Configuring Joystick bindings");
 
         if (Toggles.useDrive) {
-            new Trigger(()-> joystick.cancelAutoReef()).onTrue(new DummyDriveCommand(drivetrain));
+            new Trigger(() -> joystick.cancelAutoReef()).onTrue(new DummyDriveCommand(drivetrain));
 //            new Trigger(() -> joystick.coralIntake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 //            new Trigger(() -> joystick.coralOuttake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 //            new Trigger(() -> joystick.zeroWheels()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
@@ -433,10 +431,9 @@ public class RobotContainer {
 
     public void resetInitialPose(Pose2d autoPose) {
         Pose2d initialPose;
-        if (autoPose!=null){
+        if (autoPose != null) {
             initialPose = autoPose;
-        }
-        else if (Constants.Debug.debug && !robotState.isAllianceMissing()) {
+        } else if (Constants.Debug.debug && !robotState.isAllianceMissing()) {
             initialPose = new Pose2d(Constants.Debug.initPoseX, Constants.Debug.initPoseY,
                 Rotation2d.fromDegrees(Constants.Debug.initPoseDegrees));
             initialPose = ReefscapeField.remapPose(initialPose, robotState.getAlliance());
@@ -448,6 +445,16 @@ public class RobotContainer {
         }
         if (Toggles.useDrive)
             drivetrain.declarePoseIsNow(initialPose);
+    }
+
+    public void onAllianceUpdated() {
+        if (!RobotState.getInstance().isAllianceMissing()) {
+            if (autoCommandFactory != null) {
+                autoCommandFactory.createAutoFactory();
+                drivetrain.declarePoseIsNow(AutoCommandFactory.getAutoInitialPose());
+                RobotState.getInstance().setAllianceUpdated(true);
+            }
+        }
     }
 
     // Sequence called from teleopInit

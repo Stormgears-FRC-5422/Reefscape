@@ -147,9 +147,11 @@ public class Robot extends LoggedRobot {
         if (iteration % 25 == 0) {
             if (!RobotState.getInstance().isAllianceMissing() &&
                 (!RobotState.getInstance().getDidAuto()
-                    || RobotState.getInstance().getSimMode()==StateSimMode.AKIT_SIM
-                    || RobotState.getInstance().getSimMode()==StateSimMode.SIMULATION)) {
-                robotContainer.resetInitialPose(AutoCommandFactory.getAutoInitialPose());
+                    || RobotState.getInstance().getSimMode() == StateSimMode.AKIT_SIM
+                    || RobotState.getInstance().getSimMode() == StateSimMode.SIMULATION)) {
+                if (!RobotState.getInstance().didAllianceUpdated()) {
+                    robotContainer.onAllianceUpdated();
+                }
             }
             if (robotContainer != null) {
                 robotContainer.updateAlliance();

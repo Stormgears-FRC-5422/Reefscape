@@ -1,18 +1,13 @@
 package frc.robot.commands.autos;
 
-import choreo.Choreo;
 import choreo.auto.AutoFactory;
-import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
-import frc.robot.ShuffleboardConstants;
 import frc.robot.commands.onElevator.*;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.subsystems.drive.DrivetrainBase;
@@ -20,34 +15,22 @@ import frc.robot.subsystems.onElevator.AlgaeIntake;
 import frc.robot.subsystems.onElevator.CoralIntake;
 import frc.robot.subsystems.onElevator.Elevator;
 import frc.robot.subsystems.vision.VisionSubsystem;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import java.util.Optional;
 
 public class AutoCommandFactory {
-    private final Optional<Trajectory<SwerveSample>> middleOne = Choreo.loadTrajectory("middle_one");
-    private final Optional<Trajectory<SwerveSample>> farLeft = Choreo.loadTrajectory("far_left");
-    private final Optional<Trajectory<SwerveSample>> leftOne = Choreo.loadTrajectory("left_one");
-    private final Optional<Trajectory<SwerveSample>> rightOne = Choreo.loadTrajectory("right_one");
     private DrivetrainBase drivetrainBase;
-
-    private Timer timer;
-    private int count = 0;
     private static AutoFactory autoFactory = null;
     private Elevator elevator;
     private CoralIntake coralIntake;
     private VisionSubsystem vis;
     private ReefscapeJoystick joystick;
     private AlgaeIntake algaeIntake;
-    Command middle = null;
-    private static boolean resetOdomtery = false;
-    AutoReef autoReef;
-    AutoReef autoReef2;
     static Optional<? extends Trajectory<?>> cachedTrajectory;
-    static HashMap<String, Optional<? extends Trajectory<?>>> loadedTrajectories = new HashMap<>();
     private int autoReefFirstTagId = -1;
     private int autoReefSecondTagId = -1;
+    private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase,
                               Elevator elevator,
@@ -61,24 +44,6 @@ public class AutoCommandFactory {
         this.coralIntake = coralIntake;
         this.elevator = elevator;
         this.algaeIntake = algaeIntake;
-        timer = new Timer();
-//        autoReef = new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT);
-//        autoReef2 = new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT);
-//        Choreo.loadTrajectory("middle_one");
-//        Choreo.loadTrajectory("right_one");
-//        Choreo.loadTrajectory("far_left");
-//        Choreo.loadTrajectory("far_left_two");
-//        Choreo.loadTrajectory("far_left_three");
-
-        if (autoFactory == null) {
-            autoFactory = new AutoFactory(
-                drivetrainBase::getPose,
-                drivetrainBase::declarePoseIsNow,
-                drivetrainBase::followTrajectory,
-                Constants.Auto.side.equalsIgnoreCase("red"),
-                drivetrainBase
-            );
-        }
 
         if (Constants.Auto.side.equalsIgnoreCase("red")) {
             autoReefFirstTagId = 9;
@@ -88,47 +53,21 @@ public class AutoCommandFactory {
             autoReefSecondTagId = 17;
         }
 
+        autoChooser.addDefaultOption("Nothing", null);
+        autoChooser.addOption("MiddleOne", middleOne());
+        autoChooser.addOption("LeftTwo", leftTwo());
+        autoChooser.addOption("RightOne", rightOne());
 
-//
-//        visionSubsystem.setGyro(autoFactory.cache().loadTrajectory("far_left")
-//            .get().getInitialPose(RobotState.createInstance().isAllianceRed())
-//            .get().getRotation().getDegrees()
-//        );
-//        if (!resetOdomtery) {
-//            autoFactory.resetOdometry("far_left");
-//            resetOdomtery = true;
-//        }
-
-//        middle = autoFactory.trajectoryCmd("middle_one");
-
-
-//        autoFactory.resetOdometry("middle_one");
-//        autoFactory.resetOdometry("far_left");
     }
 
-//    public Command middleOne() {
-//        return Commands.sequence(
-//            new PrintCommand("middle"),
-//            autoFactory.resetOdometry("middle_one"),
-//            autoFactory.trajectoryCmd("middle_one"),
-//            new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
-//            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
-//            Commands.race(
-//                new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
-//                new CoralIntakeCommand(coralIntake, false)),
-//            new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
-//
-//        );
-//
-//    }
+    public Command getAutoCommand(){
+        return autoChooser.get();
+    }
 
     public Command middleOne() {
         return Commands.sequence(
             new PrintCommand("middle"),
             new ParallelCommandGroup(new SequentialCommandGroup(
-//                middle.andThen(
-//                    new PrintCommand("after middle trajectory")
-//                )),
                 new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT)),
                 home()),
 
@@ -229,34 +168,19 @@ public class AutoCommandFactory {
         return null;
     }
 
+    public void createAutoFactory() {
+        autoFactory = new AutoFactory(
+            drivetrainBase::getPose,
+            drivetrainBase::declarePoseIsNow,
+            drivetrainBase::followTrajectory,
+            RobotState.createInstance().isAllianceRed(),
+            drivetrainBase
+        );
+        System.out.println("Creating Auto Factory");
+    }
 
-//    public Command farLeft() {
-//        return
-//            Commands.sequence(
-//                new PrintCommand("far left"),
-//                autoFactory.resetOdometry("far_left"),
-//                autoFactory.trajectoryCmd("far_left"),
-//                new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
-//                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
-//                Commands.race(
-//                    new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
-//                    new CoralIntakeCommand(coralIntake, false)),
-//                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
-//                ,
-//                autoFactory.trajectoryCmd("far_left_two"),
-//                new CoralIntakeCommand(coralIntake, true),
-//                new WaitCommand(1),
-//                autoFactory.trajectoryCmd("far_left_three"),
-//                new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT),
-//                new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
-//                Commands.race(
-//                    new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
-//                    new CoralIntakeCommand(coralIntake, false))
-//                , new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1)
-//            );
-//    }
 
-    public Command farLeft() {
+    public Command leftTwo() {
         return
             Commands.sequence(
                 new PrintCommand("far left"),
@@ -332,36 +256,36 @@ public class AutoCommandFactory {
         return switch (path) {
             case "middle_one" -> middleOne();
             case "right_one" -> rightOne();
-            case "far_left" -> farLeft();
+            case "far_left" -> leftTwo();
             default -> null;
         };
 
     }
 
-    class AutoSelector {
-        private SendableChooser<String> PositionChooser = new SendableChooser<>();
-        private final AutoCommandFactory autoCommandFactory;
-
-        public AutoSelector(AutoCommandFactory autoCommandFactory) {
-            this.autoCommandFactory = autoCommandFactory;
-            PositionChooser.addOption("Middle", "middle_one");
-            PositionChooser.addOption("Far Left", "far_left");
-            PositionChooser.addOption("Right", "right_one");
-            ShuffleboardConstants.getInstance().autoSelectionLayout
-                .add("Starting Position?", PositionChooser)
-                .withPosition(0, 0);
-        }
-
-        public Command buildAuto() {
-            ArrayList<Command> fullRoutine = new ArrayList<>();
-            String selectedPosition = PositionChooser.getSelected();
-
-//        if (selectedPosition.equals("far_left")){
-//            return autoCommandFactory.farLeft();
-//        } else if (selectedPosition.equals("middle_one")){
-//            return autoCommandFactory.middleOne();
+//    class AutoSelector {
+//        private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+//
+//
+//        public AutoSelector(AutoCommandFactory autoCommandFactory) {
+//            this.autoCommandFactory = autoCommandFactory;
+//            PositionChooser.addOption("Middle", "middle_one");
+//            PositionChooser.addOption("Far Left", "far_left");
+//            PositionChooser.addOption("Right", "right_one");
+//            ShuffleboardConstants.getInstance().autoSelectionLayout
+//                .add("Starting Position?", PositionChooser)
+//                .withPosition(0, 0);
 //        }
-            return null;
-        }
-    }
+//
+//        public Command buildAuto() {
+//            ArrayList<Command> fullRoutine = new ArrayList<>();
+//            String selectedPosition = PositionChooser.getSelected();
+//
+////        if (selectedPosition.equals("far_left")){
+////            return autoCommandFactory.farLeft();
+////        } else if (selectedPosition.equals("middle_one")){
+////            return autoCommandFactory.middleOne();
+////        }
+//            return null;
+//        }
+//    }
 }
