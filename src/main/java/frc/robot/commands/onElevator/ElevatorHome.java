@@ -17,15 +17,16 @@ public class ElevatorHome extends StormCommand {
     public ElevatorHome(Elevator elevator) {
         this.elevator = elevator;
         robotState = RobotState.getInstance();
-        if (elevator != null) {
-            addRequirements(elevator);
-        }
+        skip = safeAddRequirements(elevator);
     }
 
     @Override
     public void initialize() {
         super.initialize();
-        skip = robotState.elevatorHasBeenHomed();
+        if (skip){
+            return;
+        }
+        skip = skip || robotState.elevatorHasBeenHomed();
         if (!skip) {
             elevator.setState(ElevatorState.HOMING);
         } else {

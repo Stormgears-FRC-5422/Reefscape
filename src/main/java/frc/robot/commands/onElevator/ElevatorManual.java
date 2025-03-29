@@ -7,19 +7,21 @@ import frc.robot.subsystems.onElevator.Elevator.ElevatorLevel;
 import frc.utils.StormCommand;
 
 public class ElevatorManual extends StormCommand {
+    private boolean skip;
     private Elevator elevator;
     private ReefscapeJoystick buttonBoard;
     public ElevatorManual(Elevator elevator, ReefscapeJoystick buttonBoard) {
         this.elevator = elevator;
         this.buttonBoard = buttonBoard;
-        if (elevator != null) {
-            addRequirements(elevator);
-        }
+        skip = safeAddRequirements(elevator);
     }
 
     @Override
     public void initialize() {
         super.initialize();
+        if (skip){
+            return;
+        }
         elevator.setTargetPosition(elevator.getCurrentPosition());
         if (Constants.Elevator.useSimpleMotion) {
             elevator.setState(Elevator.ElevatorState.SIMPLE_MOTION);
@@ -53,12 +55,16 @@ public class ElevatorManual extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return skip;
     }
 
     @Override
     public void end(boolean interrupted) {
-        elevator.setState(Elevator.ElevatorState.IDLE);
+        if (!skip){
+            elevator.setState(Elevator.ElevatorState.IDLE);
+        } else if (elevator != null){
+            elevator.setState(Elevator.ElevatorState.UNKNOWN);
+        }
         super.end(interrupted);
     }
 

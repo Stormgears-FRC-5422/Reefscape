@@ -17,15 +17,16 @@ public class CoralIntakeHome extends StormCommand {
         this.coralIntake = coralIntake;
         robotState = RobotState.getInstance();
 
-        if (coralIntake != null) {
-            addRequirements(coralIntake);
-        }
+        skip = safeAddRequirements(coralIntake);
     }
 
     @Override
     public void initialize() {
         super.initialize();
-        skip = robotState.getIntakeWristHasBeenHomed();
+        if (skip){
+            return;
+        }
+        skip = skip || robotState.getIntakeWristHasBeenHomed();
         if (!skip) {
             coralIntake.setState(CoralIntake.IntakeState.HOMING);
         } else {
