@@ -11,6 +11,7 @@ import frc.utils.StormCommand;
 import edu.wpi.first.wpilibj.Timer;
 
 public class CoralIntakeCommand extends StormCommand {
+    private boolean skip;
     /**
      * Creates a new Intake.
      */
@@ -23,15 +24,16 @@ public class CoralIntakeCommand extends StormCommand {
         this.coralIntake = coralIntake;
         this.operation = intake ? IntakeState.INTAKE : IntakeState.OUTTAKE;
         timer = new Timer();
-        if (coralIntake != null) {
-            addRequirements(coralIntake);
-        }
+        skip = safeAddRequirements(coralIntake);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         super.initialize();
+        if (skip){
+            return;
+        }
         console("operation = " + (operation == IntakeState.INTAKE ? "Intake" : "Outtake"));
 
         timer.restart();
@@ -47,6 +49,9 @@ public class CoralIntakeCommand extends StormCommand {
 
     @Override
     public boolean isFinished() {
+        if(skip) {
+            return skip;
+        }
         if (operation == IntakeState.INTAKE) {
             // let the motor run for a few iterations after sensor is triggered to fully align Coral with the base
             if (coralIntake.isLoaded()) {
@@ -68,7 +73,11 @@ public class CoralIntakeCommand extends StormCommand {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        coralIntake.setState(IntakeState.IDLE);
+        if (!skip){
+            coralIntake.setState(IntakeState.IDLE);
+        } else if (coralIntake != null){
+            coralIntake.setState(IntakeState.UNKNOWN);
+        }
         super.end(interrupted);
     }
 

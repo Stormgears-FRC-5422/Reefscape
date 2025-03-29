@@ -38,17 +38,17 @@ public class StormCommand extends Command {
         }
     }
     public boolean safeAddRequirements(Subsystem... subsystems) {
-        boolean isSafe = true;
+        boolean unsafe = false;
         int counter = 0;
         for (Subsystem subsystem : subsystems) {
             if (subsystem == null) {
                 console("arg "+ counter + " is null");
-                isSafe = false;
+                unsafe = true;
             }else {
                 addRequirements(subsystem);
             }
             counter++;
         }
-        return isSafe;
+        return unsafe;
     }
 }

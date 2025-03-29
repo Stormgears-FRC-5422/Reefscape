@@ -5,6 +5,7 @@ import frc.robot.subsystems.onElevator.Elevator.ElevatorLevel;
 import frc.utils.StormCommand;
 
 public class ElevatorMoveToPosition extends StormCommand {
+    private boolean skip;
     protected final Elevator elevatorSubsystem;
     protected final double targetPosition;
 
@@ -12,18 +13,21 @@ public class ElevatorMoveToPosition extends StormCommand {
         this.elevatorSubsystem = elevatorSubsystem;
         this.targetPosition = position;
 
-        if (elevatorSubsystem != null) {
-            addRequirements(elevatorSubsystem);
-        }
+        skip = safeAddRequirements(elevatorSubsystem);
     }
 
     public ElevatorMoveToPosition(Elevator elevatorSubsystem, ElevatorLevel targetLevel) {
         this(elevatorSubsystem, targetLevel.getValue());
+        skip = safeAddRequirements(elevatorSubsystem);
     }
 
     @Override
     public void initialize() {
         super.initialize();
+        if (skip){
+            System.out.println(skip);
+            return;
+        }
         elevatorSubsystem.setTargetPosition(targetPosition);
         elevatorSubsystem.setState(Elevator.ElevatorState.PID_MOTION);
     }
@@ -36,12 +40,16 @@ public class ElevatorMoveToPosition extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return elevatorSubsystem.isAtTarget();
+        return skip || elevatorSubsystem.isAtTarget();
     }
 
     @Override
     public void end(boolean interrupted) {
-        elevatorSubsystem.setState(Elevator.ElevatorState.IDLE);
+        if (!skip){
+            elevatorSubsystem.setState(Elevator.ElevatorState.IDLE);
+        } else if (elevatorSubsystem != null){
+            elevatorSubsystem.setState(Elevator.ElevatorState.UNKNOWN);
+        }
         super.end(interrupted);
     }
 }

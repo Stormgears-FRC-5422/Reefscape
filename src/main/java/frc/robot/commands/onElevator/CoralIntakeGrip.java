@@ -12,6 +12,7 @@ import frc.robot.subsystems.onElevator.CoralIntake.IntakeState;
 import frc.utils.StormCommand;
 
 public class CoralIntakeGrip extends StormCommand {
+    private boolean skip;
     private final CoralIntake coralIntake;
     private final Timer timer;
     private double duration;
@@ -24,15 +25,16 @@ public class CoralIntakeGrip extends StormCommand {
         duration = Constants.Intake.holdRunDuration;
 
         timer = new Timer();
-        if (coralIntake != null) {
-            addRequirements(coralIntake);
-        }
+        skip = safeAddRequirements(coralIntake);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         super.initialize();
+        if (skip){
+            return;
+        }
         earlyExit = robotState.isCoralSensorTriggered();
         timer.reset();
     }
@@ -54,14 +56,18 @@ public class CoralIntakeGrip extends StormCommand {
 
     @Override
     public boolean isFinished() {
-        return (earlyExit ||
+        return skip || (earlyExit ||
             timer.get() > duration);
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        coralIntake.setState(IntakeState.IDLE);
+        if (!skip){
+            coralIntake.setState(IntakeState.IDLE);
+        } else if (coralIntake != null){
+            coralIntake.setState(IntakeState.UNKNOWN);
+        }
         timer.stop();
         timer.reset();
 
