@@ -31,7 +31,7 @@ public class StormCommand extends Command {
     }
 
     public void console(String message) {
-        System.out.println(Timer.getFPGATimestamp() + "Command " + _name + ": " + message);
+        System.out.println(Timer.getFPGATimestamp() + ":Command " + _name + ": " + message);
     }
     public void console(String message, int iterations) {
         if (_count % iterations == 0) {
