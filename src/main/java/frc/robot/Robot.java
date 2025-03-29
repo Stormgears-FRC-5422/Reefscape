@@ -71,28 +71,10 @@ public class Robot extends LoggedRobot {
                 break;
         }
 
-//        AutoCommandFactory.loadTrajectories();
-
         if (Toggles.useAdvantageKit) {
+            logActiveCommand();
             Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
-
-            Map<String, Integer> commandCounts = new HashMap<>();
-            BiConsumer<Command, Boolean> logCommandFunction =
-                (Command command, Boolean active) -> {
-                    String name = command.getName();
-                    int count = commandCounts.getOrDefault(name, 0) + (active ? 1 : -1);
-                    commandCounts.put(name, count);
-                    Logger.recordOutput(
-                        "CommandsUnique/" + name + "_" + Integer.toHexString(command.hashCode()), active);
-                    Logger.recordOutput("CommandsAll/" + name, count > 0);
-                };
-            CommandScheduler.getInstance()
-                .onCommandInitialize((Command command) -> logCommandFunction.accept(command, true));
-            CommandScheduler.getInstance()
-                .onCommandFinish((Command command) -> logCommandFunction.accept(command, false));
-            CommandScheduler.getInstance()
-                .onCommandInterrupt((Command command) -> logCommandFunction.accept(command, false));
-        }
+         }
 
         try {
             robotContainer = new RobotContainer();
@@ -106,6 +88,36 @@ public class Robot extends LoggedRobot {
             e.printStackTrace();
         }
     }
+
+    private void logActiveCommand() {
+        // Log active commands
+        Map<String, Integer> commandCounts = new HashMap<>();
+        BiConsumer<Command, Boolean> logCommandFunction =
+            (Command command, Boolean active) -> {
+                String name = command.getName();
+                int count = commandCounts.getOrDefault(name, 0) + (active ? 1 : -1);
+                commandCounts.put(name, count);
+                Logger.recordOutput(
+                    "CommandsUnique/" + name + "_" + Integer.toHexString(command.hashCode()), active);
+                Logger.recordOutput("CommandsAll/" + name, count > 0);
+            };
+        CommandScheduler.getInstance()
+            .onCommandInitialize(
+                (Command command) -> {
+                    logCommandFunction.accept(command, true);
+                });
+        CommandScheduler.getInstance()
+            .onCommandFinish(
+                (Command command) -> {
+                    logCommandFunction.accept(command, false);
+                });
+        CommandScheduler.getInstance()
+            .onCommandInterrupt(
+                (Command command) -> {
+                    logCommandFunction.accept(command, false);
+                });
+    }
+
 
     @Override
     public void startCompetition() {
