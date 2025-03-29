@@ -100,6 +100,7 @@ public class RobotContainer {
     StormLimelight[] limelights;
 
     AutoCommandFactory autoCommandFactory;
+    private Command lastChooserCommand = null;
 
 
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
@@ -424,11 +425,9 @@ public class RobotContainer {
         robotState.setAlliance(a);
     }
 
-    public void resetInitialPose(Pose2d autoPose) {
+    public void resetInitialPose() {
         Pose2d initialPose;
-        if (autoPose != null) {
-            initialPose = autoPose;
-        } else if (Constants.Debug.debug && !robotState.isAllianceMissing()) {
+        if (Constants.Debug.debug && !robotState.isAllianceMissing()) {
             initialPose = new Pose2d(Constants.Debug.initPoseX, Constants.Debug.initPoseY,
                 Rotation2d.fromDegrees(Constants.Debug.initPoseDegrees));
             initialPose = ReefscapeField.remapPose(initialPose, robotState.getAlliance());
@@ -442,11 +441,21 @@ public class RobotContainer {
             drivetrain.declarePoseIsNow(initialPose);
     }
 
+    public boolean needAutoPoseUdpate() {
+        return lastChooserCommand != autoCommandFactory.getChooserAutoCommand();
+    }
+
+    public void updateAutoPose() {
+        if (autoCommandFactory.getAutoInitialPose() != null) {
+            lastChooserCommand = autoCommandFactory.getChooserAutoCommand();
+            drivetrain.declarePoseIsNow(autoCommandFactory.getAutoInitialPose());
+        }
+    }
+
     public void onAllianceUpdated() {
         if (!RobotState.getInstance().isAllianceMissing()) {
             if (autoCommandFactory != null) {
                 autoCommandFactory.createAutoFactory();
-                drivetrain.declarePoseIsNow(AutoCommandFactory.getAutoInitialPose());
                 RobotState.getInstance().setAllianceUpdated(true);
             }
         }

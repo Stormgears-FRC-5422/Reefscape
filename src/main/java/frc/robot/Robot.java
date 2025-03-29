@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.autos.AutoCommandFactory;
 import frc.robot.joysticks.IllegalJoystickTypeException;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -78,7 +77,7 @@ public class Robot extends LoggedRobot {
             robotContainer = new RobotContainer();
             // We might not have enough information for this here, but it will reset in teleop init if necessary
             robotContainer.updateAlliance();
-            robotContainer.resetInitialPose(null);
+            robotContainer.resetInitialPose();
         } catch (Exception e) {
             robotContainer = null;
             console("can't create RobotContainer. Eating the following exception:");
@@ -151,6 +150,9 @@ public class Robot extends LoggedRobot {
                     || RobotState.getInstance().getSimMode() == StateSimMode.SIMULATION)) {
                 if (!RobotState.getInstance().didAllianceUpdated()) {
                     robotContainer.onAllianceUpdated();
+                }
+                if(robotContainer.needAutoPoseUdpate()){
+                    robotContainer.updateAutoPose();
                 }
             }
             if (robotContainer != null) {
@@ -233,7 +235,7 @@ public class Robot extends LoggedRobot {
         // we (usually) want to reset.
         if (!state.getDidAuto()) {
             console("Resetting initial pose in teleopInit");
-            robotContainer.resetInitialPose(null);
+            robotContainer.resetInitialPose();
         } else {
             console("NOT Resetting initial pose in teleopInit because we did autonomous already");
         }

@@ -16,6 +16,7 @@ import frc.robot.subsystems.onElevator.CoralIntake;
 import frc.robot.subsystems.onElevator.Elevator;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import java.util.Optional;
 
 public class AutoCommandFactory {
@@ -30,6 +31,7 @@ public class AutoCommandFactory {
     private int autoReefFirstTagId = -1;
     private int autoReefSecondTagId = -1;
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+    private Command lastChooserCommand = null;
 
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase,
@@ -60,8 +62,21 @@ public class AutoCommandFactory {
 
     }
 
-    public Command getAutoCommand(){
+    public Command getChooserAutoCommand() {
         return autoChooser.get();
+    }
+
+    public Optional<? extends Trajectory<?>> getChooserTrajectory() {
+        if (autoChooser.get() == rightOne()) {
+            return loadTrajectory("right_one");
+        }
+        if (autoChooser.get() == middleOne()) {
+            return loadTrajectory("middle_one");
+        } else if (autoChooser.get() == leftTwo()) {
+            return loadTrajectory("far_left");
+        } else {
+            return Optional.empty();
+        }
     }
 
     public Command middleOne() {
@@ -157,13 +172,14 @@ public class AutoCommandFactory {
         cachedTrajectory = loadTrajectory(cacheName);
     }
 
-    public static Pose2d getAutoInitialPose() {
-        if (cachedTrajectory.isPresent() &&
-            cachedTrajectory.get().getInitialPose(RobotState.createInstance()
-                .isAllianceRed()).isPresent()) {
-
-            return cachedTrajectory.get().getInitialPose(RobotState.createInstance()
-                .isAllianceRed()).get();
+    public Pose2d getAutoInitialPose() {
+        if (getChooserAutoCommand() != lastChooserCommand) {
+            lastChooserCommand = getChooserAutoCommand();
+            if (getChooserTrajectory().isPresent() &&
+                getChooserTrajectory().get().getInitialPose(RobotState.getInstance().isAllianceRed()).isPresent()) {
+                return (getChooserTrajectory().get()
+                    .getInitialPose(RobotState.getInstance().isAllianceRed()).get());
+            }
         }
         return null;
     }
