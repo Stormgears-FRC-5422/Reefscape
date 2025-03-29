@@ -89,7 +89,7 @@ public class AutoReef extends AutoAlign {
                 console("Didn't detect any reef AprilTag :(");
             }
         } else {
-            System.out.println("No April tag detected :(");
+            console("No April tag detected :(");
         }
         targetTagID = -1;
 

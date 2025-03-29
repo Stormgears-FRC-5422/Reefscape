@@ -1,5 +1,6 @@
 package frc.utils;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
@@ -30,7 +31,7 @@ public class StormCommand extends Command {
     }
 
     public void console(String message) {
-        System.out.println("Command " + _name + ": " + message);
+        System.out.println(Timer.getFPGATimestamp() + "Command " + _name + ": " + message);
     }
     public void console(String message, int iterations) {
         if (_count % iterations == 0) {

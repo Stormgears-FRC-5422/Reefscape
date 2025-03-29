@@ -25,7 +25,7 @@ public class ElevatorMoveToPosition extends StormCommand {
     public void initialize() {
         super.initialize();
         if (skip){
-            System.out.println(skip);
+            console("Elevator:" + skip);
             return;
         }
         elevatorSubsystem.setTargetPosition(targetPosition);
