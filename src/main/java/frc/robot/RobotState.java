@@ -63,6 +63,7 @@ public class RobotState extends SubsystemBase {
     private boolean isClimberFullyForward;
     private boolean isClimberLockedIn;
     private boolean didAllianceUpdated = false;
+    private RobotState.StateAlliance lastAlliance = StateAlliance.MISSING;
 
 
 
@@ -158,6 +159,14 @@ public class RobotState extends SubsystemBase {
 
     public boolean isAllianceBlue() {
         return m_alliance == StateAlliance.BLUE;
+    }
+
+    public void setLastAlliance(){
+        lastAlliance = getAlliance();
+    }
+
+    public boolean didAllianceChange(){
+        return getAlliance()!=lastAlliance;
     }
 
     public boolean isAllianceRed() {

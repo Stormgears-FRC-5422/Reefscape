@@ -15,7 +15,6 @@ import frc.robot.commands.onElevator.*;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.autos.AutoCommandFactory;
 import frc.robot.commands.autos.AutoReef;
-import frc.robot.commands.autos.AutoReefCommand;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.commands.*;
 import frc.robot.joysticks.IllegalJoystickTypeException;
@@ -81,11 +80,6 @@ public class RobotContainer {
     AlgaeIntakeMoveToPosition algaeIntakeCommand;
     AlgaeIntakeMoveToPosition algaeOuttakeCommand;
 
-    // Auto
-    AutoStationCommand autoStationCommand;
-    AutoProcessorCommand autoProcessorCommand;
-    AutoReefCommand autoReefCommand;
-    AutoAlgaeReefCommand autoAlgaeReefCommand;
 
     // Elevator
     ElevatorDiagnostic moveUpElevator;
@@ -127,10 +121,6 @@ public class RobotContainer {
         }
 
         if (Toggles.useAlgaeIntake) {
-            //    new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
-            //    new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
-            //    new Trigger(() -> buttonBoard.algaeIntake()).onTrue(coralIntakeHoldUp.andThen(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOMING)));
-            //    new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(coralIntakeHoldUp.andThen(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD)));
             new Trigger(() -> buttonBoard.autoProcessor()).onTrue(coralIntakeHoldUp.andThen(new AlgaeIntakeHome(algaeIntake)));
             new Trigger(() -> buttonBoard.algaeIntake()).whileTrue(new AlgaeIntakeDiagnostic(algaeIntake, true));
             new Trigger(() -> buttonBoard.algaeOuttake()).whileTrue(new AlgaeIntakeDiagnostic(algaeIntake, false));
@@ -159,22 +149,6 @@ public class RobotContainer {
             toLevel4 = new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4);
         }
 
-        if (Toggles.useAutoReef) {
-            new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT);
-        }
-
-        if (Toggles.useAutoStation) {
-            autoStationCommand = new AutoStationCommand();
-        }
-
-        if (Toggles.useAutoAlgaeReef) {
-            autoAlgaeReefCommand = new AutoAlgaeReefCommand();
-        }
-
-        if (Toggles.useAutoProcessor) {
-            autoProcessorCommand = new AutoProcessorCommand();
-        }
-
         if (Toggles.useClimber) {
             climber = new Climber();
         }
@@ -186,14 +160,12 @@ public class RobotContainer {
             console("NOT using StormNet");
         }
 
-        AutoCommandFactory autoCommandFactoryDummy = new AutoCommandFactory(drivetrain,
+        autoCommandFactory = new AutoCommandFactory(drivetrain,
             elevator,
             coralIntake,
             visionSubsystem,
             joystick,
             algaeIntake);
-        AutoCommandFactory.loadTrajectories();
-
 
         console("constructor ended");
     }
@@ -203,12 +175,6 @@ public class RobotContainer {
 
         if (Toggles.useDrive) {
             new Trigger(() -> joystick.cancelAutoReef()).onTrue(new DummyDriveCommand(drivetrain));
-//            new Trigger(() -> joystick.coralIntake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-//            new Trigger(() -> joystick.coralOuttake()).onTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-//            new Trigger(() -> joystick.zeroWheels()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
-//            new Trigger(() -> joystick.autoReef()).onTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-//            new Trigger(() -> joystick.cancelAutoReef()).onTrue(new InstantCommand(()->robotState.cancelAutoReef(true)));
-
         }
 
         if (Toggles.useDrive) {
@@ -233,82 +199,8 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-//        return new SequentialCommandGroup(
-//            new PrintCommand("Homing and drive started"),
-//            new ParallelCommandGroup(
-//                new ConditionalCommand(
-//                    new ElevatorHome(elevator),
-//                    new PrintCommand("Elevator disabled"),
-//                    () -> Toggles.useElevator
-//                ),
-//                new ConditionalCommand(
-//                    new CoralIntakeHome(coralIntake),
-//                    new PrintCommand("CoralIntake disabled"),
-//                    () -> Toggles.useCoralIntake
-//                ),
-//                new AutoCommandFactory(drivetrain,autoReefCommand)
-//            ),
-//            new PrintCommand("Homing and drive ended"),
-//            new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT),
-//            new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
-//            Commands.race(
-//                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
-//                new CoralIntakeCommand(coralIntake, false)
-//            )
-//        );
-//        return autoCommandFactory.farLeft();
-//        return new SequentialCommandGroup(
-//            new PrintCommand("Homing and drive started"),
-//            new ParallelCommandGroup(
-//                new ConditionalCommand(
-//                    new ElevatorHome(elevator),
-//                    new PrintCommand("Elevator disabled"),
-//                    () -> Toggles.useElevator
-//                ),
-//                new ConditionalCommand(
-//                    new AlgaeIntakeHome(algaeIntake),
-//                    new PrintCommand("AlgaeIntake disabled"),
-//                    () -> Toggles.useAlgaeIntake
-//                ),
-//                new ConditionalCommand(
-//                    new CoralIntakeHome(coralIntake),
-//                    new PrintCommand("CoralIntake disabled"),
-//                    () -> Toggles.useCoralIntake
-//                )),
-////            new AutoCommandFactory(drivetrain,
-////                new AutoReef(drivetrain, visionSubsystem, joystick, () -> FieldConstants.Side.RIGHT)
-////                , new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL4),
-////                new ElevatorMoveToPosition(elevator, ElevatorLevel.LEVEL1),
-////                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL4),
-////                new ElevatorMoveToHold(elevator, ElevatorLevel.LEVEL1),
-////                coralIntakeCommand,
-////                coralOuttakeCommand
-////            ).farLeft());
-////           autoCommandFactory.farLeft());
-//            return new AutoCommandFactory(drivetrain,
-//                elevator,
-//                coralIntake,
-//                visionSubsystem,
-//                joystick,
-//                algaeIntake).farLeft();
-        return new AutoCommandFactory(drivetrain,
-            elevator,
-            coralIntake,
-            visionSubsystem,
-            joystick,
-            algaeIntake)
-            .choosePath(Constants.Auto.path);
-//.farLeft();
+        return autoCommandFactory.getChooserAutoCommand();
 
-
-//        return  new SequentialCommandGroup(new AutoCommandFactory(drivetrain,
-//            elevator,
-//            coralIntake,
-//            visionSubsystem,
-//            joystick)
-//        .rightOne(),
-//        new AutoAlign(drivetrain, FieldConstants.getReefTargetPose(FieldConstants.Side.RIGHT,9), joystick)
-//        );
     }
 
     public void configJoysticks() throws IllegalJoystickTypeException {
@@ -348,18 +240,14 @@ public class RobotContainer {
         if (Toggles.useCoralIntake) {
             new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand
                 .andThen(coralIntakeHoldDown));
-            //            new Trigger(() -> buttonBoard.coralIntake()).onTrue(coralIntakeCommand
-            //                .andThen(new ParallelCommandGroup(coralIntakeHoldDown, coralIntakeGrip)));
             new Trigger(() -> buttonBoard.coralOuttake()).onTrue(coralOuttakeCommand);
         }
 
         if (Toggles.useAlgaeIntake) {
             new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
             new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
-//            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.STOW));
             new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD));
             new Trigger(() -> buttonBoard.autoProcessor()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.REEF_PICKUP));
-//            new Trigger(() -> buttonBoard.autoAlgaeReef()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.GROUND_PICKUP));
         }
 
         if (Toggles.useElevator) {
@@ -381,29 +269,6 @@ public class RobotContainer {
                     () -> (buttonBoard.isRightReef() ? FieldConstants.Side.RIGHT : FieldConstants.Side.LEFT)
                 )
             );
-//            new Trigger(() -> buttonBoard.autoReef()).onTrue(
-//                new AutoAlign(drivetrain,
-//                    FieldConstants.getReefTargetPose(FieldConstants.Side.RIGHT, 10), joystick));
-//
-
-        }
-
-        if (Toggles.useAutoStation) {
-            new Trigger(() -> buttonBoard.autoStation()).onTrue(autoStationCommand);
-        }
-
-//        if (Toggles.useAutoReef) {
-//            // quick auto reef command, outtakes to level 4, right reef with a single button press
-//            new Trigger(() -> buttonBoard.autoReef()).onTrue(new AutoReef(drivetrain, visionSubsystem,
-//                joystick, FieldConstants.Side.LEFT));
-//        }
-
-        if (Toggles.useAutoProcessor) {
-            new Trigger(() -> buttonBoard.autoProcessor()).onTrue(autoProcessorCommand);
-        }
-
-        if (Toggles.useAutoAlgaeReef) {
-            new Trigger(() -> buttonBoard.autoAlgaeReef()).onTrue(autoAlgaeReefCommand);
         }
     }
 
