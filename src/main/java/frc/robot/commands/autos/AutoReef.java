@@ -35,6 +35,7 @@ public class AutoReef extends AutoAlign {
         } else {
             super.addRequirements(drivetrainBase);
         }
+        System.out.println("AutoReef constructor");
     }
 
     public AutoReef(DrivetrainBase drivetrainBase,
@@ -43,7 +44,6 @@ public class AutoReef extends AutoAlign {
                     Supplier<FieldConstants.Side> side) {
         this(drivetrainBase, visionSubsystem, joystick, side, -1);
     }
-
 
     @Override
     public void initialize() {
