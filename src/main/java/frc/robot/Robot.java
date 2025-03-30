@@ -176,22 +176,22 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-//        if (iteration % 25 == 0) {
-//            if (robotContainer != null) {
-//                robotContainer.updateAlliance();
-//                robotContainer.updateAutoPose();
-//            }
-//        }
-//
-//        if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
-//            try {
-//                console("disabledPeriodic: Configuring Joystick and ButtonBoard");
-//                robotContainer.configJoysticks();
-//                state.setJoystickAndButtonBoardConfigured(true);
-//            } catch (IllegalJoystickTypeException e) {
-//                console("disabledPeriodic: Error configuring Joystick and button board" + e.getMessage());
-//            }
-//        }
+        if (iteration % 25 == 0) {
+            if (robotContainer != null) {
+                robotContainer.updateAlliance();
+                robotContainer.updateAutoPose();
+            }
+        }
+
+        if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
+            try {
+                console("disabledPeriodic: Configuring Joystick and ButtonBoard");
+                robotContainer.configJoysticks();
+                state.setJoystickAndButtonBoardConfigured(true);
+            } catch (IllegalJoystickTypeException e) {
+                console("disabledPeriodic: Error configuring Joystick and button board" + e.getMessage());
+            }
+        }
     }
 
     @Override
