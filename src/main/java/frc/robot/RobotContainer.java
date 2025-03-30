@@ -326,6 +326,16 @@ public class RobotContainer {
         }
     }
 
+    public void onJoysticksAvailable(){
+        try {
+            console("disabledPeriodic: Configuring Joystick and ButtonBoard");
+            configJoysticks();
+            robotState.setJoystickAndButtonBoardConfigured(true);
+        } catch (IllegalJoystickTypeException e) {
+            console("disabledPeriodic: Error configuring Joystick and button board" + e.getMessage());
+        }
+    }
+
     // Sequence called from teleopInit
     public void autoHome() {
         new SequentialCommandGroup(

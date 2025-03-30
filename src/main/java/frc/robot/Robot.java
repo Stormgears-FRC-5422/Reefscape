@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.joysticks.IllegalJoystickTypeException;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -72,8 +71,8 @@ public class Robot extends LoggedRobot {
         }
 
         if (Toggles.useAdvantageKit) {
-            logActiveCommand();
             Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+            logActiveCommand();
          }
 
         try {
@@ -184,13 +183,7 @@ public class Robot extends LoggedRobot {
         }
 
         if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
-            try {
-                console("disabledPeriodic: Configuring Joystick and ButtonBoard");
-                robotContainer.configJoysticks();
-                state.setJoystickAndButtonBoardConfigured(true);
-            } catch (IllegalJoystickTypeException e) {
-                console("disabledPeriodic: Error configuring Joystick and button board" + e.getMessage());
-            }
+            robotContainer.onJoysticksAvailable();
         }
     }
 
@@ -211,13 +204,7 @@ public class Robot extends LoggedRobot {
     public void driverStationConnected() {
         super.driverStationConnected();
         if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
-            try {
-                console("driverStationConnected: Configuring Joystick and ButtonBoard");
-                robotContainer.configJoysticks();
-                state.setJoystickAndButtonBoardConfigured(true);
-            } catch (IllegalJoystickTypeException e) {
-                console("driverStationConnected: Error configuring Joystick and button board" + e.getMessage());
-            }
+            robotContainer.onJoysticksAvailable();
         }
     }
 
