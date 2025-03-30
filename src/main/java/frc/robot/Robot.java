@@ -182,7 +182,7 @@ public class Robot extends LoggedRobot {
             }
         }
 
-        if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
+        if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected() && robotContainer != null) {
             robotContainer.onJoysticksAvailable();
         }
     }
@@ -203,7 +203,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void driverStationConnected() {
         super.driverStationConnected();
-        if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
+        if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected() && robotContainer != null) {
             robotContainer.onJoysticksAvailable();
         }
     }
