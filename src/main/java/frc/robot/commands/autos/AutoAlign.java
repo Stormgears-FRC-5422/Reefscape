@@ -194,12 +194,12 @@ public class AutoAlign extends StormCommand {
         drivetrainBase.drive(new ChassisSpeeds(driveVelocity.getX(), driveVelocity.getY(), thetaVelocity),
             true,1);
 
-//        Logger.recordOutput("AutoAlign/driveVeloicty", driveVelocity);
-//        Logger.recordOutput("AutoAlign/thetaVelocity", thetaVelocity);
-//        Logger.recordOutput("AutoAlign/ffScalar", ffScaler);
-//        Logger.recordOutput("AutoAlign/currentGoalPose", currentGoalPose);
-//        Logger.recordOutput("AutoAlign/currentDistance", distance);
-//        Logger.recordOutput("AutoAlign/driveVelocityScaler", driveVelocityScalar);
+        Logger.recordOutput("AutoAlign/driveVeloicty", driveVelocity);
+        Logger.recordOutput("AutoAlign/thetaVelocity", thetaVelocity);
+        Logger.recordOutput("AutoAlign/ffScalar", ffScaler);
+        Logger.recordOutput("AutoAlign/currentGoalPose", currentGoalPose);
+        Logger.recordOutput("AutoAlign/currentDistance", distance);
+        Logger.recordOutput("AutoAlign/driveVelocityScaler", driveVelocityScalar);
     }
 
     @Override

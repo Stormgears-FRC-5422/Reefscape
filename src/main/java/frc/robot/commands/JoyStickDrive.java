@@ -6,7 +6,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.ButtonBoard;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
-import frc.robot.ShuffleboardConstants;
 import frc.robot.joysticks.ReefscapeJoystick;
 import frc.robot.subsystems.drive.DrivetrainBase;
 

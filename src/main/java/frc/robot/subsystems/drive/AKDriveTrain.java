@@ -112,24 +112,23 @@ public class AKDriveTrain extends DrivetrainBase {
     public void periodic() {
         super.periodic();
 
-        driveInternal.setChassisSpeeds(m_chassisSpeeds);
         driveInternal.runVelocity(m_chassisSpeeds);
         driveInternal.periodic();
 
         Pose2d currentPose = getPose();
         m_state.setPose(currentPose);
 
-        RobotState.VisionMeasurement m = m_state.getVisionMeasurment();
-        Pose2d visionPose = new Pose2d();
-        if (m != null) {
-            visionPose = m.visionRobotPoseMeters();
-            addVisionMeasurement(visionPose, m.timestampSeconds(), m.visionMeasurementStdDevs());
-        }
+//        RobotState.VisionMeasurement m = m_state.getVisionMeasurment();
+//        Pose2d visionPose = new Pose2d();
+//        if (m != null) {
+//            visionPose = m.visionRobotPoseMeters();
+//            addVisionMeasurement(visionPose, m.timestampSeconds(), m.visionMeasurementStdDevs());
+//        }
 
-        publisher.set(getPose());
+//        publisher.set(getPose());
         // TODO - add a config to add these during simulation
-        robotTelemetry.telemeterize(currentPose);
-        visionTelemetry.telemeterize(visionPose);
+//        robotTelemetry.telemeterize(currentPose);
+//        visionTelemetry.telemeterize(visionPose);
     }
 
     @Override

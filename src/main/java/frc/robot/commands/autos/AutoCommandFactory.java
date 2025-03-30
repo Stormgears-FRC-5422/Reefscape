@@ -15,6 +15,7 @@ import frc.robot.subsystems.onElevator.AlgaeIntake;
 import frc.robot.subsystems.onElevator.CoralIntake;
 import frc.robot.subsystems.onElevator.Elevator;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import java.util.Optional;
@@ -31,8 +32,11 @@ public class AutoCommandFactory {
     private int autoReefFirstTagId = -1;
     private int autoReefSecondTagId = -1;
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
-    private Command lastChooserCommand = null;
-
+    @AutoLogOutput
+    private boolean isDirty;
+    private Command chosenCommand;
+    private Optional<? extends Trajectory<?>> chosenTrajectory;
+    private String chooserTrajectoryName;
 
     public AutoCommandFactory(DrivetrainBase drivetrainBase,
                               Elevator elevator,
@@ -47,23 +51,70 @@ public class AutoCommandFactory {
         this.elevator = elevator;
         this.algaeIntake = algaeIntake;
 
+        setDirty(true);
+
+    }
+
+    public void initialize() {
+        autoFactory = new AutoFactory(
+            drivetrainBase::getPose,
+            drivetrainBase::declarePoseIsNow,
+            drivetrainBase::followTrajectory,
+            RobotState.createInstance().isAllianceRed(),
+            drivetrainBase
+        );
+        loadTrajectories();
+        autoChooser.addDefaultOption("Nothing", null);
+        autoChooser.addOption("middle_one", middleOne());
+        autoChooser.addOption("far_left", leftTwo());
+        autoChooser.addOption("right_one", rightOne());
+        autoChooser.getSendableChooser().onChange(listener -> {
+                chooserTrajectoryName = listener;
+                setDirty(true);
+            }
+        );
+        if (RobotState.getInstance().isAllianceRed()) {
+            autoReefFirstTagId = 9;
+            autoReefSecondTagId = 8;
+        } else {
+            autoReefFirstTagId = 22;
+            autoReefSecondTagId = 17;
+        }
+        setDirty(true);
+        System.out.println("Creating Auto Factory");
     }
 
     public Command getChooserAutoCommand() {
-        return autoChooser.get();
+        if (isDirty()) {
+            clean();
+        }
+        return chosenCommand;
+    }
+
+    public void clean() {
+        if (isDirty()) {
+            chosenCommand = autoChooser.get();
+            chosenTrajectory = makeChooserTrajectory();
+            setDirty(false);
+            if(drivetrainBase!=null && getAutoInitialPose()!=null){
+                drivetrainBase.declarePoseIsNow(getAutoInitialPose());
+            }
+        }
     }
 
     public Optional<? extends Trajectory<?>> getChooserTrajectory() {
-        if (autoChooser.get() == rightOne()) {
-            return loadTrajectory("right_one");
+        if (isDirty()) {
+            clean();
         }
-        if (autoChooser.get() == middleOne()) {
-            return loadTrajectory("middle_one");
-        } else if (autoChooser.get() == leftTwo()) {
-            return loadTrajectory("far_left");
-        } else {
-            return Optional.empty();
+
+        return chosenTrajectory;
+    }
+
+    private Optional<? extends Trajectory<?>> makeChooserTrajectory() {
+        if (chooserTrajectoryName != null) {
+            return loadTrajectory(chooserTrajectoryName);
         }
+        return null;
     }
 
     private Command middleOne() {
@@ -169,38 +220,20 @@ public class AutoCommandFactory {
     }
 
     public Pose2d getAutoInitialPose() {
-        if (getChooserAutoCommand() != lastChooserCommand) {
-            lastChooserCommand = getChooserAutoCommand();
-            if (getChooserTrajectory().isPresent() &&
-                getChooserTrajectory().get().getInitialPose(RobotState.getInstance().isAllianceRed()).isPresent()) {
-                return (getChooserTrajectory().get()
-                    .getInitialPose(RobotState.getInstance().isAllianceRed()).get());
-            }
+        if (getChooserTrajectory()!=null && getChooserTrajectory().isPresent() &&
+            getChooserTrajectory().get().getInitialPose(RobotState.getInstance().isAllianceRed()).isPresent()) {
+            return (getChooserTrajectory().get()
+                .getInitialPose(RobotState.getInstance().isAllianceRed()).get());
         }
         return null;
     }
 
-    public void createAutoFactory() {
-        autoFactory = new AutoFactory(
-            drivetrainBase::getPose,
-            drivetrainBase::declarePoseIsNow,
-            drivetrainBase::followTrajectory,
-            RobotState.createInstance().isAllianceRed(),
-            drivetrainBase
-        );
-        loadTrajectories();
-        autoChooser.addDefaultOption("Nothing", null);
-        autoChooser.addOption("MiddleOne", middleOne());
-        autoChooser.addOption("LeftTwo", leftTwo());
-        autoChooser.addOption("RightOne", rightOne());
-        if (RobotState.getInstance().isAllianceRed()) {
-            autoReefFirstTagId = 9;
-            autoReefSecondTagId = 8;
-        } else {
-            autoReefFirstTagId = 22;
-            autoReefSecondTagId = 17;
-        }
-        System.out.println("Creating Auto Factory");
+    public boolean isDirty() {
+        return isDirty;
+    }
+
+    public void setDirty(boolean isDirty) {
+        this.isDirty = isDirty;
     }
 
 

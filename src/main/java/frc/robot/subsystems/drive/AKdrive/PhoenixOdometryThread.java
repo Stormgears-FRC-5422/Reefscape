@@ -122,7 +122,7 @@ public class PhoenixOdometryThread extends Thread {
       signalsLock.lock();
       try {
         if (isCANFD && phoenixSignals.length > 0) {
-          BaseStatusSignal.waitForAll(2.0 / AKDriveInternal.ODOMETRY_FREQUENCY, phoenixSignals);
+          BaseStatusSignal.waitForAll(2, phoenixSignals);
 //          BaseStatusSignal.waitForAll(0.020, phoenixSignals);
         } else {
           // "waitForAll" does not support blocking on multiple signals with a bus

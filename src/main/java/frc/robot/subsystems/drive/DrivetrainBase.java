@@ -4,7 +4,6 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,12 +11,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.Drive;
 import frc.robot.RobotState;
-import frc.robot.ShuffleboardConstants;
 import frc.robot.subsystems.drive.ctrGenerated.ReefscapeTunerConstants;
 import frc.utils.StormSubsystem;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -35,7 +32,6 @@ public abstract class DrivetrainBase extends StormSubsystem {
 
     public static boolean driveFlip = true;
     public static boolean fieldRelativeOn = true;
-    protected final ShuffleboardTab tab;
     protected
 
     final RobotState m_state;
@@ -52,7 +48,6 @@ public abstract class DrivetrainBase extends StormSubsystem {
 
     public DrivetrainBase() {
         setDriveSpeedScale(Drive.driveSpeedScale);
-        tab = ShuffleboardConstants.getInstance().drivetrainTab;
         m_state = RobotState.getInstance();
         setDriveFlip(false);
         setFieldRelativeOn(false);

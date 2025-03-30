@@ -193,9 +193,9 @@ public class AKDriveInternal implements Subsystem {
 
         // Stop moving when disabled
         if (DriverStation.isDisabled()) {
-            for (var module : modules) {
-                module.stop();
-            }
+//            for (var module : modules) {
+//                module.stop();
+//            }
         }
 
         // Log empty setpoint states when disabled
@@ -395,10 +395,6 @@ public class AKDriveInternal implements Subsystem {
 
     protected ChassisSpeeds getChassisSpeeds() {
         return kinematics.toChassisSpeeds(getModuleStates());
-    }
-
-    public void setChassisSpeeds(ChassisSpeeds m_chassisSpeeds) {
-        this.m_chassisSpeeds = m_chassisSpeeds;
     }
 
     /**

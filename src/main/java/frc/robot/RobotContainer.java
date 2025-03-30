@@ -96,7 +96,6 @@ public class RobotContainer {
     AutoCommandFactory autoCommandFactory;
     private Command lastChooserCommand = null;
 
-
     public RobotContainer() throws IllegalDriveTypeException, IllegalJoystickTypeException {
         console("constructor started");
         robotState = RobotState.getInstance();
@@ -288,7 +287,15 @@ public class RobotContainer {
         }
 
         robotState.setAlliance(a);
+
+        if (!RobotState.getInstance().isAllianceMissing()) {
+            if (!RobotState.getInstance().didAllianceUpdated() || RobotState.getInstance().didAllianceChange()) {
+                onAllianceUpdated();
+                RobotState.getInstance().setLastAlliance();
+            }
+        }
     }
+
 
     public void resetInitialPose() {
         Pose2d initialPose;
@@ -306,23 +313,16 @@ public class RobotContainer {
             drivetrain.declarePoseIsNow(initialPose);
     }
 
-    public boolean needAutoPoseUdpate() {
-        return lastChooserCommand != autoCommandFactory.getChooserAutoCommand();
-    }
-
     public void updateAutoPose() {
         if (autoCommandFactory.getAutoInitialPose() != null) {
-            lastChooserCommand = autoCommandFactory.getChooserAutoCommand();
-            drivetrain.declarePoseIsNow(autoCommandFactory.getAutoInitialPose());
+            autoCommandFactory.getAutoInitialPose();
         }
     }
 
     public void onAllianceUpdated() {
-        if (!RobotState.getInstance().isAllianceMissing()) {
-            if (autoCommandFactory != null) {
-                autoCommandFactory.createAutoFactory();
-                RobotState.getInstance().setAllianceUpdated(true);
-            }
+        if (autoCommandFactory != null) {
+            autoCommandFactory.initialize();
+            RobotState.getInstance().setAllianceUpdated(true);
         }
     }
 

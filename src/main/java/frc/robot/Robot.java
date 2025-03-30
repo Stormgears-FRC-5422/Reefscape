@@ -176,33 +176,22 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-        if (iteration % 25 == 0) {
-            if (!RobotState.getInstance().isAllianceMissing() &&
-                (!RobotState.getInstance().getDidAuto()
-                    || RobotState.getInstance().getSimMode() == StateSimMode.AKIT_SIM
-                    || RobotState.getInstance().getSimMode() == StateSimMode.SIMULATION)) {
-                if (!RobotState.getInstance().didAllianceUpdated() || RobotState.getInstance().didAllianceChange()) {
-                    robotContainer.onAllianceUpdated();
-                    RobotState.getInstance().setLastAlliance();
-                }
-                if(robotContainer.needAutoPoseUdpate()){
-                    robotContainer.updateAutoPose();
-                }
-            }
-            if (robotContainer != null) {
-                robotContainer.updateAlliance();
-            }
-        }
-
-        if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
-            try {
-                console("disabledPeriodic: Configuring Joystick and ButtonBoard");
-                robotContainer.configJoysticks();
-                state.setJoystickAndButtonBoardConfigured(true);
-            } catch (IllegalJoystickTypeException e) {
-                console("disabledPeriodic: Error configuring Joystick and button board" + e.getMessage());
-            }
-        }
+//        if (iteration % 25 == 0) {
+//            if (robotContainer != null) {
+//                robotContainer.updateAlliance();
+//                robotContainer.updateAutoPose();
+//            }
+//        }
+//
+//        if (!state.isJoystickAndButtonBoardConfigured() && isAllJoyStickAndButtonBoardConnected()) {
+//            try {
+//                console("disabledPeriodic: Configuring Joystick and ButtonBoard");
+//                robotContainer.configJoysticks();
+//                state.setJoystickAndButtonBoardConfigured(true);
+//            } catch (IllegalJoystickTypeException e) {
+//                console("disabledPeriodic: Error configuring Joystick and button board" + e.getMessage());
+//            }
+//        }
     }
 
     @Override

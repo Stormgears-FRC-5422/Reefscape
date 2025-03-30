@@ -220,7 +220,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     inputs.turnAppliedVolts = turnAppliedVolts.getValueAsDouble();
     inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
 
-    // Update odometry inputs
+//     Update odometry inputs
     inputs.odometryTimestamps =
         timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
     inputs.odometryDrivePositionsRad =
@@ -266,11 +266,6 @@ public class ModuleIOTalonFX implements ModuleIO {
               .withVelocity(velocityRotPerSec).
               withFeedForward(feedForward);
         });
-
-      Logger.recordOutput("Module " + driveTalon.getDeviceID() + " PID error",
-          driveTalon.getClosedLoopError().getValue());
-      Logger.recordOutput("Module " + driveTalon.getDeviceID() + "measured acceleration",
-          driveTalon.getAcceleration().getValue());
   }
 
   @Override
