@@ -47,11 +47,11 @@ public class AKTunerConstantsTest {
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
 
-//    private static final Slot0Configs FRsteerGains = new Slot0Configs()
+    //    private static final Slot0Configs FRsteerGains = new Slot0Configs()
 //        .withKP(175).withKI(0.0).withKD(9.58)
 //        .withKS(0.0).withKV(0.0).withKA(0)
 //        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
-        private static final Slot0Configs FRsteerGains = new Slot0Configs()
+    private static final Slot0Configs FRsteerGains = new Slot0Configs()
         .withKP(4000).withKI(0.0).withKD(50)
         .withKS(0).withKV(0.0).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
@@ -66,7 +66,7 @@ public class AKTunerConstantsTest {
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
 
-//    private static final Slot0Configs BRsteerGains = new Slot0Configs()
+    //    private static final Slot0Configs BRsteerGains = new Slot0Configs()
 //        .withKP(200).withKI(0.0).withKD(7.46)
 //        .withKS(0.0).withKV(0.0).withKA(0)
 //        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
@@ -85,11 +85,11 @@ public class AKTunerConstantsTest {
 
 //    3.48
 
-//    private static final Slot0Configs BLsteerGains = new Slot0Configs()
+    //    private static final Slot0Configs BLsteerGains = new Slot0Configs()
 //        .withKP(87).withKI(0.0).withKD(11)
 //        .withKS(3.6).withKV(0.0).withKA(0)
 //        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
-private static final Slot0Configs BLsteerGains = new Slot0Configs()
+    private static final Slot0Configs BLsteerGains = new Slot0Configs()
         .withKP(4000).withKI(0.0).withKD(50)
         .withKS(0).withKV(0.0).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
@@ -101,7 +101,6 @@ private static final Slot0Configs BLsteerGains = new Slot0Configs()
         .withKP(45).withKI(0).withKD(0.0)
         .withKS(0).withKV(0.0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
-
 
 
     // The closed-loop output type to use for the steer motors;
@@ -153,7 +152,14 @@ private static final Slot0Configs BLsteerGains = new Slot0Configs()
 
     private static final double kDriveGearRatio = 6.746031746031747;
     private static final double kSteerGearRatio = 21.428571428571427;
-    private static final Distance kWheelRadius = Inches.of(2);
+//    private static final Distance kWheelRadiusFL = Inches.of(1.97949);
+//    private static final Distance kWheelRadiusBL = Inches.of(2.04911);
+//    private static final Distance kWheelRadiusFR = Inches.of(2.0093);
+//    private static final Distance kWheelRadiusBR = Inches.of(2.0093);
+    private static final Distance kWheelRadiusFL = Inches.of(2);
+    private static final Distance kWheelRadiusBL = Inches.of(2);
+    private static final Distance kWheelRadiusFR = Inches.of(2);
+    private static final Distance kWheelRadiusBR = Inches.of(2);
 
     private static final boolean kInvertLeftSide = false;
     private static final boolean kInvertRightSide = true;
@@ -172,12 +178,78 @@ private static final Slot0Configs BLsteerGains = new Slot0Configs()
         .withPigeon2Id(kPigeonId)
         .withPigeon2Configs(pigeonConfigs);
 
-    private static SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> sharedSwerveModuleConstantsFactory() {
+    private static SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> FLSwerveModuleConstantsFactory() {
         return new SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
             .withDriveMotorGearRatio(kDriveGearRatio)
             .withSteerMotorGearRatio(kSteerGearRatio)
             .withCouplingGearRatio(kCoupleRatio)
-            .withWheelRadius(kWheelRadius)
+            .withWheelRadius(kWheelRadiusFL)
+            .withSteerMotorClosedLoopOutput(kSteerClosedLoopOutput)
+            .withDriveMotorClosedLoopOutput(kDriveClosedLoopOutput)
+            .withSlipCurrent(kSlipCurrent)
+            .withSpeedAt12Volts(kSpeedAt12Volts)
+            .withDriveMotorType(kDriveMotorType)
+            .withSteerMotorType(kSteerMotorType)
+            .withFeedbackSource(kSteerFeedbackType)
+            .withDriveMotorInitialConfigs(driveInitialConfigs)
+            .withSteerMotorInitialConfigs(steerInitialConfigs)
+            .withEncoderInitialConfigs(encoderInitialConfigs)
+            .withSteerInertia(kSteerInertia)
+            .withDriveInertia(kDriveInertia)
+            .withSteerFrictionVoltage(kSteerFrictionVoltage)
+            .withDriveFrictionVoltage(kDriveFrictionVoltage);
+    }
+
+    private static SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> BLSwerveModuleConstantsFactory() {
+        return new SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
+            .withDriveMotorGearRatio(kDriveGearRatio)
+            .withSteerMotorGearRatio(kSteerGearRatio)
+            .withCouplingGearRatio(kCoupleRatio)
+            .withWheelRadius(kWheelRadiusBL)
+            .withSteerMotorClosedLoopOutput(kSteerClosedLoopOutput)
+            .withDriveMotorClosedLoopOutput(kDriveClosedLoopOutput)
+            .withSlipCurrent(kSlipCurrent)
+            .withSpeedAt12Volts(kSpeedAt12Volts)
+            .withDriveMotorType(kDriveMotorType)
+            .withSteerMotorType(kSteerMotorType)
+            .withFeedbackSource(kSteerFeedbackType)
+            .withDriveMotorInitialConfigs(driveInitialConfigs)
+            .withSteerMotorInitialConfigs(steerInitialConfigs)
+            .withEncoderInitialConfigs(encoderInitialConfigs)
+            .withSteerInertia(kSteerInertia)
+            .withDriveInertia(kDriveInertia)
+            .withSteerFrictionVoltage(kSteerFrictionVoltage)
+            .withDriveFrictionVoltage(kDriveFrictionVoltage);
+    }
+
+    private static SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> FRSwerveModuleConstantsFactory() {
+        return new SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
+            .withDriveMotorGearRatio(kDriveGearRatio)
+            .withSteerMotorGearRatio(kSteerGearRatio)
+            .withCouplingGearRatio(kCoupleRatio)
+            .withWheelRadius(kWheelRadiusFR)
+            .withSteerMotorClosedLoopOutput(kSteerClosedLoopOutput)
+            .withDriveMotorClosedLoopOutput(kDriveClosedLoopOutput)
+            .withSlipCurrent(kSlipCurrent)
+            .withSpeedAt12Volts(kSpeedAt12Volts)
+            .withDriveMotorType(kDriveMotorType)
+            .withSteerMotorType(kSteerMotorType)
+            .withFeedbackSource(kSteerFeedbackType)
+            .withDriveMotorInitialConfigs(driveInitialConfigs)
+            .withSteerMotorInitialConfigs(steerInitialConfigs)
+            .withEncoderInitialConfigs(encoderInitialConfigs)
+            .withSteerInertia(kSteerInertia)
+            .withDriveInertia(kDriveInertia)
+            .withSteerFrictionVoltage(kSteerFrictionVoltage)
+            .withDriveFrictionVoltage(kDriveFrictionVoltage);
+    }
+
+    private static SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> BRSwerveModuleConstantsFactory() {
+        return new SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
+            .withDriveMotorGearRatio(kDriveGearRatio)
+            .withSteerMotorGearRatio(kSteerGearRatio)
+            .withCouplingGearRatio(kCoupleRatio)
+            .withWheelRadius(kWheelRadiusBR)
             .withSteerMotorClosedLoopOutput(kSteerClosedLoopOutput)
             .withDriveMotorClosedLoopOutput(kDriveClosedLoopOutput)
             .withSlipCurrent(kSlipCurrent)
@@ -195,22 +267,22 @@ private static final Slot0Configs BLsteerGains = new Slot0Configs()
     }
 
     private static final SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> FLConstantCreator =
-        sharedSwerveModuleConstantsFactory()
+        FLSwerveModuleConstantsFactory()
             .withSteerMotorGains(FLsteerGains)
             .withDriveMotorGains(FLdriveGains);
 
     private static final SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> FRConstantCreator =
-        sharedSwerveModuleConstantsFactory()
+        FRSwerveModuleConstantsFactory()
             .withSteerMotorGains(FRsteerGains)
             .withDriveMotorGains(FRdriveGains);
 
     private static final SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> BRConstantCreator =
-        sharedSwerveModuleConstantsFactory()
+        BRSwerveModuleConstantsFactory()
             .withSteerMotorGains(BRsteerGains)
             .withDriveMotorGains(BRdriveGains);
 
     private static final SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> BLConstantCreator =
-        sharedSwerveModuleConstantsFactory()
+        BLSwerveModuleConstantsFactory()
             .withSteerMotorGains(BLsteerGains)
             .withDriveMotorGains(BLdriveGains);
 
@@ -302,8 +374,8 @@ private static final Slot0Configs BLsteerGains = new Slot0Configs()
          * the devices themselves. If they need the devices, they can access them through
          * getters in the classes.
          *
-         * @param drivetrainConstants   Drivetrain-wide constants for the swerve drive
-         * @param modules               Constants for each specific module
+         * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
+         * @param modules             Constants for each specific module
          */
         public TunerSwerveDrivetrain(
             SwerveDrivetrainConstants drivetrainConstants,

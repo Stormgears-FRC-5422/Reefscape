@@ -89,8 +89,6 @@ public class RobotContainer {
     ElevatorMoveToHold toLevel2;
     ElevatorMoveToHold toLevel3;
     ElevatorMoveToHold toLevel4;
-    AlgaeIntakeBasicMove intake;
-    AlgaeIntakeBasicMove outtake;
 
     //Limelights
     StormLimelight[] limelights;
@@ -123,8 +121,6 @@ public class RobotContainer {
 
         if (Toggles.useAlgaeIntake) {
             // new Trigger(() -> buttonBoard.autoProcessor()).onTrue(coralIntakeHoldUp.andThen(new AlgaeIntakeHome(algaeIntake)));
-           intake = new AlgaeIntakeBasicMove(algaeIntake, true);
-           outtake = new AlgaeIntakeBasicMove(algaeIntake, false);
         }
 
         if (Constants.Toggles.useLights) {
@@ -199,8 +195,8 @@ public class RobotContainer {
         }
 
         if(Toggles.useAlgaeIntake){
-            new Trigger(() -> buttonBoard.algaeIntake()).whileTrue(intake);
-            new Trigger(() -> buttonBoard.algaeOuttake()).whileTrue(outtake);
+//            new Trigger(() -> buttonBoard.algaeIntake()).whileTrue(intake);
+//            new Trigger(() -> buttonBoard.algaeOuttake()).whileTrue(outtake);
         }
     }
 
@@ -253,7 +249,12 @@ public class RobotContainer {
             new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
             new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
             new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD));
-            new Trigger(() -> buttonBoard.autoProcessor()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.REEF_PICKUP));
+        }
+
+
+        if (Toggles.useClimber){
+            new Trigger(() -> buttonBoard.autoProcessor()).whileTrue(new Climb(climber, false));
+
         }
 
         if (Toggles.useElevator) {

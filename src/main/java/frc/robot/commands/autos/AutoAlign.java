@@ -28,8 +28,8 @@ public class AutoAlign extends StormCommand {
     private final ProfiledPIDController thetaController;
     private final double maxVelocity = 6;
     private Translation2d driverAdjustment;
-    private final double ffMinDistance = 0.2;
-    private final double ffMaxDistance = 0.8;
+    private final double ffMinDistance = 0.0;
+    private final double ffMaxDistance = 1;
     private Translation2d lastSetpointTranslation;
     private final double loopTimeSec = 0.02;
     private Translation2d feedForward;
@@ -52,11 +52,11 @@ public class AutoAlign extends StormCommand {
 
         this.drivetrainBase = drivetrainBase;
         translationPID = new ProfiledPIDController(2, 0.0, 0.1,
-            new TrapezoidProfile.Constraints(3, 3));
+            new TrapezoidProfile.Constraints(4.5, 4.5));
         translationPID.setTolerance(linearTolerance);
 
         thetaController = new ProfiledPIDController(1.2, 0.0, 0.1,
-            new TrapezoidProfile.Constraints(3, 3));
+            new TrapezoidProfile.Constraints(4.5, 4.5));
         thetaController.setTolerance(thetaTolerance);
 
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
@@ -154,7 +154,7 @@ public class AutoAlign extends StormCommand {
             MathUtil.clamp(
                 translationPID.getSetpoint().velocity * ffScaler
                     + translationPID.calculate(distance, 0.0),
-                -3, 3);
+                -4.5, 4.5);
 //        Logger.recordOutput("AutoAlign/ff addition", translationPID.getSetpoint().velocity * ffScaler);
 //        Logger.recordOutput("AutoAlign/PID calculation", +translationPID.calculate(distance, 0.0));
 
@@ -174,7 +174,7 @@ public class AutoAlign extends StormCommand {
                 thetaController.getSetpoint().velocity * ffScaler
                     + thetaController.calculate(
                     currentPose.getRotation().getRadians(), currentGoalPose.getRotation().getRadians()),
-                -3, 3);
+                -4.5, 4.5);
 
 
 //        we also add feedforward so the velocity of the actual robot changes not only the goal pose
