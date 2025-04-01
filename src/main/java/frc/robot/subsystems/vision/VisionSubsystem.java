@@ -10,6 +10,7 @@ import frc.robot.RobotState;
 import frc.utils.StormSubsystem;
 import frc.utils.vision.LimelightExtra;
 import frc.utils.vision.LimelightHelpers;
+import lombok.extern.java.Log;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Arrays;
@@ -185,8 +186,8 @@ public class VisionSubsystem extends StormSubsystem {
             bestTag = -1;
         }
         Logger.recordOutput("Closest Tag", bestTag);
-
-        robotState.setBestTag(bestTag);
+        Logger.recordOutput("BestTag Pose", FieldConstants.getPoseTag(bestTag));
+        robotState.setBestTag(bestTag);;
 
         boolean rejectPose = false;
         Pose2d visionPose = null;
@@ -226,7 +227,8 @@ public class VisionSubsystem extends StormSubsystem {
 //        MegaTag2 does not give rotation data (comes from gyro)
             angularStdDev *= angularStdDevMegatag2Factor;
             if (visionPose != null && robotState.getVisionEnabled()) {
-                poseEstimator.addVisionMeasurement(visionPose, timeStamp,
+                Pose2d temp = new Pose2d(visionPose.getTranslation(), new Rotation2d(0));
+                poseEstimator.addVisionMeasurement(temp, timeStamp,
                     VecBuilder.fill(linearStdDev, linearStdDev, 1e6));
             }
         }
