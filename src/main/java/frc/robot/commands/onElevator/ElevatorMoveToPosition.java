@@ -18,7 +18,6 @@ public class ElevatorMoveToPosition extends StormCommand {
 
     public ElevatorMoveToPosition(Elevator elevatorSubsystem, ElevatorLevel targetLevel) {
         this(elevatorSubsystem, targetLevel.getValue());
-        skip = safeAddRequirements(elevatorSubsystem);
     }
 
     @Override
