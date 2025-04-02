@@ -36,6 +36,7 @@ public class VisionSubsystem extends StormSubsystem {
     static Pose2d estimatorPose;
     SwerveDrivePoseEstimator poseEstimator;
     int bestTag;
+    LimelightHelpers.RawFiducial[] rawFiducials;
 
     public VisionSubsystem(SwerveDrivePoseEstimator swerveDrivePoseEstimator, StormLimelight... stormLimelights) {
         LimelightHelpers.setLEDMode_PipelineControl("");
@@ -54,8 +55,9 @@ public class VisionSubsystem extends StormSubsystem {
 //        } else {
 //            return Optional.empty();
 //        }
-        if (LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightID) != null) {
-            return Optional.of(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightID));
+        LimelightHelpers.PoseEstimate a = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightID);
+        if (a != null) {
+            return Optional.of(a);
         }
         return Optional.empty();
     }
@@ -102,8 +104,7 @@ public class VisionSubsystem extends StormSubsystem {
 //        } else {
 //            return 0;
 //        }
-        if (estimatorPose != null && getRawFiducials(limelightID) != null) {
-            LimelightHelpers.RawFiducial[] rawFiducials = getRawFiducials(limelightID);
+        if (estimatorPose != null && rawFiducials != null) {
             double[] a = Arrays.stream(rawFiducials).mapToDouble(f -> f.id).toArray();
             double[] distances = new double[a.length];
             if (a.length == 0) {
@@ -179,7 +180,7 @@ public class VisionSubsystem extends StormSubsystem {
 //                ? getMT2().get().pose
 //                : null
 //        );
-        LimelightHelpers.RawFiducial[] rawFiducials = getRawFiducials(limelightID);
+        rawFiducials = getRawFiducials(limelightID);
         if (rawFiducials.length > 0) {
             bestTag = rawFiducials[0].id;
         } else {
