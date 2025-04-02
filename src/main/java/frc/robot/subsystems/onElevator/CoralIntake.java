@@ -183,6 +183,11 @@ public class CoralIntake extends StormSubsystem {
                 rollerSpeed = 0;
                 wristSpeed = Intake.wristSpeed;
             }
+            case HOLD_FOR_ALGAE -> {
+                console("***** HOLD_FOR_ALGAE state *****");
+                rollerSpeed = -Intake.rollerSpeed;
+                wristSpeed = Intake.wristSpeed;
+            }
             case IDLE -> {
                 rollerSpeed = 0.0;
                 wristSpeed = 0.0;
@@ -231,7 +236,7 @@ public class CoralIntake extends StormSubsystem {
     }
 
     public enum IntakeState {
-        UNKNOWN, IDLE, HOMING, HOME, GO_HOME, HOLD_UP, INTAKE, OUTTAKE, GRIP_CORAL, READY;
+        UNKNOWN, IDLE, HOMING, HOME, GO_HOME, HOLD_UP, INTAKE, OUTTAKE, GRIP_CORAL, READY, HOLD_FOR_ALGAE;
     }
 
     public enum IntakePosition {
