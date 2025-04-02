@@ -93,6 +93,13 @@ public class FieldConstants {
         return null;
     }
 
+    public static Pose2d getAlgaeReefTargetPose(int tagId) {
+        if ((tagId <= 11 && tagId >= 6) || (tagId >= 17 && tagId <= 22)) {
+            return getPoseTag(tagId).transformBy(new Transform2d(new Translation2d(xAprilTagOffset, 0), new Rotation2d(Math.PI)));
+        }
+        return null;
+    }
+
     public Pose2d getStationTargetPose(int id){
         if (id == 12 || id == 13 || id == 1 || id == 2) {
             return getPoseTag(id).transformBy(new Transform2d(new Translation2d(0.5,0), new Rotation2d(Math.PI)));
