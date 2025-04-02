@@ -6,6 +6,7 @@ import com.revrobotics.spark.config.LimitSwitchConfig.Type;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.SparkConstants;
 import frc.robot.RobotState;
@@ -28,6 +29,10 @@ public class Elevator extends StormSubsystem {
     private double currentPosition;
     private ElevatorState currentState;
     private SparkMaxConfig elevatorLeaderConfig;
+    private double currentVelocity;
+    private double actualVelocity;
+    private double lastTimestamp = 0;
+    private double lastPosition;
 
     public Elevator() {
         robotState = RobotState.getInstance();
@@ -70,19 +75,11 @@ public class Elevator extends StormSubsystem {
         double maxVPct = maxV / SparkConstants.NominalVoltage; // percentage (-1 to 1)
 
         // These functions can optionally take a slot - e.g. ClosedLoopSlot.kSlot0 is the default
-        if (Constants.Elevator.pidOpenLoop) {
-            elevatorLeaderConfig.closedLoop
-                .p(kP)
-                .i(kI)
-                .d(kD)
-                .outputRange(-maxVPct, maxVPct);
-        } else {
-            elevatorLeaderConfig.closedLoop
-                .p(0)
-                .i(0)
-                .d(0)
-                .outputRange(-maxVPct, maxVPct);
-        }
+        elevatorLeaderConfig.closedLoop
+            .p(kP)
+            .i(kI)
+            .d(kD)
+            .outputRange(-maxVPct, maxVPct);
 
         elevatorLeaderConfig.closedLoopRampRate(Constants.Elevator.closedLoopRampRate);
 
@@ -105,13 +102,14 @@ public class Elevator extends StormSubsystem {
     @Override
     public void periodic() {
         super.periodic();
-
+        double now = Timer.getFPGATimestamp();
         currentPosition = leaderEncoder.getPosition();
-        double ffVoltage = 0;
+        currentVelocity = leaderEncoder.getVelocity();
 
-//        if (Constants.Debug.debug && robotState.getPeriod() != RobotState.StatePeriod.DISABLED) {
-//            console("currentPosition = " + currentPosition, 50);
-//        }
+        // This is more accurate than asking the SparkMax. Sigh...
+        actualVelocity = 60 * (currentPosition - lastPosition) / (now - lastTimestamp);
+
+        double ffVoltage = 0;
 
         switch (currentState) {
             case HOMING:
@@ -142,10 +140,14 @@ public class Elevator extends StormSubsystem {
                 elevatorLeader.set(0);
         }
 
+        Logger.recordOutput("Elevator/TargetPosition", targetPosition);
         Logger.recordOutput("Elevator/LeaderEncoder", currentPosition);
-        Logger.recordOutput("Elevator/LeaderVelocity", leaderEncoder.getVelocity());
-        Logger.recordOutput("Elevator/TargetLevel", targetPosition);
+        Logger.recordOutput("Elevator/LeaderVelocity", currentVelocity);
+        Logger.recordOutput("Elevator/ActualVelocity", actualVelocity);
         Logger.recordOutput("Elevator/Feedforward", ffVoltage);
+
+        lastTimestamp = now;
+        lastPosition = currentPosition;
     }
 
     public void setState(ElevatorState state) {
@@ -158,7 +160,7 @@ public class Elevator extends StormSubsystem {
                 hasBeenHomed = false;
                 robotState.setElevatorHasBeenHomed(hasBeenHomed);
                 enableSoftLimits(true);
-                targetPosition = Double.NaN;
+                targetPosition = ElevatorLevel.UNKNOWN.position;
                 break;
 
             case HOMING:
@@ -184,7 +186,7 @@ public class Elevator extends StormSubsystem {
 
             case IDLE:
                 console("***** IDLE state *****");
-                targetPosition = Double.NaN;
+                targetPosition = ElevatorLevel.UNKNOWN.position;
                 stopElevator();
                 break;
         }
@@ -211,7 +213,9 @@ public class Elevator extends StormSubsystem {
     }
 
     public boolean isAtTarget() {
-        return Math.abs(currentPosition - targetPosition) < Constants.Elevator.allowedError;
+        // It isn't enought to be at the right location. We need to be stopped, too.
+        return ( Math.abs(currentPosition - targetPosition) < Constants.Elevator.allowedError ) &&
+               ( Math.abs(actualVelocity) < Constants.Elevator.velocityThreshold);
     }
 
 
@@ -257,7 +261,7 @@ public class Elevator extends StormSubsystem {
     }
 
     public enum ElevatorLevel {
-        UNKNOWN(Double.NaN),
+        UNKNOWN(-1.0),
         FLOOR(Double.NEGATIVE_INFINITY),
         HOME(Constants.Elevator.home),
         BOTTOM(Constants.Elevator.bottom),
