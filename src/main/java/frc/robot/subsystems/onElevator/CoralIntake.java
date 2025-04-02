@@ -107,6 +107,7 @@ public class CoralIntake extends StormSubsystem {
             case OUTTAKE:
             case GO_HOME:
             case HOLD_UP:
+            case HOLD_FOR_ALGAE:
             case READY:
                 if (hasBeenHomed) {
                     rollerSpark.set(rollerSpeed);

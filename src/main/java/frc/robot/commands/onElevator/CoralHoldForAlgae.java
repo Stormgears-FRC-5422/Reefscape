@@ -18,13 +18,17 @@ public class CoralHoldForAlgae extends StormCommand {
     @Override
     public void initialize() {
         super.initialize();
+        if (skip){
+            return;
+        }
+        coralIntake.setState(CoralIntake.IntakeState.HOLD_FOR_ALGAE);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
         super.execute();
-        coralIntake.setState(CoralIntake.IntakeState.HOLD_FOR_ALGAE);
+
     }
 
     @Override
