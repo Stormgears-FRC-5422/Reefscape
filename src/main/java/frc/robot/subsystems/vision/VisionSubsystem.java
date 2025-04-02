@@ -227,7 +227,7 @@ public class VisionSubsystem extends StormSubsystem {
 //        MegaTag2 does not give rotation data (comes from gyro)
             angularStdDev *= angularStdDevMegatag2Factor;
             if (visionPose != null && robotState.getVisionEnabled()) {
-                Pose2d temp = new Pose2d(visionPose.getTranslation(), new Rotation2d(0));
+                Pose2d temp = new Pose2d(visionPose.getTranslation(), new Rotation2d());
                 poseEstimator.addVisionMeasurement(temp, timeStamp,
                     VecBuilder.fill(linearStdDev, linearStdDev, 1e6));
             }

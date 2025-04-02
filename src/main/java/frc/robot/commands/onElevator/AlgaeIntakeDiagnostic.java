@@ -8,6 +8,7 @@ import frc.robot.subsystems.onElevator.AlgaeIntake.IntakeState;
 public class AlgaeIntakeDiagnostic extends StormCommand {
     public AlgaeIntake algaeIntake;
     private boolean up;
+
     public AlgaeIntakeDiagnostic(AlgaeIntake algaeIntake, boolean up) {
         this.algaeIntake = algaeIntake;
         this.up = up;
@@ -17,6 +18,7 @@ public class AlgaeIntakeDiagnostic extends StormCommand {
     }
     @Override
     public void initialize() {
+        super.initialize();
         algaeIntake.setState(up ? IntakeState.UP : IntakeState.DOWN);
     }
     @Override

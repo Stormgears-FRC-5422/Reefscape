@@ -193,9 +193,9 @@ public class AKDriveInternal implements Subsystem {
 
         // Stop moving when disabled
         if (DriverStation.isDisabled()) {
-//            for (var module : modules) {
-//                module.stop();
-//            }
+            for (var module : modules) {
+                module.stop();
+            }
         }
 
         // Log empty setpoint states when disabled
