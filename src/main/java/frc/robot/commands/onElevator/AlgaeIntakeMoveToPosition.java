@@ -16,7 +16,7 @@ public class AlgaeIntakeMoveToPosition extends StormCommand {
         this.targetPosition = position;
 
         if (algaeIntake != null) {
-            addRequirements(algaeIntake);
+            safeAddRequirements(algaeIntake);
         }
     }
 
@@ -30,12 +30,7 @@ public class AlgaeIntakeMoveToPosition extends StormCommand {
         super.initialize();
         console("targetPosition = " + targetPosition);
         algaeIntake.setTargetPosition(targetPosition);
-        if (targetPosition > algaeIntake.getCurrentPosition()) {
-            algaeIntake.setState(AlgaeIntake.IntakeState.DOWN);
-        }
-        else {
-            algaeIntake.setState(AlgaeIntake.IntakeState.UP);
-        }
+        algaeIntake.setState(AlgaeIntake.IntakeState.SIMPLE_MOVE);
     }
 
     // Called once the command ends or is interrupted.

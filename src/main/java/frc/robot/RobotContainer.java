@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.autos.AutoAlgaeReef;
 import frc.robot.commands.onElevator.*;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.autos.AutoCommandFactory;
@@ -64,6 +65,8 @@ public class RobotContainer {
     // **********
     private CoralIntake coralIntake;
     private AlgaeIntake algaeIntake;
+    private AlgaeIntakeDiagnostic algaeIntakeDiagnosticDown;
+    private AlgaeIntakeDiagnostic algaeIntakeDiagnosticUp;
     private Elevator elevator;
     private ColorSensor colorSensor;
 
@@ -120,6 +123,9 @@ public class RobotContainer {
         }
 
         if (Toggles.useAlgaeIntake) {
+            algaeIntake = new AlgaeIntake();
+            algaeIntakeDiagnosticDown = new AlgaeIntakeDiagnostic(algaeIntake, false);
+            algaeIntakeDiagnosticUp = new AlgaeIntakeDiagnostic(algaeIntake, true);
             // new Trigger(() -> buttonBoard.autoProcessor()).onTrue(coralIntakeHoldUp.andThen(new AlgaeIntakeHome(algaeIntake)));
         }
 
@@ -194,7 +200,7 @@ public class RobotContainer {
             }
         }
 
-        if(Toggles.useAlgaeIntake){
+        if (Toggles.useAlgaeIntake) {
 //            new Trigger(() -> buttonBoard.algaeIntake()).whileTrue(intake);
 //            new Trigger(() -> buttonBoard.algaeOuttake()).whileTrue(outtake);
         }
@@ -246,13 +252,34 @@ public class RobotContainer {
         }
 
         if (Toggles.useAlgaeIntake) {
-            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
-            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
-            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD));
+//            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
+            new Trigger(() -> buttonBoard.algaeIntake()).whileTrue(algaeIntakeDiagnosticUp);
+            new Trigger(() -> buttonBoard.algaeOuttake()).whileTrue(algaeIntakeDiagnosticDown);
+//            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
+//            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD));
+        }
+
+        if (Toggles.useAutoAlgaeReef) {
+            new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                    new ParallelRaceGroup(
+                        new AutoAlgaeReef(drivetrain, visionSubsystem, joystick),
+                        new ElevatorMoveToHold(elevator, 7.45)
+                    ),
+                    new AlgaeIntakeMoveToPosition(algaeIntake, -9)
+                ),
+                new CoralHoldForAlgae(coralIntake),
+                new ParallelRaceGroup(
+                    new ElevatorMoveToHold(elevator, 12.69),
+                    new WaitCommand(0.3)
+                        .andThen(new AlgaeIntakeMoveToPosition(algaeIntake, -3))
+                )
+            );
+
         }
 
 
-        if (Toggles.useClimber){
+        if (Toggles.useClimber) {
             new Trigger(() -> buttonBoard.autoProcessor()).whileTrue(new Climb(climber, false));
 
         }
@@ -334,7 +361,7 @@ public class RobotContainer {
         }
     }
 
-    public void onJoysticksAvailable(){
+    public void onJoysticksAvailable() {
         try {
             console("disabledPeriodic: Configuring Joystick and ButtonBoard");
             configJoysticks();

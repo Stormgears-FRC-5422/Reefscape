@@ -147,25 +147,21 @@ public class AlgaeIntake extends StormSubsystem {
                 break;
 
             case PID_MOTION:
-                if (hasBeenHomed) {
+//                if (hasBeenHomed) {
                     ClosedLoopSlot slot;
                     ffVoltage = feedForward_loaded.calculate(getTheta(), 0); // 0 here basically gives us gravity compensation
                     slot = loadedSlot;
 
                     controller.setReference(targetPosition,
                         SparkBase.ControlType.kPosition, slot, ffVoltage);
-                } else {
-                    console("Stubbornly refusing to move before homed!", 25);
-                }
+//                } else {
+//                    console("Stubbornly refusing to move before homed!", 25);
+//                }
                 break;
 
-            case UP, DOWN:
-                if (hasBeenHomed) {
-//                        ffVoltage = computeFeedForwardVoltage(getTheta());
-                    algaeSpark.set(motorSpeed);
-                }
+            case UP, DOWN, SIMPLE_MOVE:
+                algaeSpark.set(motorSpeed);
                 break;
-
             default:
                 algaeSpark.set(0);
         }
@@ -224,6 +220,15 @@ public class AlgaeIntake extends StormSubsystem {
             }
             case DOWN -> {
                 motorSpeed = -Constants.AlgaeIntake.speed;
+            }
+            case SIMPLE_MOVE -> {
+                if(currentPosition>targetPosition){
+                    motorSpeed = -Constants.AlgaeIntake.speed;
+                    setSoftLimit(targetPosition, false);
+                }else {
+                    motorSpeed = Constants.AlgaeIntake.speed;
+                    setSoftLimit(targetPosition, true);
+                }
             }
         }
     }
@@ -310,12 +315,39 @@ public class AlgaeIntake extends StormSubsystem {
     }
 
     public void enableSoftLimits(boolean enable) {
+//        algaeConfig.softLimit
+//            .forwardSoftLimit(IntakeTarget.HOME.getValue())
+//            .forwardSoftLimitEnabled(enable)
+//            .reverseSoftLimit(IntakeTarget.LOWEST.getValue())
+//            .reverseSoftLimitEnabled(enable);
+//
+//        algaeSpark.configure(algaeConfig, SparkBase.ResetMode.kNoResetSafeParameters,
+//            SparkBase.PersistMode.kNoPersistParameters);
         algaeConfig.softLimit
             .forwardSoftLimit(IntakeTarget.HOME.getValue())
-            .forwardSoftLimitEnabled(enable)
+            .forwardSoftLimitEnabled(false)
             .reverseSoftLimit(IntakeTarget.LOWEST.getValue())
-            .reverseSoftLimitEnabled(enable);
+            .reverseSoftLimitEnabled(false);
 
+        algaeSpark.configure(algaeConfig, SparkBase.ResetMode.kNoResetSafeParameters,
+            SparkBase.PersistMode.kNoPersistParameters);
+    }
+
+    public void setSoftLimit(double position, boolean forward){
+        if (forward){
+            algaeConfig.softLimit
+                .forwardSoftLimit(position)
+                .forwardSoftLimitEnabled(true)
+                .reverseSoftLimit(IntakeTarget.LOWEST.getValue())
+                .reverseSoftLimitEnabled(false);
+
+        }else {
+            algaeConfig.softLimit
+                .forwardSoftLimit(IntakeTarget.HOME.getValue())
+                .forwardSoftLimitEnabled(false)
+                .reverseSoftLimit(position)
+                .reverseSoftLimitEnabled(true);
+        }
         algaeSpark.configure(algaeConfig, SparkBase.ResetMode.kNoResetSafeParameters,
             SparkBase.PersistMode.kNoPersistParameters);
     }
@@ -350,7 +382,8 @@ public class AlgaeIntake extends StormSubsystem {
         UP,
         DOWN,
         PID_MOTION,
-        REEF_PICKUP
+        REEF_PICKUP,
+        SIMPLE_MOVE
     }
 }
 
