@@ -10,7 +10,7 @@ public class Climb extends StormCommand {
     RobotState state;
     boolean forward = false;
     int count = 0;
-    boolean isTriggered;
+    boolean hasTriggered;
 
     public Climb(Climber c, boolean forward) {
         climber = c;
@@ -21,9 +21,10 @@ public class Climb extends StormCommand {
 
     @Override
     public void initialize() {
-        isTriggered = false;
-        count = 0;
         super.initialize();
+        hasTriggered = false;
+        count = 0;
+
         if (forward) {
             climber.setState(Climber.ClimberState.PULLING);
         } else {
@@ -33,20 +34,22 @@ public class Climb extends StormCommand {
 
     @Override
     public void execute() {
-        if(RobotState.getInstance().isClimberLockedIn()){
-            isTriggered = RobotState.getInstance().isClimberLockedIn();
+        if(state.isClimberLockedIn()){
+            hasTriggered = RobotState.getInstance().isClimberLockedIn();
         }
         if (forward) {
-            if (isTriggered) {
+            if (hasTriggered) {
                 climber.setState(Climber.ClimberState.PUSHING);
                 count++;
             }
         }
+
+        state.setClimberHasTriggered(hasTriggered);
     }
 
     @Override
     public boolean isFinished() {
-        if (isTriggered) {
+        if (hasTriggered) {
             return count > Constants.Climber.timeOut;
         }
         return false;
