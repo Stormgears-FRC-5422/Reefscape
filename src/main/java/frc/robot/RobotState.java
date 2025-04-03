@@ -62,6 +62,7 @@ public class RobotState extends SubsystemBase {
     private double lidarOffsetAngle;
     private boolean isClimberFullyForward;
     private boolean isClimberLockedIn;
+    private boolean climberHasTriggered;
     private boolean didAllianceUpdated = false;
     private RobotState.StateAlliance lastAlliance = StateAlliance.MISSING;
 
@@ -109,6 +110,14 @@ public class RobotState extends SubsystemBase {
 
     public void setClimberLockedIn(boolean isClimberLockedIn){
         this.isClimberLockedIn = isClimberLockedIn;
+    }
+
+    public void setClimberHasTriggered(boolean climberHasTriggered){
+        this.climberHasTriggered = climberHasTriggered;
+    }
+
+    public boolean getClimberHasTriggered(){
+        return climberHasTriggered;
     }
 
     public boolean isJoystickAndButtonBoardConfigured() {

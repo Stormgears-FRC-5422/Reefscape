@@ -91,10 +91,9 @@ public class Lights extends StormSubsystem {
         // Modify bottom view of strip based on april tag detection/alignment
         setAlignmentStatus();
 
-        if(m_robotState.isClimberLockedIn()){
+        if(m_robotState.isClimberLockedIn() || m_robotState.getClimberHasTriggered()){
             setRainbow();
-        }
-        if(m_robotState.isClimberFullyForward()){
+        } else if(m_robotState.isClimberFullyForward()){
             setClimberOut();
         }
 //        // Modify top view of strip based on elevator status
