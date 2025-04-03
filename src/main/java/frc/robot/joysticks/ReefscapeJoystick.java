@@ -60,7 +60,7 @@ public abstract class ReefscapeJoystick {
         return false;
     }
 
-    public boolean isAutoMode() {
+    public boolean isAlgaeHigh(){
         return false;
     }
 
@@ -77,38 +77,6 @@ public abstract class ReefscapeJoystick {
     }
 
     public boolean elevatorLevel4() {
-        return false;
-    }
-
-    public boolean elevatorLevel1AutoRight() {
-        return false;
-    }
-
-    public boolean elevatorLevel2AutoRight() {
-        return false;
-    }
-
-    public boolean elevatorLevel3AutoRight() {
-        return false;
-    }
-
-    public boolean elevatorLevel4AutoRight() {
-        return false;
-    }
-
-    public boolean elevatorLevel1AutoLeft() {
-        return false;
-    }
-
-    public boolean elevatorLevel2AutoLeft() {
-        return false;
-    }
-
-    public boolean elevatorLevel3AutoLeft() {
-        return false;
-    }
-
-    public boolean elevatorLevel4AutoLeft() {
         return false;
     }
 

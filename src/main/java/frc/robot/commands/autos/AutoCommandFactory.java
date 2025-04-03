@@ -32,7 +32,7 @@ public class AutoCommandFactory {
     private int autoReefFirstTagIdLeft = -1;
     private int autoReefSecondTagIdLeft = -1;
     private int autoReefFirstTagIdRight = -1;
-    private int autoReefSecondTagIdRight= -1;
+    private int autoReefSecondTagIdRight = -1;
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
     @AutoLogOutput
     private boolean isDirty;
@@ -103,7 +103,7 @@ public class AutoCommandFactory {
             chosenCommand = autoChooser.get();
             chosenTrajectory = makeChooserTrajectory();
             setDirty(false);
-            if(drivetrainBase!=null && getAutoInitialPose()!=null){
+            if (drivetrainBase != null && getAutoInitialPose() != null) {
                 drivetrainBase.declarePoseIsNow(getAutoInitialPose());
             }
         }
@@ -149,7 +149,12 @@ public class AutoCommandFactory {
             new ConditionalCommand(
                 new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL1),
                 new PrintCommand("Elevator disabled"),
-                () -> Constants.Toggles.useElevator)
+                () -> Constants.Toggles.useElevator),
+            autoFactory.trajectoryCmd("middleBack"),
+            new WaitCommand(0.7),
+            new AutoAlgae(coralIntake,
+                algaeIntake,
+                drivetrainBase, vis, joystick, elevator, () -> false).autoAlgaeCommand(()-> false)
         );
     }
 
@@ -192,9 +197,9 @@ public class AutoCommandFactory {
                 new PrintCommand("far left"),
                 new ParallelCommandGroup(
                     new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT,
-                        autoReefFirstTagIdLeft).andThen(new InstantCommand(()->autoReefDone=true))
+                        autoReefFirstTagIdLeft).andThen(new InstantCommand(() -> autoReefDone = true))
                     ,
-                    home().andThen(new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL3)).until(()->autoReefDone)),
+                    home().andThen(new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL3)).until(() -> autoReefDone)),
                 new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
                 Commands.race(
                     new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
@@ -235,9 +240,9 @@ public class AutoCommandFactory {
                 new PrintCommand("right one"),
                 new ParallelCommandGroup(
                     new AutoReef(drivetrainBase, vis, joystick, () -> FieldConstants.Side.RIGHT,
-                        autoReefFirstTagIdRight).andThen(new InstantCommand(()->autoReefDone=true))
+                        autoReefFirstTagIdRight).andThen(new InstantCommand(() -> autoReefDone = true))
                     ,
-                    home().andThen(new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL3)).until(()->autoReefDone)),
+                    home().andThen(new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL3)).until(() -> autoReefDone)),
                 new ElevatorMoveToPosition(elevator, Elevator.ElevatorLevel.LEVEL4),
                 Commands.race(
                     new ElevatorMoveToHold(elevator, Elevator.ElevatorLevel.LEVEL4),
@@ -267,10 +272,11 @@ public class AutoCommandFactory {
         loadTrajectory("far_left_two");
         loadTrajectory("far_left_three");
         loadTrajectory("far_left2");
+        loadTrajectory("middleBack");
     }
 
     public Pose2d getAutoInitialPose() {
-        if (getChooserTrajectory()!=null && getChooserTrajectory().isPresent() &&
+        if (getChooserTrajectory() != null && getChooserTrajectory().isPresent() &&
             getChooserTrajectory().get().getInitialPose(RobotState.getInstance().isAllianceRed()).isPresent()) {
             return (getChooserTrajectory().get()
                 .getInitialPose(RobotState.getInstance().isAllianceRed()).get());

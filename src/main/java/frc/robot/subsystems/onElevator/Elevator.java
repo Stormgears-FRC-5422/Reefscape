@@ -16,7 +16,8 @@ import org.littletonrobotics.junction.Logger;
 public class Elevator extends StormSubsystem {
 
     private final RobotState robotState;
-    private final SparkMax elevatorLeader;
+    private final
+    SparkMax elevatorLeader;
     private final SparkMax elevatorFollower;
     private final RelativeEncoder leaderEncoder;
     private final SparkClosedLoopController controller;

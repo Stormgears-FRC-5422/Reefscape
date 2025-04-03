@@ -28,9 +28,11 @@ public class ReefscapeButtonBoard extends ReefscapeJoystick {
         }
     }
 
-    public boolean isAutoMode() {
+    @Override
+    public boolean isAlgaeHigh() {
         return m_joystickBoard1.getRawButton(12);
     }
+
 
     public boolean elevatorLevel4() {
         return m_joystickBoard1.getRawButton(11);
@@ -46,38 +48,6 @@ public class ReefscapeButtonBoard extends ReefscapeJoystick {
 
     public boolean elevatorLevel1() {
         return m_joystickBoard1.getRawButton(5);
-    }
-
-    public boolean elevatorLevel4AutoRight() {
-        return elevatorLevel4() && isAutoMode() && isRightReef();
-    }
-
-    public boolean elevatorLevel3AutoRight() {
-        return elevatorLevel3() && isAutoMode() && isRightReef();
-    }
-
-    public boolean elevatorLevel2AutoRight() {
-        return elevatorLevel2() && isAutoMode() && isRightReef();
-    }
-
-    public boolean elevatorLevel1AutoRight() {
-        return elevatorLevel1() && isAutoMode() && isRightReef();
-    }
-
-    public boolean elevatorLevel4AutoLeft() {
-        return elevatorLevel4() && isAutoMode() && !isRightReef();
-    }
-
-    public boolean elevatorLevel3AutoLeft() {
-        return elevatorLevel3() && isAutoMode() && !isRightReef();
-    }
-
-    public boolean elevatorLevel2AutoLeft() {
-        return elevatorLevel2() && isAutoMode() && !isRightReef();
-    }
-
-    public boolean elevatorLevel1AutoLeft() {
-        return elevatorLevel1() && isAutoMode() && !isRightReef();
     }
 
     public boolean isRightReef() {

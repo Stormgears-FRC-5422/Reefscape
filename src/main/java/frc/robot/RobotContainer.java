@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.autos.AutoAlgae;
 import frc.robot.commands.autos.AutoAlgaeReef;
 import frc.robot.commands.onElevator.*;
 import frc.robot.commands.JoyStickDrive;
@@ -40,6 +41,8 @@ import frc.robot.subsystems.vision.CameraConstants;
 import frc.robot.subsystems.vision.StormLimelight;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import static java.util.Objects.isNull;
 
@@ -92,6 +95,7 @@ public class RobotContainer {
     ElevatorMoveToHold toLevel2;
     ElevatorMoveToHold toLevel3;
     ElevatorMoveToHold toLevel4;
+    AutoAlgae autoAlgae;
 
     //Limelights
     StormLimelight[] limelights;
@@ -129,6 +133,7 @@ public class RobotContainer {
             // new Trigger(() -> buttonBoard.autoProcessor()).onTrue(coralIntakeHoldUp.andThen(new AlgaeIntakeHome(algaeIntake)));
         }
 
+
         if (Constants.Toggles.useLights) {
             lights = new Lights();
         }
@@ -162,6 +167,7 @@ public class RobotContainer {
         } else {
             console("NOT using StormNet");
         }
+
 
         autoCommandFactory = new AutoCommandFactory(drivetrain,
             elevator,
@@ -254,28 +260,18 @@ public class RobotContainer {
         if (Toggles.useAlgaeIntake) {
 //            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
             new Trigger(() -> buttonBoard.algaeIntake()).whileTrue(algaeIntakeDiagnosticUp);
+//            new Trigger(() -> buttonBoard.algaeIntake()).whileTrue(new CoralHoldForAlgae(coralIntake));
             new Trigger(() -> buttonBoard.algaeOuttake()).whileTrue(algaeIntakeDiagnosticDown);
 //            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
 //            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD));
         }
 
         if (Toggles.useAutoAlgaeReef) {
-            new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                    new ParallelRaceGroup(
-                        new AutoAlgaeReef(drivetrain, visionSubsystem, joystick),
-                        new ElevatorMoveToHold(elevator, 7.45)
-                    ),
-                    new AlgaeIntakeMoveToPosition(algaeIntake, -9)
-                ),
-                new CoralHoldForAlgae(coralIntake),
-                new ParallelRaceGroup(
-                    new ElevatorMoveToHold(elevator, 12.69),
-                    new WaitCommand(0.3)
-                        .andThen(new AlgaeIntakeMoveToPosition(algaeIntake, -3))
-                )
-            );
+            autoAlgae = new AutoAlgae(
+                coralIntake, algaeIntake, drivetrain, visionSubsystem, joystick, elevator,
+                () -> buttonBoard.isAlgaeHigh());
 
+            new Trigger(() -> buttonBoard.autoStation()).onTrue(autoAlgae.autoAlgaeCommand(()-> buttonBoard.isAlgaeHigh()));
         }
 
 
