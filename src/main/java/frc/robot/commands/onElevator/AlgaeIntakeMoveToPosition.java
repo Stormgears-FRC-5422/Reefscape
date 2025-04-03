@@ -37,6 +37,8 @@ public class AlgaeIntakeMoveToPosition extends StormCommand {
     @Override
     public void end(boolean interrupted) {
         super.end(interrupted);
+        algaeIntake.setState(AlgaeIntake.IntakeState.READYFORINTAKE);
+
     }
 
     @Override

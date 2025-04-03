@@ -154,7 +154,7 @@ public class AutoCommandFactory {
             new WaitCommand(0.7),
             new AutoAlgae(coralIntake,
                 algaeIntake,
-                drivetrainBase, vis, joystick, elevator, () -> false).autoAlgaeCommand(()-> false)
+                drivetrainBase, vis, joystick, elevator, () -> false).autoAlgaeCommandLow()
         );
     }
 

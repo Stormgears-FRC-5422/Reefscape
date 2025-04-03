@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.Climber;
 import frc.utils.StormCommand;
@@ -46,7 +47,7 @@ public class Climb extends StormCommand {
     @Override
     public boolean isFinished() {
         if (isTriggered) {
-            return count > 100;
+            return count > Constants.Climber.timeOut;
         }
         return false;
     }

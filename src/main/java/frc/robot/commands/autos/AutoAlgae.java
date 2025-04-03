@@ -41,28 +41,7 @@ public class AutoAlgae {
 
     }
 
-    public Command autoAlgaeCommand(BooleanSupplier level3) {
-        if (level3.getAsBoolean()) {
-            new SequentialCommandGroup(
-                new ParallelRaceGroup(
-                    new CoralIntakeCommand(coralIntake, true),
-                    new SequentialCommandGroup(new WaitCommand(0.2),
-                        new AlgaeIntakeMoveToPosition(algaeIntake, -9))),
-                new ParallelCommandGroup(
-                    new ParallelRaceGroup(
-                        new AutoAlgaeReef(drivetrainBase, visionSubsystem, joystick),
-                        new ElevatorMoveToHold(elevator, 7.45)
-                    )
-
-                ),
-                new ParallelRaceGroup(
-                    new CoralIntakeCommand(coralIntake, true),
-                    new ElevatorMoveToHold(elevator, 12.69),
-                    new WaitCommand(0.2)
-                        .andThen(new AlgaeIntakeMoveToPosition(algaeIntake, -3))
-                )
-            );
-        }
+    public Command autoAlgaeCommandLow() {
         return new SequentialCommandGroup(
             new ParallelDeadlineGroup(
                 new AutoAlgaeReef(drivetrainBase, visionSubsystem, joystick),
@@ -82,6 +61,28 @@ public class AutoAlgae {
         );
     }
 
+    public Command autoAlgaeCommandHigh() {
+        return new SequentialCommandGroup(
+            new ParallelRaceGroup(
+                new CoralIntakeCommand(coralIntake, true),
+                new SequentialCommandGroup(new WaitCommand(0.2),
+                    new AlgaeIntakeMoveToPosition(algaeIntake, -9))),
+            new ParallelCommandGroup(
+                new ParallelRaceGroup(
+                    new AutoAlgaeReef(drivetrainBase, visionSubsystem, joystick),
+                    new ElevatorMoveToHold(elevator, 7.45)
+                )
+
+            ),
+            new ParallelRaceGroup(
+                new CoralIntakeCommand(coralIntake, true),
+                new ElevatorMoveToHold(elevator, 12.69),
+                new WaitCommand(0.2)
+                    .andThen(new AlgaeIntakeMoveToPosition(algaeIntake, -3))
+            )
+        );
+    }
+
     public Command autoAlgaeCommandAuto() {
 
         return new SequentialCommandGroup(
@@ -89,12 +90,12 @@ public class AutoAlgae {
                 new SequentialCommandGroup(
                     new AutoAlgaeReef(drivetrainBase, visionSubsystem, joystick),
                     new ParallelRaceGroup(
-                    new CoralIntakeCommand(coralIntake, true),
-                    new SequentialCommandGroup(new WaitCommand(0.2),
-                        new AlgaeIntakeMoveToPosition(algaeIntake, -9)))),
+                        new CoralIntakeCommand(coralIntake, true),
+                        new SequentialCommandGroup(new WaitCommand(0.2),
+                            new AlgaeIntakeMoveToPosition(algaeIntake, -9)))),
                 new ElevatorMoveToHold(elevator, 4.2)
 
-                )
+            )
 
             ,
             new ParallelRaceGroup(

@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.autos.AutoAlgae;
-import frc.robot.commands.autos.AutoAlgaeReef;
 import frc.robot.commands.onElevator.*;
 import frc.robot.commands.JoyStickDrive;
 import frc.robot.commands.autos.AutoCommandFactory;
@@ -41,8 +40,6 @@ import frc.robot.subsystems.vision.CameraConstants;
 import frc.robot.subsystems.vision.StormLimelight;
 
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
 
 import static java.util.Objects.isNull;
 
@@ -68,8 +65,8 @@ public class RobotContainer {
     // **********
     private CoralIntake coralIntake;
     private AlgaeIntake algaeIntake;
-    private AlgaeIntakeDiagnostic algaeIntakeDiagnosticDown;
-    private AlgaeIntakeDiagnostic algaeIntakeDiagnosticUp;
+    private AlgaeIntakeMoveToPosition algaeIntakeDown;
+    private AlgaeIntakeMoveToPosition algaeIntakeUp;
     private Elevator elevator;
     private ColorSensor colorSensor;
 
@@ -95,7 +92,8 @@ public class RobotContainer {
     ElevatorMoveToHold toLevel2;
     ElevatorMoveToHold toLevel3;
     ElevatorMoveToHold toLevel4;
-    AutoAlgae autoAlgae;
+    AutoAlgae autoAlgaeHigh;
+    AutoAlgae autoAlgaeLow;
 
     //Limelights
     StormLimelight[] limelights;
@@ -128,8 +126,8 @@ public class RobotContainer {
 
         if (Toggles.useAlgaeIntake) {
             algaeIntake = new AlgaeIntake();
-            algaeIntakeDiagnosticDown = new AlgaeIntakeDiagnostic(algaeIntake, false);
-            algaeIntakeDiagnosticUp = new AlgaeIntakeDiagnostic(algaeIntake, true);
+            algaeIntakeDown = new AlgaeIntakeMoveToPosition(algaeIntake, -12);
+            algaeIntakeUp = new AlgaeIntakeMoveToPosition(algaeIntake, 0);
             // new Trigger(() -> buttonBoard.autoProcessor()).onTrue(coralIntakeHoldUp.andThen(new AlgaeIntakeHome(algaeIntake)));
         }
 
@@ -259,19 +257,25 @@ public class RobotContainer {
 
         if (Toggles.useAlgaeIntake) {
 //            new Trigger(() -> buttonBoard.algaeIntake()).onTrue(algaeIntakeCommand);
-            new Trigger(() -> buttonBoard.algaeIntake()).whileTrue(algaeIntakeDiagnosticUp);
+            new Trigger(() -> buttonBoard.algaeIntake()).whileTrue(algaeIntakeUp);
 //            new Trigger(() -> buttonBoard.algaeIntake()).whileTrue(new CoralHoldForAlgae(coralIntake));
-            new Trigger(() -> buttonBoard.algaeOuttake()).whileTrue(algaeIntakeDiagnosticDown);
+            new Trigger(() -> buttonBoard.algaeOuttake()).whileTrue(algaeIntakeDown);
 //            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(algaeOuttakeCommand);
 //            new Trigger(() -> buttonBoard.algaeOuttake()).onTrue(new AlgaeIntakeMoveToPosition(algaeIntake, AlgaeIntake.IntakeTarget.HOLD));
         }
 
         if (Toggles.useAutoAlgaeReef) {
-            autoAlgae = new AutoAlgae(
+            autoAlgaeHigh = new AutoAlgae(
                 coralIntake, algaeIntake, drivetrain, visionSubsystem, joystick, elevator,
-                () -> buttonBoard.isAlgaeHigh());
+                () -> true);
+            autoAlgaeLow = new AutoAlgae(
+                coralIntake, algaeIntake, drivetrain, visionSubsystem, joystick, elevator,
+                () -> false);
 
-            new Trigger(() -> buttonBoard.autoStation()).onTrue(autoAlgae.autoAlgaeCommand(()-> buttonBoard.isAlgaeHigh()));
+            new Trigger(() -> buttonBoard.autoStation()).onTrue(
+                autoAlgaeHigh.autoAlgaeCommandHigh());
+            new Trigger(() -> buttonBoard.autoAlgaeReef()).onTrue(
+                autoAlgaeLow.autoAlgaeCommandLow());
         }
 
 

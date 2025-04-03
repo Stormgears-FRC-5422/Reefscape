@@ -37,7 +37,7 @@ Climber extends StormSubsystem {
         SparkMaxConfig globalConfig = new SparkMaxConfig();
 
         globalConfig.smartCurrentLimit(Constants.Climber.safetyCurrentLimit)
-            .voltageCompensation(Constants.SparkConstants.NominalVoltage)
+            .voltageCompensation(Constants.Climber.nominalVoltage)
             .idleMode(Constants.Climber.brakeMode ? SparkBaseConfig.IdleMode.kBrake : SparkBaseConfig.IdleMode.kCoast);
 
         climberMotorConfig.apply(globalConfig)
