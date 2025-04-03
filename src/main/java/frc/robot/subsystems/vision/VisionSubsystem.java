@@ -188,7 +188,8 @@ public class VisionSubsystem extends StormSubsystem {
         }
         Logger.recordOutput("Closest Tag", bestTag);
         Logger.recordOutput("BestTag Pose", FieldConstants.getPoseTag(bestTag));
-        robotState.setBestTag(bestTag);;
+        robotState.setBestTag(bestTag);
+        ;
 
         boolean rejectPose = false;
         Pose2d visionPose = null;
@@ -228,30 +229,32 @@ public class VisionSubsystem extends StormSubsystem {
 //        MegaTag2 does not give rotation data (comes from gyro)
             angularStdDev *= angularStdDevMegatag2Factor;
             if (visionPose != null && robotState.getVisionEnabled()) {
-                Pose2d temp = new Pose2d(visionPose.getTranslation(), new Rotation2d());
-                poseEstimator.addVisionMeasurement(temp, timeStamp,
+                poseEstimator.addVisionMeasurement(
+                    new Pose2d(visionPose.getTranslation(),
+                        poseEstimator.getEstimatedPosition().getRotation()),
+                    timeStamp,
                     VecBuilder.fill(linearStdDev, linearStdDev, 1e6));
             }
         }
     }
 
     public boolean isAligned() {
-        if ((bestTag <= tagRightRed && bestTag >= tagLeftRed) || (bestTag >= tagLeftBlue && bestTag <=tagRightBlue)) {
+        if ((bestTag <= tagRightRed && bestTag >= tagLeftRed) || (bestTag >= tagLeftBlue && bestTag <= tagRightBlue)) {
             Pose2d left = FieldConstants.getReefTargetPose(FieldConstants.Side.LEFT, bestTag);
             Pose2d right = FieldConstants.getReefTargetPose(FieldConstants.Side.RIGHT, bestTag);
-            if(FieldConstants.getSide().equals(FieldConstants.Side.RIGHT)){
-            Logger.recordOutput("Robot Target error",
-                new Pose2d(poseEstimator.getEstimatedPosition().minus(right).getTranslation(),
-                poseEstimator.getEstimatedPosition().minus(right).getRotation()));
-            }else{
+            if (FieldConstants.getSide().equals(FieldConstants.Side.RIGHT)) {
+                Logger.recordOutput("Robot Target error",
+                    new Pose2d(poseEstimator.getEstimatedPosition().minus(right).getTranslation(),
+                        poseEstimator.getEstimatedPosition().minus(right).getRotation()));
+            } else {
                 Logger.recordOutput("Robot Target error",
                     new Pose2d(poseEstimator.getEstimatedPosition().minus(left).getTranslation(),
                         poseEstimator.getEstimatedPosition().minus(left).getRotation()));
 
             }
-            if ((poseEstimator.getEstimatedPosition().minus(left).getTranslation().getNorm()<=0.015
-                && poseEstimator.getEstimatedPosition().minus(left).getRotation().getDegrees()<=1.5)
-                || (poseEstimator.getEstimatedPosition().minus(right).getTranslation().getNorm()<=0.015 && poseEstimator.getEstimatedPosition().minus(right).getRotation().getDegrees()<=1.5)) {
+            if ((poseEstimator.getEstimatedPosition().minus(left).getTranslation().getNorm() <= 0.015
+                && poseEstimator.getEstimatedPosition().minus(left).getRotation().getDegrees() <= 1.5)
+                || (poseEstimator.getEstimatedPosition().minus(right).getTranslation().getNorm() <= 0.015 && poseEstimator.getEstimatedPosition().minus(right).getRotation().getDegrees() <= 1.5)) {
 //                System.out.println("align: true");
                 return true;
             } else {
