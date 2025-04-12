@@ -46,7 +46,7 @@ public class CoralIntake extends StormSubsystem {
         SparkMaxConfig rollerConfig = new SparkMaxConfig();
         wristConfig = new SparkMaxConfig();
 
-        globalConfig.smartCurrentLimit(SparkConstants.Neo550CurrentLimit)
+        globalConfig.smartCurrentLimit(30)
             .voltageCompensation(SparkConstants.Neo550NominalVoltage);
 
         // No hard limits in this system
@@ -166,7 +166,7 @@ public class CoralIntake extends StormSubsystem {
             }
             case OUTTAKE -> {
                 console("***** OUTTAKE state *****");
-                rollerSpeed = -Intake.rollerSpeed;
+                rollerSpeed = -Intake.rollerOutakeSpeed;
                 wristSpeed = -Intake.wristSpeed;
             }
             case GO_HOME -> {

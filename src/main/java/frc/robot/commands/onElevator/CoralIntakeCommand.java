@@ -59,7 +59,7 @@ public class CoralIntakeCommand extends StormCommand {
             } else {
                 finished_counter = 0;
             }
-            return (timer.get() >= Intake.rollerIntakeDuration || finished_counter == 10);
+            return (timer.get() >= Intake.rollerIntakeDuration || finished_counter == 5);
         } else {
             return (timer.get() >= Intake.rollerOuttakeDuration);
         }

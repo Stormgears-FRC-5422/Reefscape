@@ -47,7 +47,7 @@ public class ElevatorManual extends StormCommand {
         if (direction == Direction.UP) {
             elevator.setTargetLevel(ElevatorLevel.TOP);
         } else if (direction == Direction.DOWN) {
-            elevator.setTargetLevel(ElevatorLevel.LEVEL1);
+            elevator.setTargetLevel(ElevatorLevel.BOTTOM);
         } else {
             elevator.setTargetPosition(currentPosition);
         }
