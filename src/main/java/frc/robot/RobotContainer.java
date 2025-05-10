@@ -211,7 +211,11 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoCommandFactory.getChooserAutoCommand();
+        if(Toggles.useAuto){
+            return autoCommandFactory.getChooserAutoCommand();}
+        else{
+            return new PrintCommand("Auto is disabled!");
+        }
 
     }
 
