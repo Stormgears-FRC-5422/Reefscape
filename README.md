@@ -2,16 +2,33 @@
 
 - **Required JDK:** Java 17 (tested with Eclipse Temurin 17)
 
-To ensure consistent builds, this repository pins the JDK for Gradle in `gradle.properties`.
+To ensure consistent builds, prefer configuring the JDK locally rather than committing
+machine-specific paths into the repository.
 
-If you need to change the JDK used for local builds, either:
+Recommended options:
 
-- Update the `org.gradle.java.home` path in `gradle.properties`.
-- Or set `JAVA_HOME` before running Gradle, for example:
+- Set `JAVA_HOME` dynamically on macOS (zsh):
 
 ```bash
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home
-./gradlew build
+echo 'export JAVA_HOME=$(/usr/libexec/java_home -v17)' >> ~/.zshrc
+source ~/.zshrc
 ```
 
-If you'd like, update this README with additional environment setup notes or CI instructions.
+- Or set `JAVA_HOME` temporarily when running Gradle:
+
+```bash
+JAVA_HOME=$(/usr/libexec/java_home -v17) ./gradlew build
+```
+
+- Prefer Gradle toolchains so Gradle requests Java 17 automatically (add to `build.gradle`):
+
+```groovy
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+```
+
+The CI workflow already sets up Java 17 via `actions/setup-java`, so no local export is
+needed for CI runs.
