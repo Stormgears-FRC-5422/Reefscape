@@ -127,7 +127,7 @@ public class AKDriveTrain extends DrivetrainBase {
 
 //        publisher.set(getPose());
         // TODO - add a config to add these during simulation
-//        robotTelemetry.telemeterize(currentPose);
+        robotTelemetry.telemeterize(currentPose);
 //        visionTelemetry.telemeterize(visionPose);
     }
 

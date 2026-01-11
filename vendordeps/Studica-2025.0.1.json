@@ -1,71 +1,39 @@
 {
-    "fileName": "Studica-2025.0.1.json",
-    "name": "Studica",
-    "version": "2025.0.1",
-    "uuid": "cb311d09-36e9-4143-a032-55bb2b94443b",
-    "frcYear": "2025",
-    "mavenUrls": [
-        "https://dev.studica.com/maven/release/2025/"
-    ],
-    "jsonUrl": "https://dev.studica.com/releases/2025/Studica-2025.0.1.json",
-    "cppDependencies": [
-        {
-            "artifactId": "Studica-cpp",
-            "binaryPlatforms": [
-                "linuxathena",
-                "linuxarm32",
-                "linuxarm64",
-                "linuxx86-64",
-                "osxuniversal",
-                "windowsx86-64"
-            ],
-            "groupId": "com.studica.frc",
-            "headerClassifier": "headers",
-            "libName": "Studica",
-            "sharedLibrary": false,
-            "skipInvalidPlatforms": true,
-            "version": "2025.0.1"
-        },
-        {
-            "artifactId": "Studica-driver",
-            "binaryPlatforms": [
-                "linuxathena",
-                "linuxarm32",
-                "linuxarm64",
-                "linuxx86-64",
-                "osxuniversal",
-                "windowsx86-64"
-            ],
-            "groupId": "com.studica.frc",
-            "headerClassifier": "headers",
-            "libName": "StudicaDriver",
-            "sharedLibrary": false,
-            "skipInvalidPlatforms": true,
-            "version": "2025.0.1"
-        }
-    ],
-    "javaDependencies": [
-        {
-            "artifactId": "Studica-java",
-            "groupId": "com.studica.frc",
-            "version": "2025.0.1"
-        }
-    ],
-    "jniDependencies": [
-        {
-            "artifactId": "Studica-driver",
-            "groupId": "com.studica.frc",
-            "isJar": false,
-            "skipInvalidPlatforms": true,
-            "validPlatforms": [
-                "linuxathena",
-                "linuxarm32",
-                "linuxarm64",
-                "linuxx86-64",
-                "osxuniversal",
-                "windowsx86-64"
-            ],
-            "version": "2025.0.1"
-        }
-    ]
+  "fileName": "WPILibNewCommands.json",
+  "name": "WPILib-New-Commands",
+  "version": "1.0.0",
+  "uuid": "111e20f7-815e-48f8-9dd6-e675ce75b266",
+  "frcYear": "2026",
+  "mavenUrls": [],
+  "jsonUrl": "",
+  "javaDependencies": [
+    {
+      "groupId": "edu.wpi.first.wpilibNewCommands",
+      "artifactId": "wpilibNewCommands-java",
+      "version": "wpilib"
+    }
+  ],
+  "jniDependencies": [],
+  "cppDependencies": [
+    {
+      "groupId": "edu.wpi.first.wpilibNewCommands",
+      "artifactId": "wpilibNewCommands-cpp",
+      "version": "wpilib",
+      "libName": "wpilibNewCommands",
+      "headerClassifier": "headers",
+      "sourcesClassifier": "sources",
+      "sharedLibrary": true,
+      "skipInvalidPlatforms": true,
+      "binaryPlatforms": [
+        "linuxsystemcore",
+        "linuxathena",
+        "linuxarm32",
+        "linuxarm64",
+        "windowsx86-64",
+        "windowsx86",
+        "linuxx86-64",
+        "osxuniversal"
+      ]
+    }
+  ]
 }
